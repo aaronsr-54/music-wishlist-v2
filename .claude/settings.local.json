@@ -29,7 +29,8 @@
       "Bash(curl -s http://localhost:4200/?demo)",
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__wait_for",
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__resize_page",
-      "Bash(kill 11910)"
+      "Bash(kill 11910)",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__evaluate_script"
     ]
   }
 }
