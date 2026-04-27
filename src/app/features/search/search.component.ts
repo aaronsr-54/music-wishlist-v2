@@ -1,4 +1,11 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
   Subject,
@@ -31,8 +38,9 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
   template: `
     <div class="panel">
       <div class="eyebrow">
-        <span class="eyebrow-label">01/ Buscador</span>
-        <span class="eyebrow-sub">search</span>
+        <span class="label"
+          ><span class="label--number">01/</span> BUSCADOR</span
+        >
       </div>
 
       <div class="search-field" [class.has-value]="query()">
@@ -104,7 +112,8 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
               </div>
               <p class="empty-title">Empieza a escribir</p>
               <p class="empty-sub">
-                Busca canciones o álbumes para añadirlos a tu wishlist
+                Canciones, álbumes o EPs — busca lo que quieras y lo encontramos
+                en Deezer.
               </p>
             </div>
           }
@@ -123,8 +132,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                 />
                 <div class="item-meta">
                   <span class="item-title">{{ track.name }}</span>
-                  <span class="item-artist">{{ track.artists[0] }}</span>
-                  <app-type-chip [type]="track.type" />
+                  <div class="item-subtitle">
+                    <span class="item-artist">{{ track.artists[0] }}</span> ·
+                    <app-type-chip [type]="track.type" />
+                  </div>
                 </div>
                 <button
                   class="add-btn"
@@ -162,9 +173,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           }
           @case ('empty') {
             <div class="empty-state">
-              <div class="dot-pulse empty-dots">
-                <span></span><span></span><span></span>
-              </div>
               <p class="empty-title">Sin resultados</p>
               <p class="empty-sub">Prueba con otro término de búsqueda</p>
             </div>
@@ -178,53 +186,46 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       .panel {
         display: flex;
         flex-direction: column;
+        gap: 1rem;
         height: 100%;
         overflow: hidden;
+        padding: 0.5rem 1rem;
       }
 
       .eyebrow {
         display: flex;
         align-items: center;
         gap: 8px;
-        padding: 20px 20px 12px;
+        justify-content: space-between;
       }
 
-      .eyebrow-label {
+      .label {
         font-family: var(--font-display);
         font-size: 12px;
-        font-weight: 600;
         color: var(--bone);
+        font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
       }
 
-      .eyebrow-sub {
-        font-family: var(--font-display);
-        font-size: 12px;
-        color: var(--bone-600);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
+      .label--number {
+        color: var(--bone-700);
+        font-weight: 400;
+        font-style: italic;
       }
 
       .search-field {
         display: flex;
         align-items: center;
         gap: 10px;
-        margin: 0 20px 4px;
-        padding: 12px 16px;
-        background: var(--ink-200);
-        border-radius: var(--radius-card);
-        border: 1.5px solid transparent;
+        padding: 1rem 0;
+        border-bottom: 1.5px solid var(--ink-100);
         transition: border-color var(--dur-fast) var(--ease);
       }
 
-      .search-field:focus-within {
-        border-color: var(--bone-700);
-        background: var(--ink-300);
-      }
-
       .search-icon {
-        color: var(--bone-700);
+        color: var(--bone-800);
+        width: 12px;
         flex-shrink: 0;
       }
 
@@ -234,13 +235,14 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         border: none;
         outline: none;
         color: var(--bone);
-        font-family: var(--font-body);
-        font-size: 18px;
+        font-family: var(--font-display);
+        font-size: 24px;
         font-weight: 400;
       }
 
       .search-input::placeholder {
-        color: var(--bone-700);
+        color: var(--bone-800);
+        font-style: italic;
       }
 
       .clear-btn {
@@ -276,21 +278,24 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
 
       .empty-icon {
-        color: var(--bone-700);
+        color: var(--bone-800);
         margin-bottom: 4px;
       }
 
       .empty-title {
         font-family: var(--font-body);
-        font-size: 16px;
+        font-size: 22px;
         font-weight: 600;
+        text-transform: uppercase;
         color: var(--bone);
         margin: 0;
       }
 
       .empty-sub {
-        font-size: 13px;
+        font-size: 14px;
+        font-family: var(--font-display);
         color: var(--bone-600);
+        font-style: italic;
         margin: 0;
         max-width: 240px;
       }
@@ -308,22 +313,12 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         gap: 12px;
         padding: 10px 8px;
         border-bottom: 1px solid var(--ink-200);
-        border-radius: var(--radius-md);
         margin: 0 -8px;
         transition: background var(--dur-fast) var(--ease);
       }
 
       .item-row:last-child {
         border-bottom: none;
-      }
-
-      .item-row:hover {
-        background: var(--ink-200);
-        border-bottom-color: transparent;
-      }
-
-      .item-row:hover + .item-row {
-        border-top-color: transparent;
       }
 
       .item-meta {
@@ -335,28 +330,37 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
 
       .item-title {
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 600;
-        color: var(--bone);
+        color: var(--bone-100);
+        line-height: 1;
         white-space: nowrap;
         overflow: hidden;
+        height: 18px;
         text-overflow: ellipsis;
+        font-family: var(--font-display);
+      }
+
+      .item-subtitle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--bone-800);
       }
 
       .item-artist {
-        font-size: 12px;
+        font-size: 13px;
         color: var(--bone-600);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        height: 15px;
       }
 
       .add-btn {
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        border: 1.5px solid var(--ink-100);
-        background: none;
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -367,8 +371,8 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
 
       .add-btn:hover {
-        border-color: var(--bone-400);
-        color: var(--bone);
+        background: var(--ink-200);
+        color: var(--bone-100);
       }
 
       .add-btn.added {
@@ -384,8 +388,18 @@ export class SearchComponent implements OnInit, OnDestroy {
   private wishlistSvc = inject(WishlistService);
   private authSvc = inject(AuthService);
 
+  loading = signal(false);
   query = signal('');
-  state = signal<SearchState>('idle');
+  state = computed<SearchState>(() => {
+    const q = this.query().trim();
+    const res = this.results();
+    const loading = this.loading();
+
+    if (!q) return 'idle';
+    if (loading) return 'loading';
+    if (!res.length) return 'empty';
+    return 'results';
+  });
   results = signal<Track[]>([]);
 
   skeletons = new Array(5);
@@ -399,18 +413,22 @@ export class SearchComponent implements OnInit, OnDestroy {
         debounceTime(220),
         distinctUntilChanged(),
         switchMap((q) => {
-          if (!q.trim()) {
-            this.state.set('idle');
+          const trimmed = q.trim();
+
+          if (!trimmed) {
+            this.loading.set(false);
             this.results.set([]);
             return of([]);
           }
-          this.state.set('loading');
-          return this.search.search(q).pipe(catchError(() => of([])));
+
+          this.loading.set(true);
+
+          return this.search.search(trimmed).pipe(catchError(() => of([])));
         }),
       )
       .subscribe((res) => {
         this.results.set(res);
-        this.state.set(res.length ? 'results' : 'empty');
+        this.loading.set(false);
       });
   }
 
@@ -420,18 +438,11 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   onQuery(val: string) {
     this.query.set(val);
-    if (!val.trim()) {
-      this.state.set('idle');
-      this.results.set([]);
-    } else {
-      this.state.set('loading');
-    }
     this.search$.next(val);
   }
 
   clearQuery() {
     this.query.set('');
-    this.state.set('idle');
     this.results.set([]);
     this.search$.next('');
   }

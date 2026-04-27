@@ -15,8 +15,10 @@ type WishlistTab = 'pending' | 'downloaded';
   template: `
     <div class="panel">
       <div class="eyebrow">
-        <span class="eyebrow-label">02/ Wishlist</span>
-        <span class="eyebrow-sub">{{ wishlistSvc.total() }} canciones</span>
+        <span class="label"
+          ><span class="label--number">02/</span> WISHLIST</span
+        >
+        <span class="eyebrow-sub">{{ wishlistSvc.total() }} elementos</span>
       </div>
 
       <div class="segmented">
@@ -45,18 +47,25 @@ type WishlistTab = 'pending' | 'downloaded';
       <div class="list">
         @for (entry of activeEntries(); track entry.id) {
           <div class="wishlist-row">
-            <app-cover [coverUrl]="entry.coverUrl" [name]="entry.name" [size]="64" />
+            <app-cover
+              [coverUrl]="entry.coverUrl"
+              [name]="entry.name"
+              [size]="64"
+            />
             <div class="item-meta">
               <span class="item-title">{{ entry.name }}</span>
-              <span class="item-artist">{{ entry.artist }}</span>
-              <div class="item-row2">
+              <span class="item-subitle">
+                <span class="item-artist">{{ entry.artist }}</span>
+                ·
                 <app-type-chip [type]="entry.type" />
-                <span class="added-by">
-                  añadido por
-                  <app-avatar [name]="entry.addedBy" [size]="14" />
-                  {{ entry.addedBy }} · {{ entry.addedAt | date:'d MMM' }}
-                </span>
-              </div>
+              </span>
+              <span class="added-by">
+                <app-avatar [name]="entry.addedBy" [size]="14" />
+                {{ entry.addedBy }} ·
+                <span class="added-date">{{
+                  entry.addedAt | date: 'd MMM'
+                }}</span>
+              </span>
             </div>
             <div class="actions">
               @if (activeTab() === 'pending') {
@@ -66,7 +75,13 @@ type WishlistTab = 'pending' | 'downloaded';
                   title="Marcar como descargado"
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M3 8.5L6.5 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path
+                      d="M3 8.5L6.5 12L13 5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
                   </svg>
                 </button>
                 <button
@@ -75,7 +90,12 @@ type WishlistTab = 'pending' | 'downloaded';
                   title="Eliminar"
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M4 4L12 12M12 4L4 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path
+                      d="M4 4L12 12M12 4L4 12"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
                   </svg>
                 </button>
               } @else {
@@ -85,7 +105,13 @@ type WishlistTab = 'pending' | 'downloaded';
                   title="Mover a pendientes"
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M10 4L6 8L10 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path
+                      d="M10 4L6 8L10 12"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
                   </svg>
                 </button>
                 <button
@@ -94,7 +120,12 @@ type WishlistTab = 'pending' | 'downloaded';
                   title="Eliminar"
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M5 3h6M3 5h10M5 5v7a1 1 0 001 1h4a1 1 0 001-1V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <path
+                      d="M5 3h6M3 5h10M5 5v7a1 1 0 001 1h4a1 1 0 001-1V5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
                   </svg>
                 </button>
               }
@@ -105,11 +136,22 @@ type WishlistTab = 'pending' | 'downloaded';
             <div class="empty-icon">
               @if (activeTab() === 'pending') {
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                  <path d="M16 4v24M4 16h24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  <path
+                    d="M16 4v24M4 16h24"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
                 </svg>
               } @else {
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                  <path d="M6 17L13 24L26 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path
+                    d="M6 17L13 24L26 8"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
                 </svg>
               }
             </div>
@@ -118,227 +160,245 @@ type WishlistTab = 'pending' | 'downloaded';
               <p class="empty-sub">Busca canciones y añádelas aquí</p>
             } @else {
               <p class="empty-title">Nada descargado</p>
-              <p class="empty-sub">Marca canciones como descargadas para verlas aquí</p>
+              <p class="empty-sub">
+                Marca canciones como descargadas para verlas aquí
+              </p>
             }
           </div>
         }
       </div>
     </div>
   `,
-  styles: [`
-    .panel {
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-      overflow: hidden;
-      border-left: 1px solid var(--ink-200);
-    }
+  styles: [
+    `
+      .panel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        padding: 0.5rem 1rem;
+        gap: 1rem;
+      }
 
-    .eyebrow {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 20px 20px 12px;
-    }
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+      }
 
-    .eyebrow-label {
-      font-family: var(--font-display);
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--bone);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
+      .label {
+        font-family: var(--font-display);
+        font-size: 12px;
+        color: var(--bone);
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
 
-    .eyebrow-sub {
-      font-family: var(--font-display);
-      font-size: 12px;
-      color: var(--bone-600);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
+      .label--number {
+        color: var(--bone-700);
+        font-weight: 400;
+        font-style: italic;
+      }
 
-    .segmented {
-      display: flex;
-      gap: 4px;
-      margin: 0 20px 8px;
-      padding: 4px;
-      background: var(--ink-200);
-      border-radius: var(--radius-pill);
-    }
+      .eyebrow-sub {
+        font-family: var(--font-display);
+        font-size: 12px;
+        color: var(--bone-700);
+        letter-spacing: 0.06em;
+        font-style: italic;
+      }
 
-    .seg-btn {
-      flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-radius: var(--radius-pill);
-      border: none;
-      background: none;
-      color: var(--bone-600);
-      font-family: var(--font-body);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all var(--dur-fast) var(--ease);
-    }
+      .segmented {
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        background: var(--ink-200);
+        border-radius: var(--radius-pill);
+      }
 
-    .seg-btn.active {
-      background: var(--bone);
-      color: var(--ink);
-    }
+      .seg-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 8px 16px;
+        border-radius: var(--radius-pill);
+        border: none;
+        background: none;
+        color: var(--bone-600);
+        font-family: var(--font-body);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all var(--dur-fast) var(--ease);
+        text-transform: uppercase;
+      }
 
-    .count {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 18px;
-      height: 18px;
-      padding: 0 5px;
-      border-radius: var(--radius-pill);
-      background: var(--ink-100);
-      color: var(--bone-600);
-      font-size: 10px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
+      .seg-btn.active {
+        background: var(--bone);
+        color: var(--ink);
+        font-weight: 700;
+      }
 
-    .seg-btn.active .count {
-      background: var(--ink-300);
-      color: var(--ink-900);
-    }
+      .count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 18px;
+        height: 18px;
+        padding: 0 5px;
+        border-radius: var(--radius-pill);
+        background: var(--ink-100);
+        color: var(--bone-600);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+      }
 
-    .list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 4px 20px 16px;
-    }
+      .seg-btn.active .count {
+        background: var(--ink-300);
+      }
 
-    .wishlist-row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 8px;
-      border-bottom: 1px solid var(--ink-200);
-      border-radius: var(--radius-md);
-      margin: 0 -8px;
-      transition: background var(--dur-fast) var(--ease);
-    }
+      .list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 4px 20px 16px;
+      }
 
-    .wishlist-row:last-child { border-bottom: none; }
+      .wishlist-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--ink-200);
+        border-radius: var(--radius-md);
+        margin: 0 -8px;
+        transition: background var(--dur-fast) var(--ease);
+      }
 
-    .wishlist-row:hover {
-      background: var(--ink-200);
-      border-bottom-color: transparent;
-    }
+      .wishlist-row:last-child {
+        border-bottom: none;
+      }
 
-    .wishlist-row:hover + .wishlist-row {
-      border-top-color: transparent;
-    }
+      .item-meta {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+      }
 
-    .item-meta {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      min-width: 0;
-    }
+      .item-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--bone-100);
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        height: 18px;
+        text-overflow: ellipsis;
+        font-family: var(--font-display);
+      }
 
-    .item-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--bone);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      .item-subtitle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--bone-800);
+      }
 
-    .item-artist {
-      font-size: 12px;
-      color: var(--bone-600);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      .item-artist {
+        font-size: 13px;
+        color: var(--bone-600);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        height: 15px;
+      }
 
-    .item-row2 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 2px;
-    }
+      .added-by {
+        font-size: 11px;
+        color: var(--bone-800);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+        font-weight: 600;
+      }
 
-    .added-by {
-      font-size: 11px;
-      color: var(--bone-700);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-wrap: wrap;
-    }
+      .added-date {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-style: italic;
+      }
 
-    .actions {
-      display: flex;
-      gap: 4px;
-      flex-shrink: 0;
-    }
+      .actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
 
-    .action-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      border: 1.5px solid var(--ink-100);
-      background: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--bone-600);
-      transition: all var(--dur-fast) var(--ease);
-    }
+      .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1.5px solid var(--ink-100);
+        background: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bone-600);
+        transition: all var(--dur-fast) var(--ease);
+      }
 
-    .action-btn:hover {
-      border-color: var(--bone-400);
-      color: var(--bone);
-    }
+      .action-btn:hover {
+        border-color: var(--bone-400);
+        color: var(--bone);
+      }
 
-    .action-btn.action-danger:hover {
-      border-color: #e57373;
-      color: #e57373;
-    }
+      .action-btn.action-danger:hover {
+        border-color: #e57373;
+        color: #e57373;
+      }
 
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 60px 20px;
-      text-align: center;
-    }
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 60px 20px;
+        text-align: center;
+      }
 
-    .empty-icon {
-      color: var(--bone-700);
-      margin-bottom: 4px;
-    }
+      .empty-icon {
+        color: var(--bone-700);
+        margin-bottom: 4px;
+      }
 
-    .empty-title {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--bone);
-      margin: 0;
-    }
+      .empty-title {
+        font-family: var(--font-body);
+        font-size: 22px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--bone);
+        margin: 0;
+      }
 
-    .empty-sub {
-      font-size: 13px;
-      color: var(--bone-600);
-      margin: 0;
-      max-width: 220px;
-    }
-  `]
+      .empty-sub {
+        font-size: 14px;
+        font-family: var(--font-display);
+        color: var(--bone-600);
+        font-style: italic;
+        margin: 0;
+        max-width: 240px;
+      }
+    `,
+  ],
 })
 export class WishlistComponent {
   wishlistSvc = inject(WishlistService);
@@ -347,7 +407,7 @@ export class WishlistComponent {
   activeEntries = computed(() =>
     this.activeTab() === 'pending'
       ? this.wishlistSvc.pending()
-      : this.wishlistSvc.downloaded()
+      : this.wishlistSvc.downloaded(),
   );
 
   async markDownloaded(entry: WishlistEntry) {

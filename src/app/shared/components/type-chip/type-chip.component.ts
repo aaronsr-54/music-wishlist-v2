@@ -1,17 +1,17 @@
-import { Component, Input, computed } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { TrackType } from '../../models/track.model';
 
 const LABELS: Record<TrackType, string> = {
   track: 'Canción',
   album: 'Álbum',
-  ep: 'EP'
+  ep: 'EP',
 };
 
-const COLORS: Record<TrackType, { bg: string; color: string }> = {
-  track: { bg: 'rgba(200,149,107,0.15)', color: 'var(--accent-track)' },
-  album: { bg: 'rgba(123,167,188,0.15)', color: 'var(--accent-album)' },
-  ep:    { bg: 'rgba(155,141,196,0.15)', color: 'var(--accent-ep)'    },
+const COLORS: Record<TrackType, string> = {
+  track: 'var(--accent-track)',
+  album: 'var(--accent-album)',
+  ep: 'var(--accent-ep)',
 };
 
 @Component({
@@ -19,22 +19,32 @@ const COLORS: Record<TrackType, { bg: string; color: string }> = {
   standalone: true,
   imports: [NgStyle],
   template: `<span class="chip" [ngStyle]="style">{{ label }}</span>`,
-  styles: [`
-    .chip {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: var(--radius-pill);
-      font-family: var(--font-body);
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-  `]
+  styles: [
+    `
+      .chip {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: var(--radius-sm);
+        color: var(--bone);
+        border: 1px solid;
+        font-family: var(--font-body);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+    `,
+  ],
 })
 export class TypeChipComponent {
   @Input({ required: true }) type: TrackType = 'track';
-  get label() { return LABELS[this.type]; }
-  get style() { return COLORS[this.type]; }
+  get label() {
+    return LABELS[this.type];
+  }
+  get style() {
+    return {
+      borderColor: COLORS[this.type],
+    };
+  }
 }
