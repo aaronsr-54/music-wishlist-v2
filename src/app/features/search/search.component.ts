@@ -275,6 +275,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         gap: 10px;
         padding: 60px 20px;
         text-align: center;
+        animation: emptyEnter var(--dur-slow) var(--ease) both;
       }
 
       .empty-icon {
@@ -315,11 +316,23 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         border-bottom: 1px solid var(--ink-200);
         margin: 0 -8px;
         transition: background var(--dur-fast) var(--ease);
+        animation: rowEnter var(--dur-base) var(--ease) both;
       }
 
       .item-row:last-child {
         border-bottom: none;
       }
+
+      .item-row:nth-child(1) { animation-delay: 0ms; }
+      .item-row:nth-child(2) { animation-delay: 30ms; }
+      .item-row:nth-child(3) { animation-delay: 60ms; }
+      .item-row:nth-child(4) { animation-delay: 90ms; }
+      .item-row:nth-child(5) { animation-delay: 120ms; }
+      .item-row:nth-child(6) { animation-delay: 150ms; }
+      .item-row:nth-child(7) { animation-delay: 180ms; }
+      .item-row:nth-child(8) { animation-delay: 210ms; }
+      .item-row:nth-child(9) { animation-delay: 240ms; }
+      .item-row:nth-child(10) { animation-delay: 270ms; }
 
       .item-meta {
         flex: 1;
@@ -367,7 +380,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         justify-content: center;
         color: var(--bone-600);
         flex-shrink: 0;
-        transition: all var(--dur-fast) var(--ease);
+        transition:
+          background var(--dur-fast) var(--ease),
+          color var(--dur-fast) var(--ease),
+          transform var(--dur-fast) var(--ease);
       }
 
       .add-btn:hover {
@@ -375,10 +391,15 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         color: var(--bone-100);
       }
 
+      .add-btn:active {
+        transform: scale(0.82);
+      }
+
       .add-btn.added {
         background: var(--bone);
         border-color: var(--bone);
         color: var(--ink);
+        animation: popIn 220ms var(--ease) both;
       }
     `,
   ],

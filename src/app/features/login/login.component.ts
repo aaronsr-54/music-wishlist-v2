@@ -108,6 +108,8 @@ import { AuthService } from '../../core/auth/auth.service';
         justify-content: space-between;
         align-items: center;
         padding-bottom: 24px;
+        animation: rowEnter var(--dur-slow) var(--ease) both;
+        animation-delay: 0ms;
       }
 
       .label {
@@ -139,6 +141,8 @@ import { AuthService } from '../../core/auth/auth.service';
         justify-content: center;
         gap: 20px;
         padding: 48px 0;
+        animation: rowEnter var(--dur-slow) var(--ease) both;
+        animation-delay: 80ms;
       }
 
       .wordmark {
@@ -173,6 +177,8 @@ import { AuthService } from '../../core/auth/auth.service';
         flex-direction: column;
         gap: 16px;
         padding-top: 24px;
+        animation: rowEnter var(--dur-slow) var(--ease) both;
+        animation-delay: 200ms;
       }
 
       .cta-buttons {

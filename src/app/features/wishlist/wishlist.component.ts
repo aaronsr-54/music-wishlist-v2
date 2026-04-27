@@ -277,11 +277,23 @@ type WishlistTab = 'pending' | 'downloaded';
         border-radius: var(--radius-md);
         margin: 0 -8px;
         transition: background var(--dur-fast) var(--ease);
+        animation: rowEnter var(--dur-base) var(--ease) both;
       }
 
       .wishlist-row:last-child {
         border-bottom: none;
       }
+
+      .wishlist-row:nth-child(1) { animation-delay: 0ms; }
+      .wishlist-row:nth-child(2) { animation-delay: 30ms; }
+      .wishlist-row:nth-child(3) { animation-delay: 60ms; }
+      .wishlist-row:nth-child(4) { animation-delay: 90ms; }
+      .wishlist-row:nth-child(5) { animation-delay: 120ms; }
+      .wishlist-row:nth-child(6) { animation-delay: 150ms; }
+      .wishlist-row:nth-child(7) { animation-delay: 180ms; }
+      .wishlist-row:nth-child(8) { animation-delay: 210ms; }
+      .wishlist-row:nth-child(9) { animation-delay: 240ms; }
+      .wishlist-row:nth-child(10) { animation-delay: 270ms; }
 
       .item-meta {
         flex: 1;
@@ -352,17 +364,26 @@ type WishlistTab = 'pending' | 'downloaded';
         align-items: center;
         justify-content: center;
         color: var(--bone-600);
-        transition: all var(--dur-fast) var(--ease);
+        transition:
+          border-color var(--dur-fast) var(--ease),
+          color var(--dur-fast) var(--ease),
+          transform var(--dur-fast) var(--ease);
       }
 
       .action-btn:hover {
         border-color: var(--bone-400);
         color: var(--bone);
+        transform: scale(1.1);
+      }
+
+      .action-btn:active {
+        transform: scale(0.88);
       }
 
       .action-btn.action-danger:hover {
         border-color: #e57373;
         color: #e57373;
+        transform: scale(1.1);
       }
 
       .empty-state {
@@ -373,6 +394,7 @@ type WishlistTab = 'pending' | 'downloaded';
         gap: 10px;
         padding: 60px 20px;
         text-align: center;
+        animation: emptyEnter var(--dur-slow) var(--ease) both;
       }
 
       .empty-icon {

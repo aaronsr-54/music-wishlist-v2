@@ -86,6 +86,10 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
         overflow: hidden;
       }
 
+      .mobile-content > * {
+        animation: panelEnter var(--dur-base) var(--ease) both;
+      }
+
       @media (min-width: 768px) {
         .desktop-shell {
           display: flex;
