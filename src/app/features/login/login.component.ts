@@ -54,15 +54,6 @@ import { AuthService } from '../../core/auth/auth.service';
             }
           </button>
 
-          @if (showDemo()) {
-            <button
-              class="demo-btn"
-              (click)="loginDemo()"
-              title="Demo login (solo desarrollo)"
-            >
-              Modo demo
-            </button>
-          }
         </div>
         @if (error()) {
           <p class="error">{{ error() }}</p>
@@ -236,30 +227,6 @@ import { AuthService } from '../../core/auth/auth.service';
         opacity: 0.7;
       }
 
-      .demo-btn {
-        padding: 14px 24px;
-        font-size: 12px;
-        background: var(--ink-200);
-        color: var(--bone-600);
-        border: 1px solid var(--ink-100);
-        border-radius: var(--radius-pill);
-        cursor: pointer;
-        transition: all var(--dur-fast) var(--ease);
-        font-family: var(--font-body);
-        min-width: 160px;
-        min-height: 48px;
-
-        @media (max-width: 480px) {
-          width: 100%;
-          justify-content: center;
-        }
-      }
-
-      .demo-btn:hover {
-        background: var(--ink-100);
-        color: var(--bone);
-      }
-
       .dot-pulse {
         display: flex;
         gap: 4px;
@@ -285,11 +252,6 @@ export class LoginComponent {
 
   loading = signal(false);
   error = signal('');
-  showDemo = signal(false);
-
-  constructor() {
-    this.showDemo.set(this.auth.isDemoMode());
-  }
 
   async login() {
     this.loading.set(true);
@@ -303,7 +265,4 @@ export class LoginComponent {
     }
   }
 
-  loginDemo() {
-    this.auth.loginMock('demo', '1234');
-  }
 }
