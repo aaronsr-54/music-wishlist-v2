@@ -5,15 +5,15 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signOut,
-  authState
+  authState,
 } from '@angular/fire/auth';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { take } from 'rxjs';
 import { ConfigService } from '../config/config.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
+
   private router = inject(Router);
   private config = inject(ConfigService);
 
@@ -21,10 +21,10 @@ export class AuthService {
   private mockUser = signal<any>(null);
   private firebaseUser = toSignal(authState(this.auth), { initialValue: null });
 
-  readonly authReady$ = authState(this.auth).pipe(take(1));
+  readonly authState$ = authState(this.auth);
 
   currentUser = computed(() =>
-    this.useMockAuth() ? this.mockUser() : this.firebaseUser()
+    this.useMockAuth() ? this.mockUser() : this.firebaseUser(),
   );
   isLoggedIn = computed(() => !!this.currentUser());
 
@@ -44,7 +44,7 @@ export class AuthService {
       this.mockUser.set({
         uid: 'mock-user-123',
         email: 'demo@example.com',
-        displayName: 'demo'
+        displayName: 'demo',
       });
       this.router.navigate(['/']);
     }

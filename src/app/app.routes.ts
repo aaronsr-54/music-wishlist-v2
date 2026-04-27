@@ -5,13 +5,15 @@ export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () =>
-      import('./features/login/login.component').then(m => m.LoginComponent)
+      import('./features/login/login.component').then((m) => m.LoginComponent),
   },
+
   {
     path: '',
     loadComponent: () =>
-      import('./shell/shell.component').then(m => m.ShellComponent),
-    canActivate: [authGuard]
+      import('./shell/shell.component').then((m) => m.ShellComponent),
+    canActivate: [authGuard],
   },
-  { path: '**', redirectTo: '' }
+
+  { path: '**', redirectTo: '' },
 ];

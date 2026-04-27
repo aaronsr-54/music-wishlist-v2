@@ -1,15 +1,17 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
-import { map } from 'rxjs';
+import { map, take } from 'rxjs';
 
 export const authGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   const router = inject(Router);
 
-  if (auth.isLoggedIn()) return true;
-
-  return auth.authReady$.pipe(
-    map(() => auth.isLoggedIn() || router.createUrlTree(['/login']))
+  return auth.authState$.pipe(
+    take(1),
+    map((user) => {
+      if (user) return true;
+      return router.createUrlTree(['/login']);
+    }),
   );
 };
