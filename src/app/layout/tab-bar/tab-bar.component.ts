@@ -49,11 +49,14 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       .tab-bar {
         display: flex;
         padding: 8px;
-        background: var(--ink-200);
+        padding-bottom: 24px;
+        background: linear-gradient(0deg, var(--ink) 0%, var(--ink-200) 100%);
         border-top: 1px solid var(--ink-100);
+        box-shadow: 0px -4px 10px 5px rgb(0 0 0 / 10%);
         flex-shrink: 0;
         border-top-left-radius: var(--radius-lg);
         border-top-right-radius: var(--radius-lg);
+        width: 100%;
       }
 
       .tab {
@@ -61,7 +64,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
+        gap: 12px;
         background: none;
         border: none;
         cursor: pointer;
@@ -71,8 +74,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         font-weight: 500;
         letter-spacing: 0.04em;
         transition: color var(--dur-fast) var(--ease);
-        padding: 14px 4rem;
-        border-radius: var(--radius-md);
+        padding: 18px 0;
+        border-radius: var(--radius-lg);
       }
 
       .tab.active {

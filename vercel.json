@@ -1,5 +1,9 @@
 {
   "buildCommand": "ng build",
   "outputDirectory": "dist/music-wishlist-v2/browser",
-  "installCommand": "npm install"
+  "installCommand": "npm install",
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/$1" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }

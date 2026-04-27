@@ -4,8 +4,16 @@ import { NgStyle } from '@angular/common';
 const VARIANTS = [
   { bg: 'var(--bone-300)', color: 'var(--ink)', border: 'none' },
   { bg: 'var(--ink-200)', color: 'var(--bone)', border: 'none' },
-  { bg: 'transparent', color: 'var(--ink)', border: '1.5px solid var(--ink-100)' },
-  { bg: 'transparent', color: 'var(--bone-400)', border: '1.5px solid var(--ink-200)' }
+  {
+    bg: 'transparent',
+    color: 'var(--ink)',
+    border: '1.5px solid var(--ink-100)',
+  },
+  {
+    bg: 'transparent',
+    color: 'var(--bone-400)',
+    border: '1.5px solid var(--ink-200)',
+  },
 ];
 
 function hashVariant(name: string): number {
@@ -23,13 +31,13 @@ function hashVariant(name: string): number {
         [alt]="name"
         [ngStyle]="imgStyle()"
         (error)="imgError.set(true)"
-      >
+      />
     } @else {
       <div [ngStyle]="placeholderStyle()">
         {{ initials() }}
       </div>
     }
-  `
+  `,
 })
 export class CoverComponent {
   @Input({ required: true }) name = '';
@@ -42,8 +50,8 @@ export class CoverComponent {
     this.name
       .split(/\s+/)
       .slice(0, 2)
-      .map(w => w[0]?.toUpperCase() ?? '')
-      .join('')
+      .map((w) => w[0]?.toUpperCase() ?? '')
+      .join(''),
   );
 
   private variant = computed(() => VARIANTS[hashVariant(this.name)]);
@@ -51,10 +59,10 @@ export class CoverComponent {
   imgStyle = computed(() => ({
     width: `${this.size}px`,
     height: `${this.size}px`,
-    borderRadius: 'var(--radius-md)',
+    borderRadius: 'var(--radius-sm)',
     objectFit: 'cover',
     display: 'block',
-    flexShrink: '0'
+    flexShrink: '0',
   }));
 
   placeholderStyle = computed(() => {
@@ -62,7 +70,7 @@ export class CoverComponent {
     return {
       width: `${this.size}px`,
       height: `${this.size}px`,
-      borderRadius: 'var(--radius-md)',
+      borderRadius: 'var(--radius-sm)',
       background: v.bg,
       color: v.color,
       border: v.border,
@@ -73,7 +81,7 @@ export class CoverComponent {
       fontWeight: '700',
       fontSize: `${Math.round(this.size * 0.28)}px`,
       flexShrink: '0',
-      letterSpacing: '0.02em'
+      letterSpacing: '0.02em',
     };
   });
 }
