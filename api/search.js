@@ -1,6 +1,4 @@
-import { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async (req: VercelRequest, res: VercelResponse) => {
+export default async (req, res) => {
   const { q, type = 'track' } = req.query;
 
   if (!q) {
@@ -9,7 +7,7 @@ export default async (req: VercelRequest, res: VercelResponse) => {
 
   try {
     const endpoint = type === 'album' ? 'search/album' : 'search';
-    const url = `https://api.deezer.com/${endpoint}?q=${encodeURIComponent(q as string)}&limit=10`;
+    const url = `https://api.deezer.com/${endpoint}?q=${encodeURIComponent(q)}&limit=10`;
 
     const response = await fetch(url);
     const data = await response.json();
