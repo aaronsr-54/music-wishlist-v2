@@ -6,17 +6,16 @@ import { Track, TrackType } from '../../shared/models/track.model';
 const DEEZER = 'https://api.deezer.com';
 
 @Injectable({ providedIn: 'root' })
-export class SpotifyService {
-
+export class SearchService {
   search(q: string): Observable<Track[]> {
     const term = encodeURIComponent(q);
 
     const songs$ = from(
-      fetch(`${DEEZER}/search?q=${term}&limit=10`).then(r => r.json())
+      fetch(`${DEEZER}/search?q=${term}&limit=10`).then((r) => r.json()),
     );
 
     const albums$ = from(
-      fetch(`${DEEZER}/search/album?q=${term}&limit=10`).then(r => r.json())
+      fetch(`${DEEZER}/search/album?q=${term}&limit=10`).then((r) => r.json()),
     );
 
     return forkJoin([songs$, albums$]).pipe(
@@ -27,7 +26,7 @@ export class SpotifyService {
           artists: [t.artist?.name ?? ''],
           coverUrl: t.album?.cover_big ?? t.album?.cover_medium ?? '',
           type: 'track' as TrackType,
-          uri: t.link ?? ''
+          uri: t.link ?? '',
         }));
 
         const albums: Track[] = (albumsRes.data ?? []).map((a: any) => ({
@@ -36,11 +35,11 @@ export class SpotifyService {
           artists: [a.artist?.name ?? ''],
           coverUrl: a.cover_big ?? a.cover_medium ?? '',
           type: (a.record_type === 'single' ? 'ep' : 'album') as TrackType,
-          uri: a.link ?? ''
+          uri: a.link ?? '',
         }));
 
         return [...tracks, ...albums];
-      })
+      }),
     );
   }
 }
