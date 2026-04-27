@@ -1,0 +1,5 @@
+{
+  "buildCommand": "ng build",
+  "outputDirectory": "dist/music-wishlist-v2/browser",
+  "installCommand": "npm install"
+}

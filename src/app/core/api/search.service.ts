@@ -3,19 +3,17 @@ import { Observable, forkJoin, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Track, TrackType } from '../../shared/models/track.model';
 
-const DEEZER = 'https://api.deezer.com';
-
 @Injectable({ providedIn: 'root' })
 export class SearchService {
   search(q: string): Observable<Track[]> {
     const term = encodeURIComponent(q);
 
     const songs$ = from(
-      fetch(`${DEEZER}/search?q=${term}&limit=10`).then((r) => r.json()),
+      fetch(`/api/search?q=${term}&type=track`).then((r) => r.json()),
     );
 
     const albums$ = from(
-      fetch(`${DEEZER}/search/album?q=${term}&limit=10`).then((r) => r.json()),
+      fetch(`/api/search?q=${term}&type=album`).then((r) => r.json()),
     );
 
     return forkJoin([songs$, albums$]).pipe(
