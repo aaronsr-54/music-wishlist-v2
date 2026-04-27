@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
@@ -11,46 +11,6 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
       <h1 class="wordmark">
         Music <span class="wordmark--accent">Wishlist</span>.
       </h1>
-
-      <nav class="nav-pills">
-        <button
-          class="nav-pill"
-          [class.active]="activeTab === 'search'"
-          (click)="tabChange.emit('search')"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <circle
-              cx="6"
-              cy="6"
-              r="4.25"
-              stroke="currentColor"
-              stroke-width="1.25"
-            />
-            <path
-              d="M9.5 9.5L12 12"
-              stroke="currentColor"
-              stroke-width="1.25"
-              stroke-linecap="round"
-            />
-          </svg>
-          Buscar
-        </button>
-        <button
-          class="nav-pill"
-          [class.active]="activeTab === 'wishlist'"
-          (click)="tabChange.emit('wishlist')"
-        >
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-            <path
-              d="M7 12S2 8.5 2 5a3 3 0 015-2.24A3 3 0 0112 5c0 3.5-5 7-5 7z"
-              stroke="currentColor"
-              stroke-width="1.25"
-              stroke-linejoin="round"
-            />
-          </svg>
-          Wishlist
-        </button>
-      </nav>
 
       <div class="user-area">
         @if (user(); as u) {
@@ -95,42 +55,6 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
         font-style: italic;
       }
 
-      .nav-pills {
-        display: flex;
-        gap: 4px;
-        padding: 4px;
-        background: var(--ink-200);
-        border-radius: var(--radius-pill);
-      }
-
-      @media (max-width: 767px) {
-        .nav-pills {
-          display: none;
-        }
-      }
-
-      .nav-pill {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        padding: 8px 16px;
-        border-radius: var(--radius-pill);
-        border: none;
-        background: none;
-        color: var(--bone-600);
-        font-family: var(--font-body);
-        font-size: 13px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all var(--dur-fast) var(--ease);
-        white-space: nowrap;
-      }
-
-      .nav-pill.active {
-        background: var(--bone);
-        color: var(--ink);
-      }
-
       .user-area {
         min-width: 160px;
         display: flex;
@@ -173,8 +97,6 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
   ],
 })
 export class HeaderComponent {
-  @Input({ required: true }) activeTab: 'search' | 'wishlist' = 'search';
-  @Output() tabChange = new EventEmitter<'search' | 'wishlist'>();
   @Output() openProfile = new EventEmitter<void>();
 
   private auth = inject(AuthService);
