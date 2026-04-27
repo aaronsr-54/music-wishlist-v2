@@ -71,7 +71,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         font-weight: 500;
         letter-spacing: 0.04em;
         transition: color var(--dur-fast) var(--ease);
-        padding: 14px 22px;
+        padding: 14px 4rem;
         border-radius: var(--radius-md);
       }
 
