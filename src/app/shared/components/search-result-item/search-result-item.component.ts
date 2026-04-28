@@ -51,8 +51,10 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
             <span class="item-title">{{ item().name }}</span>
             <div class="item-subtitle">
               <span class="item-artist">{{ item().artists[0] }}</span>
-              ·
-              <app-type-chip [type]="item().type" />
+              @if (showTypeChip()) {
+                <span class="item-sep">·</span>
+                <app-type-chip [type]="item().type" />
+              }
             </div>
           </div>
           @if (showAddButton()) {
@@ -222,6 +224,7 @@ export class SearchResultItemComponent {
   type = input.required<'artist' | 'track'>();
   isAdded = input(false);
   showAddButton = input(true);
+  showTypeChip = input(true);
 
   onArtistClick = output<Track>();
   onAddClick = output<Track>();

@@ -85,7 +85,8 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
                   [item]="track"
                   type="track"
                   [isAdded]="isInWishlist(track.id)"
-                  [showAddButton]="false"
+                  [showAddButton]="true"
+                  [showTypeChip]="false"
                   (onAddClick)="toggle($event)"
                 />
               }
