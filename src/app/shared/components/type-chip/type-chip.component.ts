@@ -6,12 +6,14 @@ const LABELS: Record<TrackType, string> = {
   track: 'Canción',
   album: 'Álbum',
   ep: 'EP',
+  artist: 'Artista',
 };
 
 const COLORS: Record<TrackType, string> = {
   track: 'var(--accent-track)',
   album: 'var(--accent-album)',
   ep: 'var(--accent-ep)',
+  artist: 'var(--accent-artist)',
 };
 
 @Component({

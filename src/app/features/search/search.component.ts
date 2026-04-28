@@ -23,6 +23,7 @@ import { Track, TrackType } from '../../shared/models/track.model';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { TypeChipComponent } from '../../shared/components/type-chip/type-chip.component';
 import { SkeletonRowComponent } from '../../shared/components/skeleton-row/skeleton-row.component';
+import { Router } from '@angular/router';
 
 type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
@@ -93,6 +94,13 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         <div class="filter-pills">
           <button
             class="filter-pill"
+            [class.active]="selectedTypes().has('artist')"
+            (click)="toggleType('artist')"
+          >
+            Artista
+          </button>
+          <button
+            class="filter-pill"
             [class.active]="selectedTypes().has('track')"
             (click)="toggleType('track')"
           >
@@ -149,51 +157,75 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             }
           }
           @case ('results') {
-            @for (track of filteredResults(); track track.id) {
-              <div class="item-row">
-                <app-cover
-                  [coverUrl]="track.coverUrl"
-                  [name]="track.name"
-                  [size]="56"
-                />
-                <div class="item-meta">
-                  <span class="item-title">{{ track.name }}</span>
-                  <div class="item-subtitle">
-                    <span class="item-artist">{{ track.artists[0] }}</span> ·
-                    <app-type-chip [type]="track.type" />
+            @if (filteredArtists().length > 0) {
+              <div class="section">
+                <h3 class="section-title">Artistas</h3>
+                @for (artist of filteredArtists(); track artist.id) {
+                  <button class="item-row artist-row" (click)="goToArtist(artist)">
+                    <app-cover
+                      [coverUrl]="artist.coverUrl"
+                      [name]="artist.name"
+                      [size]="56"
+                    />
+                    <div class="item-meta">
+                      <span class="item-title">{{ artist.name }}</span>
+                      <app-type-chip [type]="artist.type" />
+                    </div>
+                  </button>
+                }
+              </div>
+            }
+
+            @if (filteredTracks().length > 0) {
+              <div class="section">
+                <h3 class="section-title">Pistas</h3>
+                @for (track of filteredTracks(); track track.id) {
+                  <div class="item-row">
+                    <app-cover
+                      [coverUrl]="track.coverUrl"
+                      [name]="track.name"
+                      [size]="56"
+                    />
+                    <div class="item-meta">
+                      <span class="item-title">{{ track.name }}</span>
+                      <div class="item-subtitle">
+                        <span class="item-artist">{{ track.artists[0] }}</span> ·
+                        <app-type-chip [type]="track.type" />
+                      </div>
+                    </div>
+                    <button
+                      class="add-btn"
+                      [class.added]="isAdded(track.id)"
+                      (click)="toggle(track)"
+                      [title]="
+                        isAdded(track.id)
+                          ? 'Quitar de wishlist'
+                          : 'Añadir a wishlist'
+                      "
+                    >
+                      @if (isAdded(track.id)) {
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path
+                            d="M3 8.5L6.5 12L13 5"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      } @else {
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                          <path
+                            d="M8 3V13M3 8H13"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                          />
+                        </svg>
+                      }
+                    </button>
                   </div>
-                </div>
-                <button
-                  class="add-btn"
-                  [class.added]="isAdded(track.id)"
-                  (click)="toggle(track)"
-                  [title]="
-                    isAdded(track.id)
-                      ? 'Quitar de wishlist'
-                      : 'Añadir a wishlist'
-                  "
-                >
-                  @if (isAdded(track.id)) {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M3 8.5L6.5 12L13 5"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  } @else {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M8 3V13M3 8H13"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  }
-                </button>
+                }
               </div>
             }
           }
@@ -321,6 +353,36 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         background: var(--bone);
         border-color: var(--bone);
         color: var(--ink);
+      }
+
+      .section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .section-title {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--bone-700);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 8px 8px 0;
+        margin: 0;
+      }
+
+      .artist-row {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 10px 8px;
+        text-align: left;
+      }
+
+      .artist-row:hover {
+        background: var(--ink-100);
       }
 
       .results {
@@ -473,21 +535,46 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   loading = signal(false);
   query = signal('');
-  selectedTypes = signal<Set<TrackType>>(new Set(['track', 'album', 'ep']));
+  selectedTypes = signal<Set<TrackType>>(new Set());
+
+  results = signal<Track[]>([]);
+
+  artists = computed(() =>
+    this.results().filter((track) => track.type === 'artist')
+  );
+
+  tracks = computed(() =>
+    this.results().filter((track) => track.type !== 'artist')
+  );
+
+  filteredArtists = computed(() => {
+    const types = this.selectedTypes();
+    return types.has('artist')
+      ? this.artists()
+      : [];
+  });
+
+  filteredTracks = computed(() => {
+    const types = this.selectedTypes();
+    if (types.size === 0) {
+      return this.tracks();
+    }
+    const trackTypes = new Set(Array.from(types).filter(t => t !== 'artist'));
+    return trackTypes.size > 0
+      ? this.tracks().filter((track) => trackTypes.has(track.type))
+      : [];
+  });
+
   state = computed<SearchState>(() => {
     const q = this.query().trim();
-    const res = this.filteredResults();
+    const artists = this.filteredArtists();
+    const tracks = this.filteredTracks();
     const loading = this.loading();
 
     if (!q) return 'idle';
     if (loading) return 'loading';
-    if (!res.length) return 'empty';
+    if (!artists.length && !tracks.length) return 'empty';
     return 'results';
-  });
-  results = signal<Track[]>([]);
-  filteredResults = computed(() => {
-    const types = this.selectedTypes();
-    return this.results().filter((track) => types.has(track.type));
   });
 
   skeletons = new Array(5);
@@ -562,5 +649,10 @@ export class SearchComponent implements OnInit, OnDestroy {
         await this.wishlistSvc.add(track, user);
       }
     }
+  }
+
+  goToArtist(artist: Track) {
+    const router = inject(Router);
+    router.navigate(['/artist', artist.artistId || artist.id]);
   }
 }
