@@ -11,17 +11,15 @@ export class SearchService {
     const term = encodeURIComponent(q);
 
     const songs$ = from(
-      fetch(`${this.apiUrl}/search?q=${term}&type=track`).then((r) => r.json()),
+      fetch(`${this.apiUrl}/search?q=${term}`).then((r) => r.json()),
     );
 
     const albums$ = from(
-      fetch(`${this.apiUrl}/search?q=${term}&type=album`).then((r) => r.json()),
+      fetch(`${this.apiUrl}/search/album?q=${term}`).then((r) => r.json()),
     );
 
     const artists$ = from(
-      fetch(`${this.apiUrl}/search?q=${term}&type=artist`).then((r) =>
-        r.json(),
-      ),
+      fetch(`${this.apiUrl}/search/artist?q=${term}`).then((r) => r.json()),
     );
 
     return forkJoin([songs$, albums$, artists$]).pipe(

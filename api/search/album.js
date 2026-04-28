@@ -6,7 +6,7 @@ export default async (req, res) => {
   }
 
   try {
-    const url = `https://api.deezer.com/search?q=${encodeURIComponent(q)}&limit=10`;
+    const url = `https://api.deezer.com/search/album?q=${encodeURIComponent(q)}&limit=10`;
     const response = await fetch(url);
     const data = await response.json();
 
