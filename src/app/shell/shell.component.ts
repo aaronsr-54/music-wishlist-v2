@@ -1,10 +1,11 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, signal, inject, effect } from '@angular/core';
+import { RouterOutlet, ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
 import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
 import { ProfileModalComponent } from '../features/profile/profile-modal.component';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-shell',
@@ -22,11 +23,15 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
     <div class="desktop-shell">
       <app-header (openProfile)="showProfileModal.set(true)" />
       <main class="two-pane">
-        <section [class.dim]="activeTab() !== 'search'">
-          @if (activeTab() !== 'search') {
+        <section [class.dim]="activeTab() !== 'search' && !hasChildRoute()">
+          @if (activeTab() !== 'search' && !hasChildRoute()) {
             <div class="panel-overlay" (click)="activeTab.set('search')"></div>
           }
-          <app-search />
+          @if (!hasChildRoute()) {
+            <app-search />
+          } @else {
+            <router-outlet />
+          }
         </section>
         <section [class.dim]="activeTab() === 'search'">
           @if (activeTab() === 'search') {
@@ -44,12 +49,16 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
     <div class="mobile-shell">
       <app-header (openProfile)="showProfileModal.set(true)" />
       <div class="mobile-content">
-        @switch (activeTab()) {
-          @case ('search') {
-            <app-search />
-          }
-          @case ('wishlist') {
-            <app-wishlist />
+        @if (hasChildRoute()) {
+          <router-outlet />
+        } @else {
+          @switch (activeTab()) {
+            @case ('search') {
+              <app-search />
+            }
+            @case ('wishlist') {
+              <app-wishlist />
+            }
           }
         }
       </div>
@@ -58,8 +67,6 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
         (tabChange)="activeTab.set($event)"
       />
     </div>
-
-    <router-outlet />
 
     <app-profile-modal
       [isOpen]="showProfileModal"
@@ -149,6 +156,18 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
   ],
 })
 export class ShellComponent {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+
   activeTab = signal<'search' | 'wishlist'>('search');
   showProfileModal = signal(false);
+  hasChildRoute = signal(false);
+
+  constructor() {
+    this.router.events
+      .pipe(filter(e => e instanceof NavigationEnd))
+      .subscribe(() => {
+        this.hasChildRoute.set(!!this.route.firstChild);
+      });
+  }
 }
