@@ -9,6 +9,7 @@ export class SearchService {
 
   search(q: string): Observable<Track[]> {
     const term = encodeURIComponent(q);
+    const searchTerm = q.toLowerCase();
 
     const songs$ = from(
       fetch(`${this.apiUrl}/search?q=${term}`).then((r) => r.json()),
@@ -52,10 +53,57 @@ export class SearchService {
           type: 'artist' as TrackType,
           uri: art.link ?? '',
           artistId: String(art.id),
+          fanCount: art.nb_fan,
+          albumCount: art.nb_album,
         }));
 
-        return [...artists, ...tracks, ...albums];
+        const all = [...artists, ...albums, ...tracks].sort((a, b) => {
+          const aName = a.name.toLowerCase();
+          const bName = b.name.toLowerCase();
+
+          const aExact = aName === searchTerm ? 0 : 1;
+          const bExact = bName === searchTerm ? 0 : 1;
+          if (aExact !== bExact) return aExact - bExact;
+
+          const aStarts = aName.startsWith(searchTerm) ? 0 : 1;
+          const bStarts = bName.startsWith(searchTerm) ? 0 : 1;
+          if (aStarts !== bStarts) return aStarts - bStarts;
+
+          const aIndex = aName.indexOf(searchTerm);
+          const bIndex = bName.indexOf(searchTerm);
+          return aIndex - bIndex;
+        });
+
+        return all;
       }),
+    );
+  }
+
+  getArtistTracks(artistId: string): Observable<Track[]> {
+    return from(
+      fetch(
+        `${this.apiUrl}/artist?id=${artistId}`,
+      ).then((r) => r.json()),
+    ).pipe(
+      map((res: any) => {
+        return (res.data ?? []).map((t: any) => ({
+          id: String(t.id),
+          name: t.title,
+          artists: [t.artist?.name ?? ''],
+          coverUrl: t.album?.cover_big ?? t.album?.cover_medium ?? '',
+          type: 'track' as TrackType,
+          uri: t.link ?? '',
+          artistId: t.artist?.id,
+        }));
+      }),
+    );
+  }
+
+  getArtist(artistId: string): Observable<any> {
+    return from(
+      fetch(
+        `${this.apiUrl}/artist-info?id=${artistId}`,
+      ).then((r) => r.json()),
     );
   }
 }

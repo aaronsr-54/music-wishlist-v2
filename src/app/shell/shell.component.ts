@@ -108,6 +108,7 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
       }
 
       .two-pane > section {
+        padding: 16px 8px;
         position: relative;
         overflow-y: auto;
         height: 100%;
