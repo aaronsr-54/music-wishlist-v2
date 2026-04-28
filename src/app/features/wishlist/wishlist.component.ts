@@ -22,26 +22,28 @@ type WishlistTab = 'pending' | 'downloaded';
       </div>
 
       <div class="segmented">
-        <button
-          class="seg-btn"
-          [class.active]="activeTab() === 'pending'"
-          (click)="activeTab.set('pending')"
-        >
-          Pendientes
-          @if (wishlistSvc.pending().length > 0) {
-            <span class="count">{{ wishlistSvc.pending().length }}</span>
-          }
-        </button>
-        <button
-          class="seg-btn"
-          [class.active]="activeTab() === 'downloaded'"
-          (click)="activeTab.set('downloaded')"
-        >
-          Descargados
-          @if (wishlistSvc.downloaded().length > 0) {
-            <span class="count">{{ wishlistSvc.downloaded().length }}</span>
-          }
-        </button>
+        <div class="seg-btns">
+          <button
+            class="seg-btn"
+            [class.active]="activeTab() === 'pending'"
+            (click)="activeTab.set('pending')"
+          >
+            Pendientes
+            @if (wishlistSvc.pending().length > 0) {
+              <span class="count">{{ wishlistSvc.pending().length }}</span>
+            }
+          </button>
+          <button
+            class="seg-btn"
+            [class.active]="activeTab() === 'downloaded'"
+            (click)="activeTab.set('downloaded')"
+          >
+            Descargados
+            @if (wishlistSvc.downloaded().length > 0) {
+              <span class="count">{{ wishlistSvc.downloaded().length }}</span>
+            }
+          </button>
+        </div>
       </div>
 
       <div class="list">
@@ -211,11 +213,16 @@ type WishlistTab = 'pending' | 'downloaded';
       }
 
       .segmented {
-        display: flex;
-        gap: 4px;
         padding: 4px;
         background: var(--ink-200);
         border-radius: var(--radius-pill);
+      }
+
+      .seg-btns {
+        display: flex;
+        gap: 4px;
+        border-radius: var(--radius-pill);
+        overflow: hidden;
       }
 
       .seg-btn {
@@ -225,7 +232,7 @@ type WishlistTab = 'pending' | 'downloaded';
         justify-content: center;
         gap: 6px;
         padding: 8px 16px;
-        border-radius: var(--radius-pill);
+        border-radius: var(--radius-md);
         border: none;
         background: none;
         color: var(--bone-600);
@@ -284,16 +291,36 @@ type WishlistTab = 'pending' | 'downloaded';
         border-bottom: none;
       }
 
-      .wishlist-row:nth-child(1) { animation-delay: 0ms; }
-      .wishlist-row:nth-child(2) { animation-delay: 30ms; }
-      .wishlist-row:nth-child(3) { animation-delay: 60ms; }
-      .wishlist-row:nth-child(4) { animation-delay: 90ms; }
-      .wishlist-row:nth-child(5) { animation-delay: 120ms; }
-      .wishlist-row:nth-child(6) { animation-delay: 150ms; }
-      .wishlist-row:nth-child(7) { animation-delay: 180ms; }
-      .wishlist-row:nth-child(8) { animation-delay: 210ms; }
-      .wishlist-row:nth-child(9) { animation-delay: 240ms; }
-      .wishlist-row:nth-child(10) { animation-delay: 270ms; }
+      .wishlist-row:nth-child(1) {
+        animation-delay: 0ms;
+      }
+      .wishlist-row:nth-child(2) {
+        animation-delay: 30ms;
+      }
+      .wishlist-row:nth-child(3) {
+        animation-delay: 60ms;
+      }
+      .wishlist-row:nth-child(4) {
+        animation-delay: 90ms;
+      }
+      .wishlist-row:nth-child(5) {
+        animation-delay: 120ms;
+      }
+      .wishlist-row:nth-child(6) {
+        animation-delay: 150ms;
+      }
+      .wishlist-row:nth-child(7) {
+        animation-delay: 180ms;
+      }
+      .wishlist-row:nth-child(8) {
+        animation-delay: 210ms;
+      }
+      .wishlist-row:nth-child(9) {
+        animation-delay: 240ms;
+      }
+      .wishlist-row:nth-child(10) {
+        animation-delay: 270ms;
+      }
 
       .item-meta {
         flex: 1;

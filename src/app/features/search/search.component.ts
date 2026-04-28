@@ -412,6 +412,8 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       .artist-row:hover {
         background: var(--ink-100);
+        border-radius: var(--radius-md);
+        transition: border-radius var(--dur-fast) var(--ease);
       }
 
       .results {
