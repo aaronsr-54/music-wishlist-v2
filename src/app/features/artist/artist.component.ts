@@ -82,6 +82,7 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
             <div class="tracks-list">
               @for (track of tracks(); track track.id) {
                 <app-search-result-item
+                  class="result-item"
                   [item]="track"
                   type="track"
                   [isAdded]="isInWishlist(track.id)"
@@ -112,7 +113,7 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
         flex-direction: column;
         height: 100%;
         padding: 0.5rem 1rem;
-        gap: 1rem;
+        gap: 2rem;
         overflow: auto;
       }
 
@@ -161,8 +162,6 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
       .artist-header {
         display: flex;
         gap: 30px;
-        margin-bottom: 40px;
-        padding-bottom: 40px;
       }
 
       .artist-cover {

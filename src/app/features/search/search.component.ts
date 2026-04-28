@@ -29,11 +29,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [
-    FormsModule,
-    SkeletonRowComponent,
-    SearchResultItemComponent,
-  ],
+  imports: [FormsModule, SkeletonRowComponent, SearchResultItemComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -160,6 +156,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                 <h3 class="section-title">Artistas</h3>
                 @for (artist of filteredArtists(); track artist.id) {
                   <app-search-result-item
+                    class="result-item"
                     [item]="artist"
                     type="artist"
                     (onArtistClick)="goToArtist($event)"
@@ -173,6 +170,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                 <h3 class="section-title">Pistas</h3>
                 @for (track of filteredTracks(); track track.id) {
                   <app-search-result-item
+                    class="result-item"
                     [item]="track"
                     type="track"
                     [isAdded]="isAdded(track.id)"
@@ -495,7 +493,11 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   goToArtist(artist: Track) {
-    this.search.saveSearchState(this.query(), this.selectedTypes(), this.results());
+    this.search.saveSearchState(
+      this.query(),
+      this.selectedTypes(),
+      this.results(),
+    );
     this.router.navigate(['/artist', artist.artistId || artist.id]);
   }
 

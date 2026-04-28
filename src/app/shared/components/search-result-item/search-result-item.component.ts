@@ -51,10 +51,8 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
             <span class="item-title">{{ item().name }}</span>
             <div class="item-subtitle">
               <span class="item-artist">{{ item().artists[0] }}</span>
-              @if (showTypeChip()) {
-                <span class="item-sep">·</span>
-                <app-type-chip [type]="item().type" />
-              }
+              ·
+              <app-type-chip [type]="item().type" />
             </div>
           </div>
           @if (showAddButton()) {
@@ -62,17 +60,10 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
               class="add-btn"
               [class.added]="isAdded()"
               (click)="onAddClick.emit(item())"
-              [title]="
-                isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'
-              "
+              [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
             >
               @if (isAdded()) {
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
                     d="M3 8.5L6.5 12L13 5"
                     stroke="currentColor"
@@ -82,12 +73,7 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
                   />
                 </svg>
               } @else {
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 16 16"
-                  fill="none"
-                >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
                     d="M8 3V13M3 8H13"
                     stroke="currentColor"
@@ -125,12 +111,7 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
         gap: 12px;
         padding: 10px 8px;
         border-bottom: 1px solid var(--ink-200);
-        margin: 0 -8px;
         transition: background var(--dur-fast) var(--ease);
-      }
-
-      .item-row:last-child {
-        border-bottom: none;
       }
 
       .item-meta {
