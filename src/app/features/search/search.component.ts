@@ -172,6 +172,22 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                     />
                     <div class="item-meta">
                       <span class="item-title">{{ artist.name }}</span>
+                      <div class="item-subtitle">
+                        @if (artist.fanCount) {
+                          <span class="item-stat item-stat--fans"
+                            ><b> {{ formatFans(artist.fanCount) }} </b> fan{{
+                              artist.fanCount !== 1 ? 's' : ''
+                            }}</span
+                          >
+                          <span class="item-sep">·</span>
+                        }
+                        @if (artist.albumCount) {
+                          <span class="item-stat item-stat--albums">
+                            {{ artist.albumCount }}
+                            álbum{{ artist.albumCount !== 1 ? 's' : '' }}</span
+                          >
+                        }
+                      </div>
                     </div>
                   </button>
                 }
@@ -558,6 +574,20 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         color: var(--ink);
         animation: popIn 220ms var(--ease) both;
       }
+
+      .item-stat {
+        font-size: 12px;
+        color: var(--bone-700);
+      }
+
+      .item-stat--albums {
+        font-family: var(--font-display);
+        font-style: italic;
+      }
+
+      .item-stat-sep {
+        color: var(--bone-800);
+      }
     `,
   ],
 })
@@ -682,5 +712,13 @@ export class SearchComponent implements OnInit, OnDestroy {
   goToArtist(artist: Track) {
     const router = inject(Router);
     router.navigate(['/artist', artist.artistId || artist.id]);
+  }
+
+  formatFans(count: number): string {
+    if (count >= 1000000)
+      return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (count >= 1000)
+      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return count.toString();
   }
 }

@@ -52,6 +52,8 @@ export class SearchService {
           type: 'artist' as TrackType,
           uri: art.link ?? '',
           artistId: String(art.id),
+          fanCount: art.nb_fan,
+          albumCount: art.nb_album,
         }));
 
         return [...artists, ...tracks, ...albums];
