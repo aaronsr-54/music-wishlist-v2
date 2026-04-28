@@ -43,7 +43,7 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
                 }}</span>
               </div>
               <div class="stat-card">
-                <span class="stat-label">Descargados</span>
+                <span class="stat-label">Listos</span>
                 <span class="stat-value">{{
                   wishlistSvc.downloaded().length
                 }}</span>

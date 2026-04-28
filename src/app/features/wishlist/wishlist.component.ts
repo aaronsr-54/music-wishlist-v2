@@ -38,7 +38,7 @@ type WishlistTab = 'pending' | 'downloaded';
             [class.active]="activeTab() === 'downloaded'"
             (click)="activeTab.set('downloaded')"
           >
-            Descargados
+            Listos
             @if (wishlistSvc.downloaded().length > 0) {
               <span class="count">{{ wishlistSvc.downloaded().length }}</span>
             }
@@ -74,7 +74,7 @@ type WishlistTab = 'pending' | 'downloaded';
                 <button
                   class="action-btn"
                   (click)="markDownloaded(entry)"
-                  title="Marcar como descargado"
+                  title="Marcar como listo"
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path
@@ -161,9 +161,9 @@ type WishlistTab = 'pending' | 'downloaded';
               <p class="empty-title">Tu wishlist espera</p>
               <p class="empty-sub">Busca canciones y añádelas aquí</p>
             } @else {
-              <p class="empty-title">Nada descargado</p>
+              <p class="empty-title">Nada listo</p>
               <p class="empty-sub">
-                Marca canciones como descargadas para verlas aquí
+                Marca canciones como listas para verlas aquí
               </p>
             }
           </div>
@@ -281,7 +281,6 @@ type WishlistTab = 'pending' | 'downloaded';
         gap: 12px;
         padding: 12px 8px;
         border-bottom: 1px solid var(--ink-200);
-        border-radius: var(--radius-md);
         margin: 0 -8px;
         transition: background var(--dur-fast) var(--ease);
         animation: rowEnter var(--dur-base) var(--ease) both;
