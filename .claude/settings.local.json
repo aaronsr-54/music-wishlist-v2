@@ -33,7 +33,11 @@
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__evaluate_script",
       "Bash(lsof -ti:4200)",
       "Bash(xargs kill *)",
-      "PowerShell(Get-NetTCPConnection *)"
+      "PowerShell(Get-NetTCPConnection *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(git pull *)"
     ]
   }
 }
