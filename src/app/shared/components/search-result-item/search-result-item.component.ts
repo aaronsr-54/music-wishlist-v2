@@ -24,8 +24,8 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
             <div class="item-subtitle">
               @if (item().fanCount) {
                 <span class="item-stat item-stat--fans"
-                  ><b> {{ formatFans(item().fanCount) }} </b> fan{{
-                    item().fanCount !== 1 ? 's' : ''
+                  ><b> {{ formatFans(item().fanCount ?? 0) }} </b> fan{{
+                    (item().fanCount ?? 0) !== 1 ? 's' : ''
                   }}</span
                 >
                 <span class="item-sep">·</span>

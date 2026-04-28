@@ -20,8 +20,6 @@ import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { Track, TrackType } from '../../shared/models/track.model';
-import { CoverComponent } from '../../shared/components/cover/cover.component';
-import { TypeChipComponent } from '../../shared/components/type-chip/type-chip.component';
 import { SkeletonRowComponent } from '../../shared/components/skeleton-row/skeleton-row.component';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { Router } from '@angular/router';
@@ -33,8 +31,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
   standalone: true,
   imports: [
     FormsModule,
-    CoverComponent,
-    TypeChipComponent,
     SkeletonRowComponent,
     SearchResultItemComponent,
   ],
