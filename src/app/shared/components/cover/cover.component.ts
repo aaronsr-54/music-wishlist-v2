@@ -17,6 +17,7 @@ const VARIANTS = [
 ];
 
 function hashVariant(name: string): number {
+  if (!name) return 0;
   return name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 4;
 }
 

@@ -5,19 +5,21 @@ import { Track, TrackType } from '../../shared/models/track.model';
 
 @Injectable({ providedIn: 'root' })
 export class SearchService {
+  private apiUrl = 'https://music-wishlist-v2.vercel.app/api';
+
   search(q: string): Observable<Track[]> {
     const term = encodeURIComponent(q);
 
     const songs$ = from(
-      fetch(`/api/search?q=${term}&type=track`).then((r) => r.json()),
+      fetch(`${this.apiUrl}/search?q=${term}&type=track`).then((r) => r.json()),
     );
 
     const albums$ = from(
-      fetch(`/api/search?q=${term}&type=album`).then((r) => r.json()),
+      fetch(`${this.apiUrl}/search?q=${term}&type=album`).then((r) => r.json()),
     );
 
     const artists$ = from(
-      fetch(`/api/search?q=${term}&type=artist`).then((r) => r.json()),
+      fetch(`${this.apiUrl}/search?q=${term}&type=artist`).then((r) => r.json()),
     );
 
     return forkJoin([songs$, albums$, artists$]).pipe(

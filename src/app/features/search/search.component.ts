@@ -161,7 +161,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
               <div class="section">
                 <h3 class="section-title">Artistas</h3>
                 @for (artist of filteredArtists(); track artist.id) {
-                  <button class="item-row artist-row" (click)="goToArtist(artist)">
+                  <button
+                    class="item-row artist-row"
+                    (click)="goToArtist(artist)"
+                  >
                     <app-cover
                       [coverUrl]="artist.coverUrl"
                       [name]="artist.name"
@@ -189,7 +192,8 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                     <div class="item-meta">
                       <span class="item-title">{{ track.name }}</span>
                       <div class="item-subtitle">
-                        <span class="item-artist">{{ track.artists[0] }}</span> ·
+                        <span class="item-artist">{{ track.artists[0] }}</span>
+                        ·
                         <app-type-chip [type]="track.type" />
                       </div>
                     </div>
@@ -204,7 +208,12 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                       "
                     >
                       @if (isAdded(track.id)) {
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
                           <path
                             d="M3 8.5L6.5 12L13 5"
                             stroke="currentColor"
@@ -214,7 +223,12 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                           />
                         </svg>
                       } @else {
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
                           <path
                             d="M8 3V13M3 8H13"
                             stroke="currentColor"
@@ -447,16 +461,36 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         border-bottom: none;
       }
 
-      .item-row:nth-child(1) { animation-delay: 0ms; }
-      .item-row:nth-child(2) { animation-delay: 30ms; }
-      .item-row:nth-child(3) { animation-delay: 60ms; }
-      .item-row:nth-child(4) { animation-delay: 90ms; }
-      .item-row:nth-child(5) { animation-delay: 120ms; }
-      .item-row:nth-child(6) { animation-delay: 150ms; }
-      .item-row:nth-child(7) { animation-delay: 180ms; }
-      .item-row:nth-child(8) { animation-delay: 210ms; }
-      .item-row:nth-child(9) { animation-delay: 240ms; }
-      .item-row:nth-child(10) { animation-delay: 270ms; }
+      .item-row:nth-child(1) {
+        animation-delay: 0ms;
+      }
+      .item-row:nth-child(2) {
+        animation-delay: 30ms;
+      }
+      .item-row:nth-child(3) {
+        animation-delay: 60ms;
+      }
+      .item-row:nth-child(4) {
+        animation-delay: 90ms;
+      }
+      .item-row:nth-child(5) {
+        animation-delay: 120ms;
+      }
+      .item-row:nth-child(6) {
+        animation-delay: 150ms;
+      }
+      .item-row:nth-child(7) {
+        animation-delay: 180ms;
+      }
+      .item-row:nth-child(8) {
+        animation-delay: 210ms;
+      }
+      .item-row:nth-child(9) {
+        animation-delay: 240ms;
+      }
+      .item-row:nth-child(10) {
+        animation-delay: 270ms;
+      }
 
       .item-meta {
         flex: 1;
@@ -540,29 +574,23 @@ export class SearchComponent implements OnInit, OnDestroy {
   results = signal<Track[]>([]);
 
   artists = computed(() =>
-    this.results().filter((track) => track.type === 'artist')
+    this.results().filter((track) => track.type === 'artist'),
   );
 
   tracks = computed(() =>
-    this.results().filter((track) => track.type !== 'artist')
+    this.results().filter((track) => track.type !== 'artist'),
   );
 
   filteredArtists = computed(() => {
     const types = this.selectedTypes();
-    return types.has('artist')
-      ? this.artists()
-      : [];
+    return types.has('artist') ? this.artists() : [];
   });
 
   filteredTracks = computed(() => {
     const types = this.selectedTypes();
-    if (types.size === 0) {
-      return this.tracks();
-    }
-    const trackTypes = new Set(Array.from(types).filter((t): t is Exclude<TrackType, 'artist'> => t !== 'artist'));
-    return trackTypes.size > 0
-      ? this.tracks().filter((track) => trackTypes.has(track.type as Exclude<TrackType, 'artist'>))
-      : [];
+    if (types.size === 0) return this.tracks();
+    if (types.has('artist')) return [];
+    return this.tracks().filter((track) => types.has(track.type));
   });
 
   state = computed<SearchState>(() => {
@@ -577,7 +605,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     return 'results';
   });
 
-  skeletons = new Array(5);
+  skeletons = new Array(20);
 
   private search$ = new Subject<string>();
   private sub?: Subscription;
@@ -626,8 +654,9 @@ export class SearchComponent implements OnInit, OnDestroy {
     const current = this.selectedTypes();
     const updated = new Set(current);
     if (updated.has(type)) {
-      updated.delete(type);
+      updated.clear();
     } else {
+      updated.clear();
       updated.add(type);
     }
     this.selectedTypes.set(updated);
