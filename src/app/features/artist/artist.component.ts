@@ -20,28 +20,34 @@ import { CoverComponent } from '../../shared/components/cover/cover.component';
       <div class="artist-header">
         <div class="artist-cover">
           @if (artist(); as a) {
-            <app-cover [name]="a.name" [coverUrl]="a.picture_big" />
+            <app-cover
+              [name]="a.name"
+              [coverUrl]="a.picture_big"
+              [size]="200"
+            />
           }
         </div>
 
         <div class="artist-info">
           @if (artist(); as a) {
-            <h1>{{ a.name }}</h1>
+            <div class="artist-info artist-info--header">
+              <h1>{{ a.name }}</h1>
 
-            <div class="artist-stats">
-              @if (a.nb_fan !== undefined) {
-                <div class="stat">
-                  <span class="stat-label">Seguidores</span>
-                  <span class="stat-value">{{ formatFans(a.nb_fan) }}</span>
-                </div>
-              }
+              <div class="artist-stats">
+                @if (a.nb_fan !== undefined) {
+                  <div class="stat">
+                    <span class="stat-label">Seguidores</span>
+                    <span class="stat-value">{{ formatFans(a.nb_fan) }}</span>
+                  </div>
+                }
 
-              @if (a.nb_album !== undefined) {
-                <div class="stat">
-                  <span class="stat-label">Álbumes</span>
-                  <span class="stat-value">{{ a.nb_album }}</span>
-                </div>
-              }
+                @if (a.nb_album !== undefined) {
+                  <div class="stat">
+                    <span class="stat-label">Álbumes</span>
+                    <span class="stat-value">{{ a.nb_album }}</span>
+                  </div>
+                }
+              </div>
             </div>
 
             @if (a.link) {
@@ -137,7 +143,6 @@ import { CoverComponent } from '../../shared/components/cover/cover.component';
         gap: 30px;
         margin-bottom: 40px;
         padding-bottom: 40px;
-        border-bottom: 1.5px solid var(--ink-100);
       }
 
       .artist-cover {
@@ -157,7 +162,7 @@ import { CoverComponent } from '../../shared/components/cover/cover.component';
 
       .artist-info h1 {
         margin: 0 0 20px 0;
-        font-size: 32px;
+        font-size: 4rem;
         font-weight: bold;
         font-family: var(--font-display);
       }
@@ -180,6 +185,7 @@ import { CoverComponent } from '../../shared/components/cover/cover.component';
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-family: var(--font-display);
+        font-style: italic;
       }
 
       .stat-value {
@@ -197,6 +203,10 @@ import { CoverComponent } from '../../shared/components/cover/cover.component';
         font-size: 14px;
         font-weight: 600;
         transition: opacity var(--dur-fast) var(--ease);
+
+        @media (min-width: 769px) {
+          width: fit-content;
+        }
       }
 
       .deezer-link:hover {
@@ -281,7 +291,9 @@ import { CoverComponent } from '../../shared/components/cover/cover.component';
         cursor: pointer;
         padding: 6px;
         color: var(--bone-700);
-        transition: color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+        transition:
+          color var(--dur-fast) var(--ease),
+          transform var(--dur-fast) var(--ease);
       }
 
       .wishlist-btn:hover {
@@ -310,7 +322,7 @@ import { CoverComponent } from '../../shared/components/cover/cover.component';
         }
 
         .artist-info h1 {
-          font-size: 24px;
+          font-size: 2rem;
         }
 
         .artist-stats {
