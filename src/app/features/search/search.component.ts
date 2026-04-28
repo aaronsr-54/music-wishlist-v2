@@ -19,10 +19,11 @@ import { Subscription } from 'rxjs';
 import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { Track } from '../../shared/models/track.model';
+import { Track, TrackType } from '../../shared/models/track.model';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { TypeChipComponent } from '../../shared/components/type-chip/type-chip.component';
 import { SkeletonRowComponent } from '../../shared/components/skeleton-row/skeleton-row.component';
+import { Router } from '@angular/router';
 
 type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
@@ -89,6 +90,39 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         }
       </div>
 
+      @if (query()) {
+        <div class="filter-pills">
+          <button
+            class="filter-pill"
+            [class.active]="selectedTypes().has('artist')"
+            (click)="toggleType('artist')"
+          >
+            Artistas
+          </button>
+          <button
+            class="filter-pill"
+            [class.active]="selectedTypes().has('track')"
+            (click)="toggleType('track')"
+          >
+            Canciones
+          </button>
+          <button
+            class="filter-pill"
+            [class.active]="selectedTypes().has('album')"
+            (click)="toggleType('album')"
+          >
+            Álbums
+          </button>
+          <button
+            class="filter-pill"
+            [class.active]="selectedTypes().has('ep')"
+            (click)="toggleType('ep')"
+          >
+            EPs
+          </button>
+        </div>
+      }
+
       <div class="results">
         @switch (state()) {
           @case ('idle') {
@@ -123,51 +157,88 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             }
           }
           @case ('results') {
-            @for (track of results(); track track.id) {
-              <div class="item-row">
-                <app-cover
-                  [coverUrl]="track.coverUrl"
-                  [name]="track.name"
-                  [size]="56"
-                />
-                <div class="item-meta">
-                  <span class="item-title">{{ track.name }}</span>
-                  <div class="item-subtitle">
-                    <span class="item-artist">{{ track.artists[0] }}</span> ·
-                    <app-type-chip [type]="track.type" />
+            @if (filteredArtists().length > 0) {
+              <div class="section">
+                <h3 class="section-title">Artistas</h3>
+                @for (artist of filteredArtists(); track artist.id) {
+                  <button
+                    class="item-row artist-row"
+                    (click)="goToArtist(artist)"
+                  >
+                    <app-cover
+                      [coverUrl]="artist.coverUrl"
+                      [name]="artist.name"
+                      [size]="56"
+                    />
+                    <div class="item-meta">
+                      <span class="item-title">{{ artist.name }}</span>
+                    </div>
+                  </button>
+                }
+              </div>
+            }
+
+            @if (filteredTracks().length > 0) {
+              <div class="section">
+                <h3 class="section-title">Pistas</h3>
+                @for (track of filteredTracks(); track track.id) {
+                  <div class="item-row">
+                    <app-cover
+                      [coverUrl]="track.coverUrl"
+                      [name]="track.name"
+                      [size]="56"
+                    />
+                    <div class="item-meta">
+                      <span class="item-title">{{ track.name }}</span>
+                      <div class="item-subtitle">
+                        <span class="item-artist">{{ track.artists[0] }}</span>
+                        ·
+                        <app-type-chip [type]="track.type" />
+                      </div>
+                    </div>
+                    <button
+                      class="add-btn"
+                      [class.added]="isAdded(track.id)"
+                      (click)="toggle(track)"
+                      [title]="
+                        isAdded(track.id)
+                          ? 'Quitar de wishlist'
+                          : 'Añadir a wishlist'
+                      "
+                    >
+                      @if (isAdded(track.id)) {
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M3 8.5L6.5 12L13 5"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          />
+                        </svg>
+                      } @else {
+                        <svg
+                          width="16"
+                          height="16"
+                          viewBox="0 0 16 16"
+                          fill="none"
+                        >
+                          <path
+                            d="M8 3V13M3 8H13"
+                            stroke="currentColor"
+                            stroke-width="1.5"
+                            stroke-linecap="round"
+                          />
+                        </svg>
+                      }
+                    </button>
                   </div>
-                </div>
-                <button
-                  class="add-btn"
-                  [class.added]="isAdded(track.id)"
-                  (click)="toggle(track)"
-                  [title]="
-                    isAdded(track.id)
-                      ? 'Quitar de wishlist'
-                      : 'Añadir a wishlist'
-                  "
-                >
-                  @if (isAdded(track.id)) {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M3 8.5L6.5 12L13 5"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      />
-                    </svg>
-                  } @else {
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <path
-                        d="M8 3V13M3 8H13"
-                        stroke="currentColor"
-                        stroke-width="1.5"
-                        stroke-linecap="round"
-                      />
-                    </svg>
-                  }
-                </button>
+                }
               </div>
             }
           }
@@ -261,6 +332,72 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         color: var(--bone);
       }
 
+      .filter-pills {
+        display: flex;
+        gap: 8px;
+        padding: 0 20px 8px;
+        overflow-x: auto;
+        animation: slideDown 200ms var(--ease) both;
+      }
+
+      .filter-pill {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1.5px solid var(--ink-200);
+        background: transparent;
+        color: var(--bone-600);
+        font-family: var(--font-display);
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          background var(--dur-fast) var(--ease),
+          color var(--dur-fast) var(--ease),
+          border-color var(--dur-fast) var(--ease);
+      }
+
+      .filter-pill:hover {
+        border-color: var(--bone-600);
+        color: var(--bone);
+      }
+
+      .filter-pill.active {
+        background: var(--bone);
+        border-color: var(--bone);
+        color: var(--ink);
+      }
+
+      .section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 16px;
+      }
+
+      .section-title {
+        font-family: var(--font-body);
+        font-size: 12px;
+        color: var(--bone-700);
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        padding: 8px 8px 0;
+        margin: 0;
+      }
+
+      .artist-row {
+        background: none;
+        border: none;
+        cursor: pointer;
+        padding: 10px 8px;
+        text-align: left;
+      }
+
+      .artist-row:hover {
+        background: var(--ink-100);
+      }
+
       .results {
         flex: 1;
         overflow-y: auto;
@@ -323,16 +460,36 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         border-bottom: none;
       }
 
-      .item-row:nth-child(1) { animation-delay: 0ms; }
-      .item-row:nth-child(2) { animation-delay: 30ms; }
-      .item-row:nth-child(3) { animation-delay: 60ms; }
-      .item-row:nth-child(4) { animation-delay: 90ms; }
-      .item-row:nth-child(5) { animation-delay: 120ms; }
-      .item-row:nth-child(6) { animation-delay: 150ms; }
-      .item-row:nth-child(7) { animation-delay: 180ms; }
-      .item-row:nth-child(8) { animation-delay: 210ms; }
-      .item-row:nth-child(9) { animation-delay: 240ms; }
-      .item-row:nth-child(10) { animation-delay: 270ms; }
+      .item-row:nth-child(1) {
+        animation-delay: 0ms;
+      }
+      .item-row:nth-child(2) {
+        animation-delay: 30ms;
+      }
+      .item-row:nth-child(3) {
+        animation-delay: 60ms;
+      }
+      .item-row:nth-child(4) {
+        animation-delay: 90ms;
+      }
+      .item-row:nth-child(5) {
+        animation-delay: 120ms;
+      }
+      .item-row:nth-child(6) {
+        animation-delay: 150ms;
+      }
+      .item-row:nth-child(7) {
+        animation-delay: 180ms;
+      }
+      .item-row:nth-child(8) {
+        animation-delay: 210ms;
+      }
+      .item-row:nth-child(9) {
+        animation-delay: 240ms;
+      }
+      .item-row:nth-child(10) {
+        animation-delay: 270ms;
+      }
 
       .item-meta {
         flex: 1;
@@ -411,19 +568,43 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   loading = signal(false);
   query = signal('');
+  selectedTypes = signal<Set<TrackType>>(new Set());
+
+  results = signal<Track[]>([]);
+
+  artists = computed(() =>
+    this.results().filter((track) => track.type === 'artist'),
+  );
+
+  tracks = computed(() =>
+    this.results().filter((track) => track.type !== 'artist'),
+  );
+
+  filteredArtists = computed(() => {
+    const types = this.selectedTypes();
+    return types.has('artist') ? this.artists() : [];
+  });
+
+  filteredTracks = computed(() => {
+    const types = this.selectedTypes();
+    if (types.size === 0) return this.tracks();
+    if (types.has('artist')) return [];
+    return this.tracks().filter((track) => types.has(track.type));
+  });
+
   state = computed<SearchState>(() => {
     const q = this.query().trim();
-    const res = this.results();
+    const artists = this.filteredArtists();
+    const tracks = this.filteredTracks();
     const loading = this.loading();
 
     if (!q) return 'idle';
     if (loading) return 'loading';
-    if (!res.length) return 'empty';
+    if (!artists.length && !tracks.length) return 'empty';
     return 'results';
   });
-  results = signal<Track[]>([]);
 
-  skeletons = new Array(5);
+  skeletons = new Array(20);
 
   private search$ = new Subject<string>();
   private sub?: Subscription;
@@ -468,6 +649,18 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.search$.next('');
   }
 
+  toggleType(type: TrackType) {
+    const current = this.selectedTypes();
+    const updated = new Set(current);
+    if (updated.has(type)) {
+      updated.clear();
+    } else {
+      updated.clear();
+      updated.add(type);
+    }
+    this.selectedTypes.set(updated);
+  }
+
   isAdded(trackId: string): boolean {
     return this.wishlistSvc.trackIds().has(trackId);
   }
@@ -484,5 +677,10 @@ export class SearchComponent implements OnInit, OnDestroy {
         await this.wishlistSvc.add(track, user);
       }
     }
+  }
+
+  goToArtist(artist: Track) {
+    const router = inject(Router);
+    router.navigate(['/artist', artist.artistId || artist.id]);
   }
 }

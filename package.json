@@ -3,8 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "start:demo": "ng serve --open=http://localhost:4200/?demo",
+    "start": "ng serve --proxy-config proxy.conf.json --port 4200",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "deploy": "ng build --configuration production && firebase deploy",

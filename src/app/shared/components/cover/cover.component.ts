@@ -17,6 +17,7 @@ const VARIANTS = [
 ];
 
 function hashVariant(name: string): number {
+  if (!name) return 0;
   return name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 4;
 }
 
@@ -47,7 +48,7 @@ export class CoverComponent {
   imgError = signal(false);
 
   initials = computed(() =>
-    this.name
+    (this.name || '')
       .split(/\s+/)
       .slice(0, 2)
       .map((w) => w[0]?.toUpperCase() ?? '')

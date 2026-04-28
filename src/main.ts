@@ -5,8 +5,9 @@ import { App } from './app/app';
 bootstrapApplication(App, appConfig)
   .then(() => {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/service-worker.js')
-        .then((reg) => console.log('Service Worker registered', reg))
+      navigator.serviceWorker
+        .register('/service-worker.js')
+        .then()
         .catch((err) => console.log('Service Worker registration failed', err));
     }
   })

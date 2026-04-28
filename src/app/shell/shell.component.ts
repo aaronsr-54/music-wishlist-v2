@@ -104,6 +104,7 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
         width: 100dvw;
         flex: 1;
         overflow: hidden;
+        padding: 12px;
       }
 
       .two-pane > section {
@@ -114,11 +115,12 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
           opacity var(--dur-base) var(--ease),
           border-color var(--dur-base) var(--ease);
         border: 2px solid transparent;
-        border-radius: var(--radius-sm);
+        border-radius: var(--radius-md);
       }
 
       .two-pane > section:not(.dim) {
         border-color: var(--bone);
+        box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.1);
         flex-grow: 1;
       }
 

@@ -1,0 +1,7 @@
+{
+  "/api/*": {
+    "target": "https://music-wishlist-v2.vercel.app",
+    "changeOrigin": true,
+    "rejectUnauthorized": false
+  }
+}
