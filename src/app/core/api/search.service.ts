@@ -9,6 +9,7 @@ export class SearchService {
 
   search(q: string): Observable<Track[]> {
     const term = encodeURIComponent(q);
+    const searchTerm = q.toLowerCase();
 
     const songs$ = from(
       fetch(`${this.apiUrl}/search?q=${term}`).then((r) => r.json()),
@@ -56,7 +57,24 @@ export class SearchService {
           albumCount: art.nb_album,
         }));
 
-        return [...artists, ...tracks, ...albums];
+        const all = [...artists, ...albums, ...tracks].sort((a, b) => {
+          const aName = a.name.toLowerCase();
+          const bName = b.name.toLowerCase();
+
+          const aExact = aName === searchTerm ? 0 : 1;
+          const bExact = bName === searchTerm ? 0 : 1;
+          if (aExact !== bExact) return aExact - bExact;
+
+          const aStarts = aName.startsWith(searchTerm) ? 0 : 1;
+          const bStarts = bName.startsWith(searchTerm) ? 0 : 1;
+          if (aStarts !== bStarts) return aStarts - bStarts;
+
+          const aIndex = aName.indexOf(searchTerm);
+          const bIndex = bName.indexOf(searchTerm);
+          return aIndex - bIndex;
+        });
+
+        return all;
       }),
     );
   }
