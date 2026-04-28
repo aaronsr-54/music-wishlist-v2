@@ -48,7 +48,7 @@ export class CoverComponent {
   imgError = signal(false);
 
   initials = computed(() =>
-    this.name
+    (this.name || '')
       .split(/\s+/)
       .slice(0, 2)
       .map((w) => w[0]?.toUpperCase() ?? '')

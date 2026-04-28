@@ -19,7 +19,9 @@ export class SearchService {
     );
 
     const artists$ = from(
-      fetch(`${this.apiUrl}/search?q=${term}&type=artist`).then((r) => r.json()),
+      fetch(`${this.apiUrl}/search?q=${term}&type=artist`).then((r) =>
+        r.json(),
+      ),
     );
 
     return forkJoin([songs$, albums$, artists$]).pipe(

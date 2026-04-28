@@ -97,28 +97,28 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             [class.active]="selectedTypes().has('artist')"
             (click)="toggleType('artist')"
           >
-            Artista
+            Artistas
           </button>
           <button
             class="filter-pill"
             [class.active]="selectedTypes().has('track')"
             (click)="toggleType('track')"
           >
-            Canción
+            Canciones
           </button>
           <button
             class="filter-pill"
             [class.active]="selectedTypes().has('album')"
             (click)="toggleType('album')"
           >
-            Álbum
+            Álbums
           </button>
           <button
             class="filter-pill"
             [class.active]="selectedTypes().has('ep')"
             (click)="toggleType('ep')"
           >
-            EP
+            EPs
           </button>
         </div>
       }
@@ -172,7 +172,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                     />
                     <div class="item-meta">
                       <span class="item-title">{{ artist.name }}</span>
-                      <app-type-chip [type]="artist.type" />
                     </div>
                   </button>
                 }

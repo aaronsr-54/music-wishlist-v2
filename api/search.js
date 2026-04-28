@@ -6,7 +6,10 @@ export default async (req, res) => {
   }
 
   try {
-    const endpoint = type === 'album' ? 'search/album' : 'search';
+    let endpoint = 'search';
+    if (type === 'album') endpoint = 'search/album';
+    else if (type === 'artist') endpoint = 'search/artist';
+
     const url = `https://api.deezer.com/${endpoint}?q=${encodeURIComponent(q)}&limit=10`;
 
     const response = await fetch(url);

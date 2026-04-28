@@ -2,18 +2,16 @@ import { Component, Input } from '@angular/core';
 import { NgStyle } from '@angular/common';
 import { TrackType } from '../../models/track.model';
 
-const LABELS: Record<TrackType, string> = {
+const LABELS: Partial<Record<TrackType, string>> = {
   track: 'Canción',
   album: 'Álbum',
   ep: 'EP',
-  artist: 'Artista',
 };
 
-const COLORS: Record<TrackType, string> = {
+const COLORS: Partial<Record<TrackType, string>> = {
   track: 'var(--accent-track)',
   album: 'var(--accent-album)',
   ep: 'var(--accent-ep)',
-  artist: 'var(--accent-artist)',
 };
 
 @Component({
