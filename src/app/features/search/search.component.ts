@@ -273,7 +273,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       .filter-pills {
         display: flex;
         gap: 8px;
-        padding: 0 20px 8px;
         overflow-x: auto;
         animation: slideDown 200ms var(--ease) both;
       }
@@ -327,7 +326,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       .results {
         flex: 1;
         overflow-y: auto;
-        padding: 8px 20px 16px;
+
+        @media (min-width: 769px) {
+          padding: 8px 20px 16px;
+        }
       }
 
       .empty-state {

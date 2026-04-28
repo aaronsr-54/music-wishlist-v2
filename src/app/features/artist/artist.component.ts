@@ -265,7 +265,7 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
 
       @media (max-width: 768px) {
         .artist-container {
-          padding: 16px;
+          padding: 1rem 0;
         }
 
         .artist-header {
