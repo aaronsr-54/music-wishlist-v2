@@ -19,7 +19,7 @@ import { Subscription } from 'rxjs';
 import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { Track } from '../../shared/models/track.model';
+import { Track, TrackType } from '../../shared/models/track.model';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { TypeChipComponent } from '../../shared/components/type-chip/type-chip.component';
 import { SkeletonRowComponent } from '../../shared/components/skeleton-row/skeleton-row.component';
@@ -89,6 +89,32 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         }
       </div>
 
+      @if (query()) {
+        <div class="filter-pills">
+          <button
+            class="filter-pill"
+            [class.active]="selectedTypes().has('track')"
+            (click)="toggleType('track')"
+          >
+            Canción
+          </button>
+          <button
+            class="filter-pill"
+            [class.active]="selectedTypes().has('album')"
+            (click)="toggleType('album')"
+          >
+            Álbum
+          </button>
+          <button
+            class="filter-pill"
+            [class.active]="selectedTypes().has('ep')"
+            (click)="toggleType('ep')"
+          >
+            EP
+          </button>
+        </div>
+      }
+
       <div class="results">
         @switch (state()) {
           @case ('idle') {
@@ -123,7 +149,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             }
           }
           @case ('results') {
-            @for (track of results(); track track.id) {
+            @for (track of filteredResults(); track track.id) {
               <div class="item-row">
                 <app-cover
                   [coverUrl]="track.coverUrl"
@@ -259,6 +285,42 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       .clear-btn:hover {
         color: var(--bone);
+      }
+
+      .filter-pills {
+        display: flex;
+        gap: 8px;
+        padding: 0 20px 8px;
+        overflow-x: auto;
+        animation: slideDown 200ms var(--ease) both;
+      }
+
+      .filter-pill {
+        padding: 6px 12px;
+        border-radius: 20px;
+        border: 1.5px solid var(--ink-200);
+        background: transparent;
+        color: var(--bone-600);
+        font-family: var(--font-display);
+        font-size: 13px;
+        font-weight: 500;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          background var(--dur-fast) var(--ease),
+          color var(--dur-fast) var(--ease),
+          border-color var(--dur-fast) var(--ease);
+      }
+
+      .filter-pill:hover {
+        border-color: var(--bone-600);
+        color: var(--bone);
+      }
+
+      .filter-pill.active {
+        background: var(--bone);
+        border-color: var(--bone);
+        color: var(--ink);
       }
 
       .results {
@@ -411,9 +473,10 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   loading = signal(false);
   query = signal('');
+  selectedTypes = signal<Set<TrackType>>(new Set(['track', 'album', 'ep']));
   state = computed<SearchState>(() => {
     const q = this.query().trim();
-    const res = this.results();
+    const res = this.filteredResults();
     const loading = this.loading();
 
     if (!q) return 'idle';
@@ -422,6 +485,10 @@ export class SearchComponent implements OnInit, OnDestroy {
     return 'results';
   });
   results = signal<Track[]>([]);
+  filteredResults = computed(() => {
+    const types = this.selectedTypes();
+    return this.results().filter((track) => types.has(track.type));
+  });
 
   skeletons = new Array(5);
 
@@ -466,6 +533,17 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.query.set('');
     this.results.set([]);
     this.search$.next('');
+  }
+
+  toggleType(type: TrackType) {
+    const current = this.selectedTypes();
+    const updated = new Set(current);
+    if (updated.has(type)) {
+      updated.delete(type);
+    } else {
+      updated.add(type);
+    }
+    this.selectedTypes.set(updated);
   }
 
   isAdded(trackId: string): boolean {
