@@ -1,11 +1,18 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { Observable, forkJoin, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Track, TrackType } from '../../shared/models/track.model';
 
+interface SearchState {
+  query: string;
+  selectedTypes: Set<TrackType | 'artist'>;
+  results: Track[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class SearchService {
   private apiUrl = 'https://music-wishlist-v2.vercel.app/api';
+  private savedState = signal<SearchState | null>(null);
 
   search(q: string): Observable<Track[]> {
     const term = encodeURIComponent(q);
@@ -105,5 +112,17 @@ export class SearchService {
         `${this.apiUrl}/artist-info?id=${artistId}`,
       ).then((r) => r.json()),
     );
+  }
+
+  saveSearchState(query: string, selectedTypes: Set<TrackType | 'artist'>, results: Track[]) {
+    this.savedState.set({ query, selectedTypes, results });
+  }
+
+  getSavedSearchState() {
+    return this.savedState();
+  }
+
+  clearSearchState() {
+    this.savedState.set(null);
   }
 }

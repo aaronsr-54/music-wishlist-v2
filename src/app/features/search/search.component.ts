@@ -20,9 +20,8 @@ import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { Track, TrackType } from '../../shared/models/track.model';
-import { CoverComponent } from '../../shared/components/cover/cover.component';
-import { TypeChipComponent } from '../../shared/components/type-chip/type-chip.component';
 import { SkeletonRowComponent } from '../../shared/components/skeleton-row/skeleton-row.component';
+import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { Router } from '@angular/router';
 
 type SearchState = 'idle' | 'loading' | 'results' | 'empty';
@@ -32,9 +31,8 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
   standalone: true,
   imports: [
     FormsModule,
-    CoverComponent,
-    TypeChipComponent,
     SkeletonRowComponent,
+    SearchResultItemComponent,
   ],
   template: `
     <div class="panel">
@@ -161,35 +159,11 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
               <div class="section">
                 <h3 class="section-title">Artistas</h3>
                 @for (artist of filteredArtists(); track artist.id) {
-                  <button
-                    class="item-row artist-row"
-                    (click)="goToArtist(artist)"
-                  >
-                    <app-cover
-                      [coverUrl]="artist.coverUrl"
-                      [name]="artist.name"
-                      [size]="56"
-                    />
-                    <div class="item-meta">
-                      <span class="item-title">{{ artist.name }}</span>
-                      <div class="item-subtitle">
-                        @if (artist.fanCount) {
-                          <span class="item-stat item-stat--fans"
-                            ><b> {{ formatFans(artist.fanCount) }} </b> fan{{
-                              artist.fanCount !== 1 ? 's' : ''
-                            }}</span
-                          >
-                          <span class="item-sep">·</span>
-                        }
-                        @if (artist.albumCount) {
-                          <span class="item-stat item-stat--albums">
-                            {{ artist.albumCount }}
-                            álbum{{ artist.albumCount !== 1 ? 's' : '' }}</span
-                          >
-                        }
-                      </div>
-                    </div>
-                  </button>
+                  <app-search-result-item
+                    [item]="artist"
+                    type="artist"
+                    (onArtistClick)="goToArtist($event)"
+                  />
                 }
               </div>
             }
@@ -198,62 +172,12 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
               <div class="section">
                 <h3 class="section-title">Pistas</h3>
                 @for (track of filteredTracks(); track track.id) {
-                  <div class="item-row">
-                    <app-cover
-                      [coverUrl]="track.coverUrl"
-                      [name]="track.name"
-                      [size]="56"
-                    />
-                    <div class="item-meta">
-                      <span class="item-title">{{ track.name }}</span>
-                      <div class="item-subtitle">
-                        <span class="item-artist">{{ track.artists[0] }}</span>
-                        ·
-                        <app-type-chip [type]="track.type" />
-                      </div>
-                    </div>
-                    <button
-                      class="add-btn"
-                      [class.added]="isAdded(track.id)"
-                      (click)="toggle(track)"
-                      [title]="
-                        isAdded(track.id)
-                          ? 'Quitar de wishlist'
-                          : 'Añadir a wishlist'
-                      "
-                    >
-                      @if (isAdded(track.id)) {
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                        >
-                          <path
-                            d="M3 8.5L6.5 12L13 5"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                          />
-                        </svg>
-                      } @else {
-                        <svg
-                          width="16"
-                          height="16"
-                          viewBox="0 0 16 16"
-                          fill="none"
-                        >
-                          <path
-                            d="M8 3V13M3 8H13"
-                            stroke="currentColor"
-                            stroke-width="1.5"
-                            stroke-linecap="round"
-                          />
-                        </svg>
-                      }
-                    </button>
-                  </div>
+                  <app-search-result-item
+                    [item]="track"
+                    type="track"
+                    [isAdded]="isAdded(track.id)"
+                    (onAddClick)="toggle($event)"
+                  />
                 }
               </div>
             }
@@ -402,20 +326,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         margin: 0;
       }
 
-      .artist-row {
-        background: none;
-        border: none;
-        cursor: pointer;
-        padding: 10px 8px;
-        text-align: left;
-      }
-
-      .artist-row:hover {
-        background: var(--ink-100);
-        border-radius: var(--radius-md);
-        transition: border-radius var(--dur-fast) var(--ease);
-      }
-
       .results {
         flex: 1;
         overflow-y: auto;
@@ -454,141 +364,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         font-style: italic;
         margin: 0;
         max-width: 240px;
-      }
-
-      .empty-dots {
-        display: flex;
-        gap: 6px;
-        color: var(--bone-700);
-        margin-bottom: 4px;
-      }
-
-      .item-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 8px;
-        border-bottom: 1px solid var(--ink-200);
-        margin: 0 -8px;
-        transition: background var(--dur-fast) var(--ease);
-        animation: rowEnter var(--dur-base) var(--ease) both;
-      }
-
-      .item-row:last-child {
-        border-bottom: none;
-      }
-
-      .item-row:nth-child(1) {
-        animation-delay: 0ms;
-      }
-      .item-row:nth-child(2) {
-        animation-delay: 30ms;
-      }
-      .item-row:nth-child(3) {
-        animation-delay: 60ms;
-      }
-      .item-row:nth-child(4) {
-        animation-delay: 90ms;
-      }
-      .item-row:nth-child(5) {
-        animation-delay: 120ms;
-      }
-      .item-row:nth-child(6) {
-        animation-delay: 150ms;
-      }
-      .item-row:nth-child(7) {
-        animation-delay: 180ms;
-      }
-      .item-row:nth-child(8) {
-        animation-delay: 210ms;
-      }
-      .item-row:nth-child(9) {
-        animation-delay: 240ms;
-      }
-      .item-row:nth-child(10) {
-        animation-delay: 270ms;
-      }
-
-      .item-meta {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        min-width: 0;
-      }
-
-      .item-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--bone-100);
-        line-height: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        height: 18px;
-        text-overflow: ellipsis;
-        font-family: var(--font-display);
-      }
-
-      .item-subtitle {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--bone-800);
-      }
-
-      .item-artist {
-        font-size: 13px;
-        color: var(--bone-600);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        height: 15px;
-      }
-
-      .add-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--bone-600);
-        flex-shrink: 0;
-        transition:
-          background var(--dur-fast) var(--ease),
-          color var(--dur-fast) var(--ease),
-          transform var(--dur-fast) var(--ease);
-      }
-
-      .add-btn:hover {
-        background: var(--ink-200);
-        color: var(--bone-100);
-      }
-
-      .add-btn:active {
-        transform: scale(0.82);
-      }
-
-      .add-btn.added {
-        background: var(--bone);
-        border-color: var(--bone);
-        color: var(--ink);
-        animation: popIn 220ms var(--ease) both;
-      }
-
-      .item-stat {
-        font-size: 12px;
-        color: var(--bone-700);
-      }
-
-      .item-stat--albums {
-        font-family: var(--font-display);
-        font-style: italic;
-      }
-
-      .item-stat-sep {
-        color: var(--bone-800);
       }
     `,
   ],
@@ -643,6 +418,14 @@ export class SearchComponent implements OnInit, OnDestroy {
   private sub?: Subscription;
 
   ngOnInit() {
+    const savedState = this.search.getSavedSearchState();
+    if (savedState) {
+      this.query.set(savedState.query);
+      this.selectedTypes.set(savedState.selectedTypes);
+      this.results.set(savedState.results);
+      this.search.clearSearchState();
+    }
+
     this.sub = this.search$
       .pipe(
         debounceTime(220),
@@ -713,6 +496,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   goToArtist(artist: Track) {
+    this.search.saveSearchState(this.query(), this.selectedTypes(), this.results());
     this.router.navigate(['/artist', artist.artistId || artist.id]);
   }
 
