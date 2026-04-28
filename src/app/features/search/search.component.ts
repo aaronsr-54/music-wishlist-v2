@@ -559,9 +559,9 @@ export class SearchComponent implements OnInit, OnDestroy {
     if (types.size === 0) {
       return this.tracks();
     }
-    const trackTypes = new Set(Array.from(types).filter(t => t !== 'artist'));
+    const trackTypes = new Set(Array.from(types).filter((t): t is Exclude<TrackType, 'artist'> => t !== 'artist'));
     return trackTypes.size > 0
-      ? this.tracks().filter((track) => trackTypes.has(track.type))
+      ? this.tracks().filter((track) => trackTypes.has(track.type as Exclude<TrackType, 'artist'>))
       : [];
   });
 
