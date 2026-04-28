@@ -1,4 +1,5 @@
 import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
 import { SearchComponent } from '../features/search/search.component';
@@ -9,6 +10,7 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
   selector: 'app-shell',
   standalone: true,
   imports: [
+    RouterOutlet,
     HeaderComponent,
     TabBarComponent,
     SearchComponent,
@@ -56,6 +58,8 @@ import { ProfileModalComponent } from '../features/profile/profile-modal.compone
         (tabChange)="activeTab.set($event)"
       />
     </div>
+
+    <router-outlet />
 
     <app-profile-modal
       [isOpen]="showProfileModal"
