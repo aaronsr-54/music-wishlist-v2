@@ -115,14 +115,36 @@ export class SearchService {
   }
 
   saveSearchState(query: string, selectedTypes: Set<TrackType | 'artist'>, results: Track[]) {
-    this.savedState.set({ query, selectedTypes, results });
+    const state = { query, selectedTypes, results };
+    this.savedState.set(state);
+    sessionStorage.setItem('searchState', JSON.stringify({
+      query,
+      selectedTypes: Array.from(selectedTypes),
+      results
+    }));
   }
 
   getSavedSearchState() {
-    return this.savedState();
+    let state = this.savedState();
+    if (!state) {
+      const stored = sessionStorage.getItem('searchState');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          state = {
+            query: parsed.query,
+            selectedTypes: new Set(parsed.selectedTypes),
+            results: parsed.results
+          };
+          this.savedState.set(state);
+        } catch {}
+      }
+    }
+    return state;
   }
 
   clearSearchState() {
     this.savedState.set(null);
+    sessionStorage.removeItem('searchState');
   }
 }

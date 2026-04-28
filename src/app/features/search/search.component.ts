@@ -423,7 +423,6 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.query.set(savedState.query);
       this.selectedTypes.set(savedState.selectedTypes);
       this.results.set(savedState.results);
-      this.search.clearSearchState();
     }
 
     this.sub = this.search$
