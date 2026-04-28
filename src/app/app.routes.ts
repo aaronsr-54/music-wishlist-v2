@@ -9,6 +9,15 @@ export const routes: Routes = [
   },
 
   {
+    path: 'artist/:id',
+    loadComponent: () =>
+      import('./features/artist/artist.component').then(
+        (m) => m.ArtistComponent,
+      ),
+    canActivate: [authGuard],
+  },
+
+  {
     path: '',
     loadComponent: () =>
       import('./shell/shell.component').then((m) => m.ShellComponent),

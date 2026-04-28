@@ -78,4 +78,32 @@ export class SearchService {
       }),
     );
   }
+
+  getArtistTracks(artistId: string): Observable<Track[]> {
+    return from(
+      fetch(
+        `${this.apiUrl}/artist?id=${artistId}`,
+      ).then((r) => r.json()),
+    ).pipe(
+      map((res: any) => {
+        return (res.data ?? []).map((t: any) => ({
+          id: String(t.id),
+          name: t.title,
+          artists: [t.artist?.name ?? ''],
+          coverUrl: t.album?.cover_big ?? t.album?.cover_medium ?? '',
+          type: 'track' as TrackType,
+          uri: t.link ?? '',
+          artistId: t.artist?.id,
+        }));
+      }),
+    );
+  }
+
+  getArtist(artistId: string): Observable<any> {
+    return from(
+      fetch(
+        `${this.apiUrl}/artist-info?id=${artistId}`,
+      ).then((r) => r.json()),
+    );
+  }
 }

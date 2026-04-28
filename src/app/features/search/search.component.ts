@@ -597,6 +597,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   private search = inject(SearchService);
   private wishlistSvc = inject(WishlistService);
   private authSvc = inject(AuthService);
+  private router = inject(Router);
 
   loading = signal(false);
   query = signal('');
@@ -712,8 +713,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   goToArtist(artist: Track) {
-    const router = inject(Router);
-    router.navigate(['/artist', artist.artistId || artist.id]);
+    this.router.navigate(['/artist', artist.artistId || artist.id]);
   }
 
   formatFans(count: number): string {

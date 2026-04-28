@@ -1,4 +1,4 @@
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   Auth,
@@ -15,11 +15,12 @@ export class AuthService {
   private router = inject(Router);
 
   private firebaseUser = toSignal(authState(this.auth), { initialValue: null });
+  demoMode = signal(false);
 
   readonly authState$ = authState(this.auth);
 
   currentUser = this.firebaseUser;
-  isLoggedIn = computed(() => !!this.currentUser());
+  isLoggedIn = computed(() => !!this.currentUser() || this.demoMode());
 
   async loginWithGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
@@ -29,6 +30,11 @@ export class AuthService {
 
   async logout(): Promise<void> {
     await signOut(this.auth).catch(() => {});
+    this.demoMode.set(false);
     this.router.navigate(['/login']);
+  }
+
+  setDemoMode(enabled: boolean): void {
+    this.demoMode.set(enabled);
   }
 }
