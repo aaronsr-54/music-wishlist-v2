@@ -118,7 +118,7 @@ export class SearchService {
       ),
     ).pipe(
       map((res: any) => {
-        const mapped = (res.data ?? []).map((a: any) => ({
+        return (res.data ?? []).map((a: any) => ({
           id: String(a.id),
           name: a.title,
           artist: a.artist?.name ?? '',
@@ -126,8 +126,6 @@ export class SearchService {
           type: (a.record_type === 'single' ? 'single' : 'album') as TrackType,
           releaseDate: a.release_date ?? '',
         }));
-
-        return mapped;
       }),
     );
   }

@@ -9,11 +9,10 @@ export default async (req, res) => {
     const url = `https://api.deezer.com/artist/${id}/albums?limit=50`;
     const response = await fetch(url);
     const data = await response.json();
-    
+
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.json(data);
   } catch (error) {
-    console.error('Error in artist-albums:', error);
-    res.status(500).json({ error: 'Internal server error', details: error.message });
+    res.status(500).json({ error: 'Internal server error' });
   }
 };
