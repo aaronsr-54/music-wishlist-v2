@@ -224,6 +224,7 @@ export class ReleasesComponent implements OnInit {
 
   constructor() {
     effect(() => {
+      this.favorites();
       this.loadReleases();
     });
   }
@@ -258,6 +259,7 @@ export class ReleasesComponent implements OnInit {
 
   private loadReleases() {
     const favorites = this.favoritesSvc.favorites();
+    console.log('favorites:', favorites);
 
     if (favorites.length === 0) {
       this.allReleases.set([]);
@@ -266,14 +268,20 @@ export class ReleasesComponent implements OnInit {
 
     this.loading.set(true);
 
-    const releaseObservables = favorites.map((fav) =>
-      this.searchSvc
+    const releaseObservables = favorites.map((fav) => {
+      console.log(`Getting releases for artist: ${fav.name} (${fav.artistId})`);
+      return this.searchSvc
         .getArtistReleases(fav.artistId)
-        .pipe(catchError(() => of([]))),
-    );
+        .pipe(catchError((err) => {
+          console.error(`Error loading releases for ${fav.name}:`, err);
+          return of([]);
+        }));
+    });
 
     forkJoin(releaseObservables).subscribe((results) => {
+      console.log('Release results:', results);
       const allReleases = results.flat();
+      console.log('All releases flattened:', allReleases);
       this.allReleases.set(allReleases);
       this.loading.set(false);
     });

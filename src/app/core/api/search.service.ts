@@ -113,10 +113,11 @@ export class SearchService {
 
   getArtistReleases(artistId: string): Observable<ReleaseItem[]> {
     return from(
-      fetch(`${this.apiUrl}/artist?id=${artistId}`).then((r) => r.json()),
+      fetch(`${this.apiUrl}/artist-albums?id=${artistId}`).then((r) => r.json()),
     ).pipe(
       map((res: any) => {
-        return (res.data ?? []).map((a: any) => ({
+        console.log(`API response for artist ${artistId}:`, res);
+        const mapped = (res.data ?? []).map((a: any) => ({
           id: String(a.id),
           name: a.title,
           artist: a.artist?.name ?? '',
@@ -124,6 +125,8 @@ export class SearchService {
           type: (a.record_type === 'single' ? 'ep' : 'album') as TrackType,
           releaseDate: a.release_date ?? '',
         }));
+        console.log(`Mapped releases for artist ${artistId}:`, mapped);
+        return mapped;
       }),
     );
   }
