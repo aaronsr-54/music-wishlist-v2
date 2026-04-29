@@ -1,4 +1,4 @@
-export type TrackType = 'track' | 'album' | 'ep' | 'artist';
+export type TrackType = 'track' | 'album' | 'ep' | 'single' | 'artist';
 
 export interface Track {
   id: string;

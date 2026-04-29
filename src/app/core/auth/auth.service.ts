@@ -41,7 +41,6 @@ export class AuthService {
   setDemoMode(enabled: boolean): void {
     this.demoMode.set(enabled);
     if (enabled) {
-      console.log('[AuthService] Demo mode enabled, initializing wishlist listener');
       this.wishlistService.initListener();
     }
   }

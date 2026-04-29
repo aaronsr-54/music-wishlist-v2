@@ -6,12 +6,14 @@ const LABELS: Partial<Record<TrackType, string>> = {
   track: 'Canción',
   album: 'Álbum',
   ep: 'EP',
+  single: 'Single',
 };
 
 const COLORS: Partial<Record<TrackType, string>> = {
   track: 'var(--accent-track)',
   album: 'var(--accent-album)',
   ep: 'var(--accent-ep)',
+  single: 'var(--accent-track)',
 };
 
 @Component({
