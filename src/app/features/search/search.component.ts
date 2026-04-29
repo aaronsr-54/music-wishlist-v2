@@ -316,22 +316,22 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         overflow-y: auto;
         min-height: 0;
         scrollbar-width: none;
+        padding-top: 1rem;
+        padding-bottom: 2rem;
         -webkit-mask-image: linear-gradient(
           to bottom,
           transparent 0%,
           black 16px,
-          black 80%,
+          black 95%,
           transparent 100%
         );
         mask-image: linear-gradient(
           to bottom,
           transparent 0%,
           black 16px,
-          black 80%,
+          black 95%,
           transparent 100%
         );
-
-        padding-top: 1rem;
       }
 
       .results::-webkit-scrollbar {

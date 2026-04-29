@@ -196,18 +196,19 @@ type WishlistTab = 'pending' | 'downloaded';
         flex: 1;
         overflow-y: auto;
         scrollbar-width: none;
+        padding-bottom: 2rem;
         -webkit-mask-image: linear-gradient(
           to bottom,
           transparent 0%,
           black 16px,
-          black 88%,
+          black 95%,
           transparent 100%
         );
         mask-image: linear-gradient(
           to bottom,
           transparent 0%,
           black 16px,
-          black 88%,
+          black 95%,
           transparent 100%
         );
       }

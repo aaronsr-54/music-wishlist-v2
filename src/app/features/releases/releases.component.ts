@@ -162,6 +162,7 @@ const MONTHS = [
         display: flex;
         flex-direction: column;
         height: 100%;
+        padding-bottom: 2rem;
       }
 
       .month-selector-container {
@@ -286,18 +287,19 @@ const MONTHS = [
         padding-top: 16px;
         animation: fadeIn 300ms ease both;
 
+        padding-bottom: 2rem;
         -webkit-mask-image: linear-gradient(
           to bottom,
           transparent 0%,
           black 16px,
-          black 80%,
+          black 95%,
           transparent 100%
         );
         mask-image: linear-gradient(
           to bottom,
           transparent 0%,
           black 16px,
-          black 80%,
+          black 95%,
           transparent 100%
         );
 
