@@ -1,4 +1,12 @@
-import { Injectable, computed, inject, signal, effect, runInInjectionContext, Injector } from '@angular/core';
+import {
+  Injectable,
+  computed,
+  inject,
+  signal,
+  effect,
+  runInInjectionContext,
+  Injector,
+} from '@angular/core';
 import {
   Firestore,
   collection,
@@ -12,8 +20,8 @@ import {
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
 import { Track } from '../../shared/models/track.model';
-import { FavoriteArtist } from '../../shared/models/favorite-artist.model';
 import { AuthService } from '../auth/auth.service';
+import { FavoriteArtist } from '../../shared/models/favorite.artist.model';
 
 @Injectable({ providedIn: 'root' })
 export class FavoritesService {
@@ -24,7 +32,7 @@ export class FavoritesService {
   private _favorites = signal<FavoriteArtist[]>([]);
   favorites = this._favorites.asReadonly();
 
-  artistIds = computed(() => new Set(this._favorites().map(f => f.artistId)));
+  artistIds = computed(() => new Set(this._favorites().map((f) => f.artistId)));
 
   private unsubscribeFn: (() => void) | null = null;
 
@@ -45,12 +53,12 @@ export class FavoritesService {
         const q = query(
           col,
           where('addedByUid', '==', user.uid),
-          orderBy('addedAt', 'desc')
+          orderBy('addedAt', 'desc'),
         );
 
-        this.unsubscribeFn = onSnapshot(q, snap => {
+        this.unsubscribeFn = onSnapshot(q, (snap) => {
           this._favorites.set(
-            snap.docs.map(d => ({ id: d.id, ...d.data() } as FavoriteArtist))
+            snap.docs.map((d) => ({ id: d.id, ...d.data() }) as FavoriteArtist),
           );
         });
       });
@@ -73,7 +81,7 @@ export class FavoritesService {
   }
 
   async remove(artistId: string): Promise<void> {
-    const docToDelete = this._favorites().find(f => f.artistId === artistId);
+    const docToDelete = this._favorites().find((f) => f.artistId === artistId);
     if (docToDelete?.id) {
       await deleteDoc(doc(this.firestore, 'favorite-artists', docToDelete.id));
     }

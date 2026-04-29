@@ -7,10 +7,42 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
     <nav class="tab-bar">
       <button
         class="tab"
+        [class.active]="activeTab === 'releases'"
+        (click)="tabChange.emit('releases')"
+      >
+        <svg
+          fill="currentColor"
+          height="18"
+          width="18"
+          viewBox="0 0 24 24"
+          xml:space="preserve"
+        >
+          <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+          <g
+            id="SVGRepo_tracerCarrier"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          ></g>
+          <g id="SVGRepo_iconCarrier">
+            <g id="new">
+              <g>
+                <polygon
+                  points="13,23 11,23 11,13.7 3,18.4 2,16.6 10,12 2,7.4 3,5.6 11,10.3 11,1 13,1 13,10.3 21,5.6 22,7.4 14,12 22,16.6 21,18.4 13,13.7 "
+                ></polygon>
+              </g>
+            </g>
+          </g>
+        </svg>
+        @if (activeTab === 'releases') {
+          <span>LANZAMIENTOS</span>
+        }
+      </button>
+      <button
+        class="tab"
         [class.active]="activeTab === 'search'"
         (click)="tabChange.emit('search')"
       >
-        <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
           <circle
             cx="9.5"
             cy="9.5"
@@ -25,14 +57,16 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             stroke-linecap="round"
           />
         </svg>
-        <span>BUSCADOR</span>
+        @if (activeTab === 'search') {
+          <span>BUSCADOR</span>
+        }
       </button>
       <button
         class="tab"
         [class.active]="activeTab === 'wishlist'"
         (click)="tabChange.emit('wishlist')"
       >
-        <svg width="16" height="16" viewBox="0 0 22 22" fill="none">
+        <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
           <path
             d="M11 19S3 13.5 3 8a5 5 0 018-4A5 5 0 0119 8c0 5.5-8 11-8 11z"
             stroke="currentColor"
@@ -40,7 +74,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
             stroke-linejoin="round"
           />
         </svg>
-        <span>WHISLIST</span>
+        @if (activeTab === 'wishlist') {
+          <span>WHISLIST</span>
+        }
       </button>
     </nav>
   `,
@@ -58,13 +94,13 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         border-top: 1px solid var(--ink-100);
         box-shadow: 0px -4px 10px 5px rgb(0 0 0 / 10%);
         flex-shrink: 0;
-        border-top-left-radius: var(--radius-lg);
-        border-top-right-radius: var(--radius-lg);
+        border-top-left-radius: var(--radius-xl);
+        border-top-right-radius: var(--radius-xl);
         width: 100%;
       }
 
       .tab {
-        flex: 1;
+        flex-grow: 1;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -78,24 +114,25 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         font-weight: 500;
         letter-spacing: 0.04em;
         transition: color var(--dur-fast) var(--ease);
-        padding: 18px 0;
-        border-radius: var(--radius-lg);
+        padding: 12px 0;
+        border-radius: var(--radius-pill);
+      }
+
+      .tab span {
+        font-family: var(--font-display);
+        font-weight: 700;
       }
 
       .tab.active {
         color: var(--ink);
         background-color: var(--bone);
-      }
-
-      .tab.active span {
-        font-family: var(--font-display);
-        font-weight: 700;
-        border-bottom: 2px solid var(--ink);
+        flex-grow: 2;
       }
     `,
   ],
 })
 export class TabBarComponent {
-  @Input({ required: true }) activeTab: 'search' | 'wishlist' = 'search';
-  @Output() tabChange = new EventEmitter<'search' | 'wishlist'>();
+  @Input({ required: true }) activeTab: 'search' | 'wishlist' | 'releases' =
+    'releases';
+  @Output() tabChange = new EventEmitter<'search' | 'wishlist' | 'releases'>();
 }

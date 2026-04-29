@@ -1,4 +1,11 @@
-import { Component, computed, effect, inject, signal, OnInit } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  signal,
+  OnInit,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
 import { catchError, switchMap } from 'rxjs/operators';
@@ -8,8 +15,18 @@ import { ReleaseItem } from '../../shared/models/release-item.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 
 const MONTHS = [
-  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
-  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  'Enero',
+  'Febrero',
+  'Marzo',
+  'Abril',
+  'Mayo',
+  'Junio',
+  'Julio',
+  'Agosto',
+  'Septiembre',
+  'Octubre',
+  'Noviembre',
+  'Diciembre',
 ];
 
 @Component({
@@ -119,7 +136,9 @@ const MONTHS = [
         cursor: pointer;
         font-size: 18px;
         font-weight: 600;
-        transition: color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+        transition:
+          color var(--dur-fast) var(--ease),
+          transform var(--dur-fast) var(--ease);
         padding: 0;
         display: flex;
         align-items: center;
@@ -188,10 +207,13 @@ export class ReleasesComponent implements OnInit {
     const year = this.selectedYear();
 
     return this.allReleases()
-      .filter(release => {
+      .filter((release) => {
         if (!release.releaseDate) return false;
-        const [releaseYear, releaseMonth] = release.releaseDate.split('-').slice(0, 2).map(Number);
-        return releaseYear === year && (releaseMonth - 1) === month;
+        const [releaseYear, releaseMonth] = release.releaseDate
+          .split('-')
+          .slice(0, 2)
+          .map(Number);
+        return releaseYear === year && releaseMonth - 1 === month;
       })
       .sort((a, b) => {
         const dateA = new Date(a.releaseDate).getTime();
@@ -244,13 +266,13 @@ export class ReleasesComponent implements OnInit {
 
     this.loading.set(true);
 
-    const releaseObservables = favorites.map(fav =>
-      this.searchSvc.getArtistReleases(fav.artistId).pipe(
-        catchError(() => of([]))
-      )
+    const releaseObservables = favorites.map((fav) =>
+      this.searchSvc
+        .getArtistReleases(fav.artistId)
+        .pipe(catchError(() => of([]))),
     );
 
-    forkJoin(releaseObservables).subscribe(results => {
+    forkJoin(releaseObservables).subscribe((results) => {
       const allReleases = results.flat();
       this.allReleases.set(allReleases);
       this.loading.set(false);

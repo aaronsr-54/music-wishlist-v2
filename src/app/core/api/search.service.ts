@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Observable, forkJoin, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Track, TrackType } from '../../shared/models/track.model';
+import { ReleaseItem } from '../../shared/models/release-item.model';
 
 interface SearchState {
   query: string;
@@ -88,9 +89,7 @@ export class SearchService {
 
   getArtistTracks(artistId: string): Observable<Track[]> {
     return from(
-      fetch(
-        `${this.apiUrl}/artist?id=${artistId}`,
-      ).then((r) => r.json()),
+      fetch(`${this.apiUrl}/artist?id=${artistId}`).then((r) => r.json()),
     ).pipe(
       map((res: any) => {
         return (res.data ?? []).map((t: any) => ({
@@ -108,20 +107,42 @@ export class SearchService {
 
   getArtist(artistId: string): Observable<any> {
     return from(
-      fetch(
-        `${this.apiUrl}/artist-info?id=${artistId}`,
-      ).then((r) => r.json()),
+      fetch(`${this.apiUrl}/artist-info?id=${artistId}`).then((r) => r.json()),
     );
   }
 
-  saveSearchState(query: string, selectedTypes: Set<TrackType | 'artist'>, results: Track[]) {
+  getArtistReleases(artistId: string): Observable<ReleaseItem[]> {
+    return from(
+      fetch(`${this.apiUrl}/artist?id=${artistId}`).then((r) => r.json()),
+    ).pipe(
+      map((res: any) => {
+        return (res.data ?? []).map((a: any) => ({
+          id: String(a.id),
+          name: a.title,
+          artist: a.artist?.name ?? '',
+          coverUrl: a.cover_big ?? a.cover_medium ?? '',
+          type: (a.record_type === 'single' ? 'ep' : 'album') as TrackType,
+          releaseDate: a.release_date ?? '',
+        }));
+      }),
+    );
+  }
+
+  saveSearchState(
+    query: string,
+    selectedTypes: Set<TrackType | 'artist'>,
+    results: Track[],
+  ) {
     const state = { query, selectedTypes, results };
     this.savedState.set(state);
-    sessionStorage.setItem('searchState', JSON.stringify({
-      query,
-      selectedTypes: Array.from(selectedTypes),
-      results
-    }));
+    sessionStorage.setItem(
+      'searchState',
+      JSON.stringify({
+        query,
+        selectedTypes: Array.from(selectedTypes),
+        results,
+      }),
+    );
   }
 
   getSavedSearchState() {
@@ -134,7 +155,7 @@ export class SearchService {
           state = {
             query: parsed.query,
             selectedTypes: new Set(parsed.selectedTypes),
-            results: parsed.results
+            results: parsed.results,
           };
           this.savedState.set(state);
         } catch {}

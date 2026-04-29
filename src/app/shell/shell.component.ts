@@ -9,6 +9,7 @@ import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
 import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
+import { ReleasesComponent } from '../features/releases/releases.component';
 import { ProfileModalComponent } from '../features/profile/profile-modal.component';
 import { filter } from 'rxjs';
 
@@ -21,13 +22,23 @@ import { filter } from 'rxjs';
     TabBarComponent,
     SearchComponent,
     WishlistComponent,
+    ReleasesComponent,
     ProfileModalComponent,
   ],
   template: `
-    <!-- Desktop ≥768px: dos paneles simultáneos -->
+    <!-- Desktop ≥768px: tres paneles simultáneos -->
     <div class="desktop-shell">
       <app-header (openProfile)="showProfileModal.set(true)" />
-      <main class="two-pane">
+      <main class="three-pane">
+        <section [class.dim]="activeTab() !== 'releases'">
+          @if (activeTab() !== 'releases') {
+            <div
+              class="panel-overlay"
+              (click)="activeTab.set('releases')"
+            ></div>
+          }
+          <app-releases />
+        </section>
         <section [class.dim]="activeTab() !== 'search' && !hasChildRoute()">
           @if (activeTab() !== 'search' && !hasChildRoute()) {
             <div class="panel-overlay" (click)="activeTab.set('search')"></div>
@@ -38,8 +49,8 @@ import { filter } from 'rxjs';
             <router-outlet />
           }
         </section>
-        <section [class.dim]="activeTab() === 'search'">
-          @if (activeTab() === 'search') {
+        <section [class.dim]="activeTab() !== 'wishlist'">
+          @if (activeTab() !== 'wishlist') {
             <div
               class="panel-overlay"
               (click)="activeTab.set('wishlist')"
@@ -115,7 +126,7 @@ import { filter } from 'rxjs';
         }
       }
 
-      .two-pane {
+      .three-pane {
         display: flex;
         width: 100dvw;
         flex: 1;
@@ -123,7 +134,7 @@ import { filter } from 'rxjs';
         padding: 12px;
       }
 
-      .two-pane > section {
+      .three-pane > section {
         padding: 16px 8px;
         position: relative;
         overflow-y: auto;
@@ -135,19 +146,19 @@ import { filter } from 'rxjs';
         border-radius: var(--radius-md);
       }
 
-      .two-pane > section:not(.dim) {
+      .three-pane > section:not(.dim) {
         border-color: var(--bone);
         box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.1);
         flex-grow: 1;
       }
 
-      .two-pane > section.dim {
+      .three-pane > section.dim {
         opacity: 0.2;
-        width: 35%;
+        width: 25%;
         filter: blur(1.5px);
       }
 
-      .two-pane > section.dim:hover {
+      .three-pane > section.dim:hover {
         opacity: 0.5;
         filter: blur(1px);
       }
@@ -165,7 +176,7 @@ export class ShellComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  activeTab = signal<'search' | 'wishlist'>('search');
+  activeTab = signal<'search' | 'wishlist' | 'releases'>('search');
   showProfileModal = signal(false);
   hasChildRoute = signal(false);
 

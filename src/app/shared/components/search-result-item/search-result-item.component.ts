@@ -5,6 +5,7 @@ import { WishlistEntry } from '../../models/wishlist-entry.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { ReleaseItem } from '../../models/release-item.model';
 
 @Component({
   selector: 'app-search-result-item',
@@ -55,9 +56,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
             <div class="item-meta">
               <span class="item-title">{{ trackItem().name }}</span>
               <div class="item-subtitle">
-                <span class="item-artist">{{
-                  trackItem().artists[0]
-                }}</span>
+                <span class="item-artist">{{ trackItem().artists[0] }}</span>
                 ·
                 <app-type-chip [type]="trackItem().type" />
               </div>
@@ -67,9 +66,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
                 class="add-btn"
                 [class.added]="isAdded()"
                 (click)="onAddClick.emit(trackItem())"
-                [title]="
-                  isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'
-                "
+                [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
               >
                 @if (isAdded()) {
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -82,12 +79,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
                     />
                   </svg>
                 } @else {
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 16 16"
-                    fill="none"
-                  >
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path
                       d="M8 3V13M3 8H13"
                       stroke="currentColor"
@@ -111,17 +103,12 @@ import { AvatarComponent } from '../avatar/avatar.component';
         <div class="item-meta">
           <span class="item-title">{{ wishlistItem().name }}</span>
           <span class="item-subitle">
-            <span class="item-artist">{{
-              wishlistItem().artist
-            }}</span>
+            <span class="item-artist">{{ wishlistItem().artist }}</span>
             ·
             <app-type-chip [type]="wishlistItem().type" />
           </span>
           <span class="added-by">
-            <app-avatar
-              [name]="wishlistItem().addedBy"
-              [size]="14"
-            />
+            <app-avatar [name]="wishlistItem().addedBy" [size]="14" />
             {{ wishlistItem().addedBy }} ·
             <span class="added-date">{{
               wishlistItem().addedAt | date: 'd MMM'
@@ -375,8 +362,8 @@ import { AvatarComponent } from '../avatar/avatar.component';
   ],
 })
 export class SearchResultItemComponent {
-  item = input.required<Track | WishlistEntry>();
-  source = input<'search' | 'wishlist'>('search');
+  item = input.required<Track | WishlistEntry | ReleaseItem>();
+  source = input<'search' | 'wishlist' | 'releases'>('search');
   type = input<'artist' | 'track'>('track');
   isAdded = input(false);
   showAddButton = input(true);
