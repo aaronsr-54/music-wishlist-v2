@@ -34,7 +34,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
     <div class="panel">
       <div class="eyebrow">
         <span class="label"
-          ><span class="label--number">01/</span> BUSCADOR</span
+          ><span class="label--number">02/</span> BUSCADOR</span
         >
       </div>
 

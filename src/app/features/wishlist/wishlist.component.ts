@@ -13,7 +13,7 @@ type WishlistTab = 'pending' | 'downloaded';
     <div class="panel">
       <div class="eyebrow">
         <span class="label"
-          ><span class="label--number">02/</span> WISHLIST</span
+          ><span class="label--number">03/</span> WISHLIST</span
         >
         <span class="eyebrow-sub">{{ wishlistSvc.total() }} elementos</span>
       </div>

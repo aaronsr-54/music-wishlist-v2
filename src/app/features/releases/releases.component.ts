@@ -8,11 +8,11 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { forkJoin, of } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { SearchService } from '../../core/api/search.service';
 import { FavoritesService } from '../../core/firebase/favorites.service';
-import { ReleaseItem } from '../../shared/models/release-item.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
+import { ReleaseItem } from '../../shared/models/release-item.model';
 
 const MONTHS = [
   'Enero',
@@ -37,7 +37,7 @@ const MONTHS = [
     <div class="panel">
       <div class="eyebrow">
         <span class="label">
-          <span class="label--number">01/</span> ÚLTIMOS LANZAMIENTOS
+          <span class="label--number">01/</span> LANZAMIENTOS
         </span>
       </div>
 

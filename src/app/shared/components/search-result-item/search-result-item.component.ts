@@ -6,7 +6,6 @@ import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { AvatarComponent } from '../avatar/avatar.component';
-import { ReleaseItem } from '../../models/release-item.model';
 
 @Component({
   selector: 'app-search-result-item',

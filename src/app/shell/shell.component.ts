@@ -70,6 +70,9 @@ import { filter } from 'rxjs';
           <router-outlet />
         } @else {
           @switch (activeTab()) {
+            @case ('releases') {
+              <app-releases />
+            }
             @case ('search') {
               <app-search />
             }
@@ -142,8 +145,8 @@ import { filter } from 'rxjs';
         overflow-y: auto;
         height: 100%;
         transition: border-color var(--dur-base) var(--ease);
-        border: 2px solid var(--bone);
         border-radius: var(--radius-md);
+        border: 2px solid var(--bone-900);
       }
 
       .three-pane > section:not(.dim) {

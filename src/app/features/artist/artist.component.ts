@@ -19,7 +19,7 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
           ← Volver
         </button>
         <span class="label"
-          ><span class="label--number">01.a/</span> ARTISTA</span
+          ><span class="label--number">02.a/</span> ARTISTA</span
         >
       </div>
 

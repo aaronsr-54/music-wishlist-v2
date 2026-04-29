@@ -133,6 +133,6 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 })
 export class TabBarComponent {
   @Input({ required: true }) activeTab: 'search' | 'wishlist' | 'releases' =
-    'releases';
+    'search';
   @Output() tabChange = new EventEmitter<'search' | 'wishlist' | 'releases'>();
 }
