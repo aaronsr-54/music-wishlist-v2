@@ -40,8 +40,5 @@ export class AuthService {
 
   setDemoMode(enabled: boolean): void {
     this.demoMode.set(enabled);
-    if (enabled) {
-      this.wishlistService.initListener();
-    }
   }
 }
