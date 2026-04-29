@@ -8,6 +8,7 @@ export const authGuard: CanActivateFn = (route: ActivatedRouteSnapshot, state: R
   const router = inject(Router);
 
   const demoMode = state.root.queryParams['demo'] !== undefined || auth.demoMode();
+  console.log('[authGuard] Demo mode detected:', demoMode, 'Query params:', state.root.queryParams);
   if (demoMode) {
     auth.setDemoMode(true);
     return true;

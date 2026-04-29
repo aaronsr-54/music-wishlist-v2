@@ -8,7 +8,7 @@ import { AuthService } from '../../core/auth/auth.service';
     <div class="screen">
       <header class="eyebrow">
         <span class="label"><span class="label--number">00/</span> ACCESO</span>
-        <span class="version">v0.1 - beta</span>
+        <span class="version">v0.2 - beta</span>
       </header>
 
       <main class="hero">
@@ -53,7 +53,6 @@ import { AuthService } from '../../core/auth/auth.service';
               Continuar con Google
             }
           </button>
-
         </div>
         @if (error()) {
           <p class="error">{{ error() }}</p>
@@ -264,5 +263,4 @@ export class LoginComponent {
       this.loading.set(false);
     }
   }
-
 }

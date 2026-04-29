@@ -138,6 +138,7 @@ type WishlistTab = 'pending' | 'downloaded';
         padding: 4px;
         background: var(--ink-200);
         border-radius: var(--radius-pill);
+        margin: 12px 0;
       }
 
       .seg-btns {

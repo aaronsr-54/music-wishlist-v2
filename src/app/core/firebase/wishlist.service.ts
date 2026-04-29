@@ -8,7 +8,7 @@ import {
   doc,
   onSnapshot,
   query,
-  orderBy
+  orderBy,
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
 import { Track } from '../../shared/models/track.model';
@@ -21,9 +21,9 @@ export class WishlistService {
   private _entries = signal<WishlistEntry[]>([]);
   entries = this._entries.asReadonly();
 
-  pending = computed(() => this._entries().filter(e => !e.downloaded));
-  downloaded = computed(() => this._entries().filter(e => e.downloaded));
-  trackIds = computed(() => new Set(this._entries().map(e => e.trackId)));
+  pending = computed(() => this._entries().filter((e) => !e.downloaded));
+  downloaded = computed(() => this._entries().filter((e) => e.downloaded));
+  trackIds = computed(() => new Set(this._entries().map((e) => e.trackId)));
   total = computed(() => this._entries().length);
 
   private unsubscribe: (() => void) | null = null;
@@ -36,10 +36,11 @@ export class WishlistService {
     const col = collection(this.firestore, 'wishlist');
     const q = query(col, orderBy('addedAt', 'desc'));
 
-    this.unsubscribe = onSnapshot(q, snap => {
-      this._entries.set(
-        snap.docs.map(d => ({ id: d.id, ...d.data() } as WishlistEntry))
+    this.unsubscribe = onSnapshot(q, (snap) => {
+      const entries = snap.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
       );
+      this._entries.set(entries);
     });
   }
 
@@ -60,7 +61,7 @@ export class WishlistService {
       addedAt: Date.now(),
       addedBy: user.displayName ?? user.email ?? 'Anónimo',
       addedByUid: user.uid,
-      downloaded: false
+      downloaded: false,
     };
 
     const col = collection(this.firestore, 'wishlist');
