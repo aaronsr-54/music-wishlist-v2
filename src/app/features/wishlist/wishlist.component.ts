@@ -1,27 +1,14 @@
-import {
-  Component,
-  computed,
-  inject,
-  signal,
-  ViewChild,
-  ViewChildren,
-  QueryList,
-  ElementRef,
-  OnDestroy,
-} from '@angular/core';
-import { DatePipe } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
-import { CoverComponent } from '../../shared/components/cover/cover.component';
-import { TypeChipComponent } from '../../shared/components/type-chip/type-chip.component';
-import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
+import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 
 type WishlistTab = 'pending' | 'downloaded';
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [DatePipe, CoverComponent, TypeChipComponent, AvatarComponent],
+  imports: [SearchResultItemComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -56,93 +43,18 @@ type WishlistTab = 'pending' | 'downloaded';
         </div>
       </div>
 
-      <div class="list" #listContainer>
+      <div class="list">
         @for (entry of activeEntries(); track entry.id) {
-          <div class="wishlist-row" #wishlistRow>
-            <app-cover
-              [coverUrl]="entry.coverUrl"
-              [name]="entry.name"
-              [size]="64"
-            />
-            <div class="item-meta">
-              <span class="item-title">{{ entry.name }}</span>
-              <span class="item-subitle">
-                <span class="item-artist">{{ entry.artist }}</span>
-                ·
-                <app-type-chip [type]="entry.type" />
-              </span>
-              <span class="added-by">
-                <app-avatar [name]="entry.addedBy" [size]="14" />
-                {{ entry.addedBy }} ·
-                <span class="added-date">{{
-                  entry.addedAt | date: 'd MMM'
-                }}</span>
-              </span>
-            </div>
-            <div class="actions">
-              @if (activeTab() === 'pending') {
-                <button
-                  class="action-btn"
-                  (click)="markDownloaded(entry)"
-                  title="Marcar como listo"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M3 8.5L6.5 12L13 5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
-                <button
-                  class="action-btn action-danger"
-                  (click)="remove(entry)"
-                  title="Eliminar"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M4 4L12 12M12 4L4 12"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                </button>
-              } @else {
-                <button
-                  class="action-btn"
-                  (click)="unmarkDownloaded(entry)"
-                  title="Mover a pendientes"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M10 4L6 8L10 12"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
-                </button>
-                <button
-                  class="action-btn action-danger"
-                  (click)="remove(entry)"
-                  title="Eliminar"
-                >
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M5 3h6M3 5h10M5 5v7a1 1 0 001 1h4a1 1 0 001-1V5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                </button>
-              }
-            </div>
-          </div>
+          <app-search-result-item
+            [item]="entry"
+            source="wishlist"
+            [wishlistStatus]="
+              activeTab() === 'pending' ? 'pending' : 'downloaded'
+            "
+            (onMarkDownloaded)="markDownloaded($event)"
+            (onUnmarkDownloaded)="unmarkDownloaded($event)"
+            (onRemove)="remove($event)"
+          />
         } @empty {
           <div class="empty-state">
             <div class="empty-icon">
@@ -282,144 +194,26 @@ type WishlistTab = 'pending' | 'downloaded';
       .list {
         flex: 1;
         overflow-y: auto;
-        padding: 4px 20px 16px;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 16px,
+          black 88%,
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 16px,
+          black 88%,
+          transparent 100%
+        );
+        padding: 1rem;
       }
 
-      .wishlist-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 12px 8px;
-        border-bottom: 1px solid var(--ink-200);
-        margin: 0 -8px;
-        transition: background var(--dur-fast) var(--ease);
-        animation: rowEnter var(--dur-base) var(--ease) both;
-      }
-
-      .wishlist-row:last-child {
-        border-bottom: none;
-      }
-
-      .wishlist-row:nth-child(1) {
-        animation-delay: 0ms;
-      }
-      .wishlist-row:nth-child(2) {
-        animation-delay: 30ms;
-      }
-      .wishlist-row:nth-child(3) {
-        animation-delay: 60ms;
-      }
-      .wishlist-row:nth-child(4) {
-        animation-delay: 90ms;
-      }
-      .wishlist-row:nth-child(5) {
-        animation-delay: 120ms;
-      }
-      .wishlist-row:nth-child(6) {
-        animation-delay: 150ms;
-      }
-      .wishlist-row:nth-child(7) {
-        animation-delay: 180ms;
-      }
-      .wishlist-row:nth-child(8) {
-        animation-delay: 210ms;
-      }
-      .wishlist-row:nth-child(9) {
-        animation-delay: 240ms;
-      }
-      .wishlist-row:nth-child(10) {
-        animation-delay: 270ms;
-      }
-
-      .item-meta {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        min-width: 0;
-      }
-
-      .item-title {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--bone-100);
-        line-height: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        height: 18px;
-        text-overflow: ellipsis;
-        font-family: var(--font-display);
-      }
-
-      .item-subtitle {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        color: var(--bone-800);
-      }
-
-      .item-artist {
-        font-size: 13px;
-        color: var(--bone-600);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        height: 15px;
-      }
-
-      .added-by {
-        font-size: 11px;
-        color: var(--bone-800);
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        flex-wrap: wrap;
-        font-weight: 600;
-      }
-
-      .added-date {
-        font-family: var(--font-display);
-        font-weight: 400;
-        font-style: italic;
-      }
-
-      .actions {
-        display: flex;
-        gap: 4px;
-        flex-shrink: 0;
-      }
-
-      .action-btn {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 1.5px solid var(--ink-100);
-        background: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--bone-600);
-        transition:
-          border-color var(--dur-fast) var(--ease),
-          color var(--dur-fast) var(--ease),
-          transform var(--dur-fast) var(--ease);
-      }
-
-      .action-btn:hover {
-        border-color: var(--bone-400);
-        color: var(--bone);
-        transform: scale(1.1);
-      }
-
-      .action-btn:active {
-        transform: scale(0.88);
-      }
-
-      .action-btn.action-danger:hover {
-        border-color: #e57373;
-        color: #e57373;
-        transform: scale(1.1);
+      .list::-webkit-scrollbar {
+        display: none;
       }
 
       .empty-state {
@@ -458,60 +252,15 @@ type WishlistTab = 'pending' | 'downloaded';
     `,
   ],
 })
-export class WishlistComponent implements OnDestroy {
-  @ViewChild('listContainer') listContainer?: ElementRef<HTMLElement>;
-  @ViewChildren('wishlistRow') wishlistRows?: QueryList<ElementRef<HTMLElement>>;
-
+export class WishlistComponent {
   wishlistSvc = inject(WishlistService);
   activeTab = signal<WishlistTab>('pending');
-  private scrollListener?: () => void;
-
-  constructor() {
-    setTimeout(() => this.attachScrollListener(), 0);
-  }
 
   activeEntries = computed(() =>
     this.activeTab() === 'pending'
       ? this.wishlistSvc.pending()
       : this.wishlistSvc.downloaded(),
   );
-
-  ngOnDestroy() {
-    if (this.scrollListener && this.listContainer) {
-      this.listContainer.nativeElement.removeEventListener(
-        'scroll',
-        this.scrollListener,
-      );
-    }
-  }
-
-  private attachScrollListener() {
-    if (!this.listContainer) return;
-
-    this.scrollListener = () => this.updateBlurEffect();
-    this.listContainer.nativeElement.addEventListener(
-      'scroll',
-      this.scrollListener,
-    );
-  }
-
-  private updateBlurEffect() {
-    if (!this.wishlistRows || !this.listContainer) return;
-
-    const container = this.listContainer.nativeElement;
-    const containerRect = container.getBoundingClientRect();
-    const containerCenter = containerRect.top + containerRect.height / 2;
-
-    this.wishlistRows.forEach((row) => {
-      const rowRect = row.nativeElement.getBoundingClientRect();
-      const rowCenter = rowRect.top + rowRect.height / 2;
-      const distance = Math.abs(rowCenter - containerCenter);
-      const maxDistance = containerRect.height / 2;
-      const blurAmount = Math.max(0, (distance - maxDistance * 0.3) / (maxDistance * 0.7)) * 8;
-
-      row.nativeElement.style.filter = `blur(${Math.min(blurAmount, 8)}px)`;
-    });
-  }
 
   async markDownloaded(entry: WishlistEntry) {
     if (entry.id) await this.wishlistSvc.markDownloaded(entry.id);

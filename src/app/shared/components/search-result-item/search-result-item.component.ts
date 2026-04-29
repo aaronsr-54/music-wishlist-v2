@@ -1,91 +1,197 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, input, output } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { Track } from '../../models/track.model';
+import { WishlistEntry } from '../../models/wishlist-entry.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
+import { AvatarComponent } from '../avatar/avatar.component';
 
 @Component({
   selector: 'app-search-result-item',
   standalone: true,
-  imports: [CoverComponent, TypeChipComponent],
+  imports: [DatePipe, CoverComponent, TypeChipComponent, AvatarComponent],
   template: `
-    @switch (type()) {
-      @case ('artist') {
-        <button
-          class="item-row artist-row"
-          (click)="onArtistClick.emit(item())"
-        >
-          <app-cover
-            [coverUrl]="item().coverUrl"
-            [name]="item().name"
-            [size]="56"
-          />
-          <div class="item-meta">
-            <span class="item-title">{{ item().name }}</span>
-            <div class="item-subtitle">
-              @if (item().fanCount) {
-                <span class="item-stat item-stat--fans"
-                  ><b> {{ formatFans(item().fanCount ?? 0) }} </b> fan{{
-                    (item().fanCount ?? 0) !== 1 ? 's' : ''
-                  }}</span
-                >
-                <span class="item-sep">·</span>
-              }
-              @if (item().albumCount) {
-                <span class="item-stat item-stat--albums">
-                  {{ item().albumCount }}
-                  álbum{{ item().albumCount !== 1 ? 's' : '' }}</span
-                >
-              }
+    @if (source() === 'search') {
+      @switch (type()) {
+        @case ('artist') {
+          <button
+            class="item-row artist-row"
+            (click)="onArtistClick.emit(trackItem())"
+          >
+            <app-cover
+              [coverUrl]="trackItem().coverUrl"
+              [name]="trackItem().name"
+              [size]="56"
+            />
+            <div class="item-meta">
+              <span class="item-title">{{ trackItem().name }}</span>
+              <div class="item-subtitle">
+                @if (trackItem().fanCount) {
+                  <span class="item-stat item-stat--fans"
+                    ><b>
+                      {{ formatFans(trackItem().fanCount ?? 0) }}
+                    </b>
+                    fan{{ trackItem().fanCount !== 1 ? 's' : '' }}</span
+                  >
+                  <span class="item-sep">·</span>
+                }
+                @if (trackItem().albumCount) {
+                  <span class="item-stat item-stat--albums">
+                    {{ trackItem().albumCount }}
+                    álbum{{ trackItem().albumCount !== 1 ? 's' : '' }}</span
+                  >
+                }
+              </div>
             </div>
+          </button>
+        }
+        @case ('track') {
+          <div class="item-row">
+            <app-cover
+              [coverUrl]="trackItem().coverUrl"
+              [name]="trackItem().name"
+              [size]="56"
+            />
+            <div class="item-meta">
+              <span class="item-title">{{ trackItem().name }}</span>
+              <div class="item-subtitle">
+                <span class="item-artist">{{
+                  trackItem().artists[0]
+                }}</span>
+                ·
+                <app-type-chip [type]="trackItem().type" />
+              </div>
+            </div>
+            @if (showAddButton()) {
+              <button
+                class="add-btn"
+                [class.added]="isAdded()"
+                (click)="onAddClick.emit(trackItem())"
+                [title]="
+                  isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'
+                "
+              >
+                @if (isAdded()) {
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M3 8.5L6.5 12L13 5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                } @else {
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                  >
+                    <path
+                      d="M8 3V13M3 8H13"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                }
+              </button>
+            }
           </div>
-        </button>
+        }
       }
-      @case ('track') {
-        <div class="item-row">
-          <app-cover
-            [coverUrl]="item().coverUrl"
-            [name]="item().name"
-            [size]="56"
-          />
-          <div class="item-meta">
-            <span class="item-title">{{ item().name }}</span>
-            <div class="item-subtitle">
-              <span class="item-artist">{{ item().artists[0] }}</span>
-              ·
-              <app-type-chip [type]="item().type" />
-            </div>
-          </div>
-          @if (showAddButton()) {
+    } @else {
+      <div class="item-row wishlist-row">
+        <app-cover
+          [coverUrl]="wishlistItem().coverUrl"
+          [name]="wishlistItem().name"
+          [size]="64"
+        />
+        <div class="item-meta">
+          <span class="item-title">{{ wishlistItem().name }}</span>
+          <span class="item-subitle">
+            <span class="item-artist">{{
+              wishlistItem().artist
+            }}</span>
+            ·
+            <app-type-chip [type]="wishlistItem().type" />
+          </span>
+          <span class="added-by">
+            <app-avatar
+              [name]="wishlistItem().addedBy"
+              [size]="14"
+            />
+            {{ wishlistItem().addedBy }} ·
+            <span class="added-date">{{
+              wishlistItem().addedAt | date: 'd MMM'
+            }}</span>
+          </span>
+        </div>
+        <div class="actions">
+          @if (wishlistStatus() === 'pending') {
             <button
-              class="add-btn"
-              [class.added]="isAdded()"
-              (click)="onAddClick.emit(item())"
-              [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
+              class="action-btn"
+              (click)="onMarkDownloaded.emit(wishlistItem())"
+              title="Marcar como listo"
             >
-              @if (isAdded()) {
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M3 8.5L6.5 12L13 5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              } @else {
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                  <path
-                    d="M8 3V13M3 8H13"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
-              }
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M3 8.5L6.5 12L13 5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <button
+              class="action-btn action-danger"
+              (click)="onRemove.emit(wishlistItem())"
+              title="Eliminar"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M4 4L12 12M12 4L4 12"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          } @else {
+            <button
+              class="action-btn"
+              (click)="onUnmarkDownloaded.emit(wishlistItem())"
+              title="Mover a pendientes"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M10 4L6 8L10 12"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+            <button
+              class="action-btn action-danger"
+              (click)="onRemove.emit(wishlistItem())"
+              title="Eliminar"
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path
+                  d="M5 3h6M3 5h10M5 5v7a1 1 0 001 1h4a1 1 0 001-1V5"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                />
+              </svg>
             </button>
           }
         </div>
-      }
+      </div>
     }
   `,
   styles: [
@@ -112,6 +218,12 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
         padding: 10px 8px;
         border-bottom: 1px solid var(--ink-200);
         transition: background var(--dur-fast) var(--ease);
+      }
+
+      .item-row.wishlist-row {
+        padding: 12px 8px;
+        margin: 0 -8px;
+        animation: rowEnter var(--dur-base) var(--ease) both;
       }
 
       .item-meta {
@@ -141,6 +253,13 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
         color: var(--bone-800);
       }
 
+      .item-subitle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--bone-800);
+      }
+
       .item-artist {
         font-size: 13px;
         color: var(--bone-600);
@@ -162,6 +281,22 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
 
       .item-sep {
         color: var(--bone-800);
+      }
+
+      .added-by {
+        font-size: 11px;
+        color: var(--bone-800);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        flex-wrap: wrap;
+        font-weight: 600;
+      }
+
+      .added-date {
+        font-family: var(--font-display);
+        font-weight: 400;
+        font-style: italic;
       }
 
       .add-btn {
@@ -197,18 +332,65 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
         color: var(--ink);
         animation: popIn 220ms var(--ease) both;
       }
+
+      .actions {
+        display: flex;
+        gap: 4px;
+        flex-shrink: 0;
+      }
+
+      .action-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 1.5px solid var(--ink-100);
+        background: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bone-600);
+        transition:
+          border-color var(--dur-fast) var(--ease),
+          color var(--dur-fast) var(--ease),
+          transform var(--dur-fast) var(--ease);
+      }
+
+      .action-btn:hover {
+        border-color: var(--bone-400);
+        color: var(--bone);
+        transform: scale(1.1);
+      }
+
+      .action-btn:active {
+        transform: scale(0.88);
+      }
+
+      .action-btn.action-danger:hover {
+        border-color: #e57373;
+        color: #e57373;
+        transform: scale(1.1);
+      }
     `,
   ],
 })
 export class SearchResultItemComponent {
-  item = input.required<Track>();
-  type = input.required<'artist' | 'track'>();
+  item = input.required<Track | WishlistEntry>();
+  source = input<'search' | 'wishlist'>('search');
+  type = input<'artist' | 'track'>('track');
   isAdded = input(false);
   showAddButton = input(true);
   showTypeChip = input(true);
+  wishlistStatus = input<'pending' | 'downloaded'>('pending');
 
   onArtistClick = output<Track>();
   onAddClick = output<Track>();
+  onMarkDownloaded = output<WishlistEntry>();
+  onUnmarkDownloaded = output<WishlistEntry>();
+  onRemove = output<WishlistEntry>();
+
+  trackItem = computed(() => this.item() as Track);
+  wishlistItem = computed(() => this.item() as WishlistEntry);
 
   formatFans(count: number): string {
     if (count >= 1000000)
