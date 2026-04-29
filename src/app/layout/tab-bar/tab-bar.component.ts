@@ -50,7 +50,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         display: flex;
         padding: 8px;
         padding-bottom: 24px;
-        background: linear-gradient(0deg, var(--ink) 0%, var(--ink-200) 100%);
+        background: linear-gradient(
+          0deg,
+          var(--ink-200) 0%,
+          var(--ink-100) 100%
+        );
         border-top: 1px solid var(--ink-100);
         box-shadow: 0px -4px 10px 5px rgb(0 0 0 / 10%);
         flex-shrink: 0;

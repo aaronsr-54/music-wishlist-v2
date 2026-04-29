@@ -1,4 +1,14 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  signal,
+  ViewChild,
+  ViewChildren,
+  QueryList,
+  ElementRef,
+  OnDestroy,
+} from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
@@ -46,9 +56,9 @@ type WishlistTab = 'pending' | 'downloaded';
         </div>
       </div>
 
-      <div class="list">
+      <div class="list" #listContainer>
         @for (entry of activeEntries(); track entry.id) {
-          <div class="wishlist-row">
+          <div class="wishlist-row" #wishlistRow>
             <app-cover
               [coverUrl]="entry.coverUrl"
               [name]="entry.name"
@@ -448,15 +458,60 @@ type WishlistTab = 'pending' | 'downloaded';
     `,
   ],
 })
-export class WishlistComponent {
+export class WishlistComponent implements OnDestroy {
+  @ViewChild('listContainer') listContainer?: ElementRef<HTMLElement>;
+  @ViewChildren('wishlistRow') wishlistRows?: QueryList<ElementRef<HTMLElement>>;
+
   wishlistSvc = inject(WishlistService);
   activeTab = signal<WishlistTab>('pending');
+  private scrollListener?: () => void;
+
+  constructor() {
+    setTimeout(() => this.attachScrollListener(), 0);
+  }
 
   activeEntries = computed(() =>
     this.activeTab() === 'pending'
       ? this.wishlistSvc.pending()
       : this.wishlistSvc.downloaded(),
   );
+
+  ngOnDestroy() {
+    if (this.scrollListener && this.listContainer) {
+      this.listContainer.nativeElement.removeEventListener(
+        'scroll',
+        this.scrollListener,
+      );
+    }
+  }
+
+  private attachScrollListener() {
+    if (!this.listContainer) return;
+
+    this.scrollListener = () => this.updateBlurEffect();
+    this.listContainer.nativeElement.addEventListener(
+      'scroll',
+      this.scrollListener,
+    );
+  }
+
+  private updateBlurEffect() {
+    if (!this.wishlistRows || !this.listContainer) return;
+
+    const container = this.listContainer.nativeElement;
+    const containerRect = container.getBoundingClientRect();
+    const containerCenter = containerRect.top + containerRect.height / 2;
+
+    this.wishlistRows.forEach((row) => {
+      const rowRect = row.nativeElement.getBoundingClientRect();
+      const rowCenter = rowRect.top + rowRect.height / 2;
+      const distance = Math.abs(rowCenter - containerCenter);
+      const maxDistance = containerRect.height / 2;
+      const blurAmount = Math.max(0, (distance - maxDistance * 0.3) / (maxDistance * 0.7)) * 8;
+
+      row.nativeElement.style.filter = `blur(${Math.min(blurAmount, 8)}px)`;
+    });
+  }
 
   async markDownloaded(entry: WishlistEntry) {
     if (entry.id) await this.wishlistSvc.markDownloaded(entry.id);

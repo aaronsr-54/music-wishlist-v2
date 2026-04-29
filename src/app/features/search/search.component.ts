@@ -117,9 +117,9 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         </div>
       }
 
-      <div class="results">
-        @switch (state()) {
-          @case ('idle') {
+      @switch (state()) {
+        @case ('idle') {
+          <div class="results">
             <div class="empty-state">
               <div class="empty-icon">
                 <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
@@ -144,50 +144,51 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                 en Deezer.
               </p>
             </div>
-          }
-          @case ('loading') {
+          </div>
+        }
+        @case ('loading') {
+          <div class="results">
             @for (_ of skeletons; track $index) {
               <app-skeleton-row [size]="56" />
             }
+          </div>
+        }
+        @case ('results') {
+          @if (filteredArtists().length > 0) {
+            <div class="results">
+              @for (artist of filteredArtists(); track artist.id) {
+                <app-search-result-item
+                  class="result-item"
+                  [item]="artist"
+                  type="artist"
+                  (onArtistClick)="goToArtist($event)"
+                />
+              }
+            </div>
           }
-          @case ('results') {
-            @if (filteredArtists().length > 0) {
-              <div class="section">
-                <h3 class="section-title">Artistas</h3>
-                @for (artist of filteredArtists(); track artist.id) {
-                  <app-search-result-item
-                    class="result-item"
-                    [item]="artist"
-                    type="artist"
-                    (onArtistClick)="goToArtist($event)"
-                  />
-                }
-              </div>
-            }
-
-            @if (filteredTracks().length > 0) {
-              <div class="section">
-                <h3 class="section-title">Pistas</h3>
-                @for (track of filteredTracks(); track track.id) {
-                  <app-search-result-item
-                    class="result-item"
-                    [item]="track"
-                    type="track"
-                    [isAdded]="isAdded(track.id)"
-                    (onAddClick)="toggle($event)"
-                  />
-                }
-              </div>
-            }
+          @if (filteredTracks().length > 0) {
+            <div class="results">
+              @for (track of filteredTracks(); track track.id) {
+                <app-search-result-item
+                  class="result-item"
+                  [item]="track"
+                  type="track"
+                  [isAdded]="isAdded(track.id)"
+                  (onAddClick)="toggle($event)"
+                />
+              }
+            </div>
           }
-          @case ('empty') {
+        }
+        @case ('empty') {
+          <div class="results">
             <div class="empty-state">
               <p class="empty-title">Sin resultados</p>
               <p class="empty-sub">Prueba con otro término de búsqueda</p>
             </div>
-          }
+          </div>
         }
-      </div>
+      }
     </div>
   `,
   styles: [
@@ -198,7 +199,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         gap: 1rem;
         height: 100%;
         overflow: hidden;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 1rem 0 1rem;
       }
 
       .eyebrow {
@@ -305,31 +306,31 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         color: var(--ink);
       }
 
-      .section {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-bottom: 16px;
-      }
-
-      .section-title {
-        font-family: var(--font-body);
-        font-size: 12px;
-        color: var(--bone-700);
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        padding: 8px 8px 0;
-        margin: 0;
-      }
-
       .results {
         flex: 1;
         overflow-y: auto;
+        min-height: 0;
+        scrollbar-width: none;
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 16px,
+          black 80%,
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 16px,
+          black 80%,
+          transparent 100%
+        );
 
-        @media (min-width: 769px) {
-          padding: 8px 20px 16px;
-        }
+        padding-top: 1rem;
+      }
+
+      .results::-webkit-scrollbar {
+        display: none;
       }
 
       .empty-state {

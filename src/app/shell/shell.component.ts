@@ -1,5 +1,10 @@
 import { Component, signal, inject, effect } from '@angular/core';
-import { RouterOutlet, ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import {
+  RouterOutlet,
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+} from '@angular/router';
 import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
 import { SearchComponent } from '../features/search/search.component';
@@ -139,11 +144,12 @@ import { filter } from 'rxjs';
       .two-pane > section.dim {
         opacity: 0.2;
         width: 35%;
-        filter: blur(1px);
+        filter: blur(1.5px);
       }
 
       .two-pane > section.dim:hover {
         opacity: 0.5;
+        filter: blur(1px);
       }
 
       .panel-overlay {
@@ -165,7 +171,7 @@ export class ShellComponent {
 
   constructor() {
     this.router.events
-      .pipe(filter(e => e instanceof NavigationEnd))
+      .pipe(filter((e) => e instanceof NavigationEnd))
       .subscribe(() => {
         this.hasChildRoute.set(!!this.route.firstChild);
       });
