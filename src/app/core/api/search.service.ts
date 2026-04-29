@@ -111,7 +111,10 @@ export class SearchService {
     );
   }
 
-  getArtistReleases(artistId: string): Observable<ReleaseItem[]> {
+  getArtistReleases(
+    artistId: string,
+    artistName: string,
+  ): Observable<ReleaseItem[]> {
     return from(
       fetch(`${this.apiUrl}/artist-albums?id=${artistId}`).then((r) =>
         r.json(),
@@ -121,7 +124,7 @@ export class SearchService {
         return (res.data ?? []).map((a: any) => ({
           id: String(a.id),
           name: a.title,
-          artist: a.artist?.name ?? '',
+          artist: artistName ?? '',
           coverUrl: a.cover_big ?? a.cover_medium ?? '',
           type: (a.record_type === 'single' ? 'single' : 'album') as TrackType,
           releaseDate: a.release_date ?? '',

@@ -25,7 +25,7 @@ const COLORS: Partial<Record<TrackType, string>> = {
     `
       .chip {
         display: inline-block;
-        padding: 4px 8px;
+        padding: 2px 4px;
         border-radius: var(--radius-sm);
         color: var(--bone);
         border: 1px solid;

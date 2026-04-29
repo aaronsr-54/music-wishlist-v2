@@ -39,11 +39,20 @@ function hashVariant(name: string): number {
       </div>
     }
   `,
+  styles: [
+    `
+      // :host {
+      //   display: block;
+      //   width: 100%;
+      //   max-width: 100%;
+      // }
+    `,
+  ],
 })
 export class CoverComponent {
   @Input({ required: true }) name = '';
   @Input() coverUrl = '';
-  @Input() size = 56;
+  @Input() size?: number;
 
   imgError = signal(false);
 
@@ -58,19 +67,23 @@ export class CoverComponent {
   private variant = computed(() => VARIANTS[hashVariant(this.name)]);
 
   imgStyle = computed(() => ({
-    width: `${this.size}px`,
-    height: `${this.size}px`,
+    width: this.size ? `${this.size}px` : '100%',
+    maxWidth: '100%',
+    aspectRatio: this.size ? undefined : '1 / 1',
+    height: this.size ? `${this.size}px` : undefined,
     borderRadius: 'var(--radius-sm)',
     objectFit: 'cover',
     display: 'block',
-    flexShrink: '0',
   }));
 
   placeholderStyle = computed(() => {
     const v = this.variant();
+
     return {
-      width: `${this.size}px`,
-      height: `${this.size}px`,
+      width: this.size ? `${this.size}px` : '100%',
+      height: this.size ? `${this.size}px` : undefined,
+      maxWidth: '100%',
+      aspectRatio: this.size ? undefined : '1 / 1',
       borderRadius: 'var(--radius-sm)',
       background: v.bg,
       color: v.color,
@@ -80,8 +93,9 @@ export class CoverComponent {
       justifyContent: 'center',
       fontFamily: 'var(--font-display)',
       fontWeight: '700',
-      fontSize: `${Math.round(this.size * 0.28)}px`,
-      flexShrink: '0',
+      fontSize: this.size
+        ? `${Math.round(this.size * 0.28)}px`
+        : 'clamp(12px, 3vw, 18px)',
       letterSpacing: '0.02em',
     };
   });

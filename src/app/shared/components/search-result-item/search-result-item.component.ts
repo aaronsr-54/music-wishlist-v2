@@ -155,7 +155,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
         />
         <div class="item-meta">
           <span class="item-title">{{ wishlistItem().name }}</span>
-          <span class="item-subitle">
+          <span class="item-subtitle">
             <span class="item-artist">{{ wishlistItem().artist }}</span>
             ·
             <app-type-chip [type]="wishlistItem().type" />
@@ -290,14 +290,14 @@ import { AvatarComponent } from '../avatar/avatar.component';
 
       .item-subtitle {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         gap: 0.5rem;
         color: var(--bone-800);
       }
 
-      .item-subitle {
+      .item-subtitle {
         display: flex;
-        align-items: center;
+        align-items: baseline;
         gap: 0.5rem;
         color: var(--bone-800);
       }

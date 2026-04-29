@@ -100,7 +100,7 @@ type WishlistTab = 'pending' | 'downloaded';
         flex-direction: column;
         height: 100%;
         overflow: hidden;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 1rem 0 1rem;
         gap: 1rem;
       }
 
@@ -210,7 +210,6 @@ type WishlistTab = 'pending' | 'downloaded';
           black 88%,
           transparent 100%
         );
-        padding: 1rem;
       }
 
       .list::-webkit-scrollbar {

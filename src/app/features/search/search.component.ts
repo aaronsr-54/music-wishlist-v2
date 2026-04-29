@@ -32,7 +32,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
   standalone: true,
   imports: [FormsModule, SkeletonRowComponent, SearchResultItemComponent],
   template: `
-    <!-- <div class="panel">
+    <div class="panel">
       <div class="eyebrow">
         <span class="label"
           ><span class="label--number">02/</span> BUSCADOR</span
@@ -193,7 +193,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           </div>
         }
       }
-    </div> -->
+    </div>
   `,
   styles: [
     `
@@ -373,140 +373,171 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
     `,
   ],
 })
-export class SearchComponent {
-  // export class SearchComponent implements OnInit, OnDestroy {
-  // private search = inject(SearchService);
-  // private wishlistSvc = inject(WishlistService);
-  // private authSvc = inject(AuthService);
-  // private router = inject(Router);
-  // loading = signal(false);
-  // query = signal('');
-  // selectedTypes = signal<Set<TrackType>>(new Set());
-  // results = signal<Track[]>([]);
-  // artists = computed(() =>
-  //   this.results().filter((track) => track.type === 'artist'),
-  // );
-  // tracks = computed(() =>
-  //   this.results().filter((track) => track.type !== 'artist'),
-  // );
-  // filteredArtists = computed(() => {
-  //   const types = this.selectedTypes();
-  //   return types.has('artist') ? this.artists() : [];
-  // });
-  // filteredTracks = computed(() => {
-  //   const types = this.selectedTypes();
-  //   if (types.size === 0) return this.tracks();
-  //   if (types.has('artist')) return [];
-  //   return this.tracks().filter((track) => types.has(track.type));
-  // });
-  // state = computed<SearchState>(() => {
-  //   const q = this.query().trim();
-  //   const artists = this.filteredArtists();
-  //   const tracks = this.filteredTracks();
-  //   const loading = this.loading();
-  //   if (!q) return 'idle';
-  //   if (loading) return 'loading';
-  //   if (!artists.length && !tracks.length) return 'empty';
-  //   return 'results';
-  // });
-  // skeletons = new Array(20);
-  // private search$ = new Subject<string>();
-  // private sub?: Subscription;
-  // ngOnInit() {
-  //   const savedState = this.search.getSavedSearchState();
-  //   if (savedState) {
-  //     this.query.set(savedState.query);
-  //     this.selectedTypes.set(savedState.selectedTypes);
-  //     this.results.set(savedState.results);
-  //   }
-  //   this.sub = this.search$
-  //     .pipe(
-  //       debounceTime(220),
-  //       distinctUntilChanged(),
-  //       switchMap((q) => {
-  //         const trimmed = q.trim();
-  //         if (!trimmed) {
-  //           this.loading.set(false);
-  //           this.results.set([]);
-  //           return of([]);
-  //         }
-  //         this.loading.set(true);
-  //         return this.search.search(trimmed).pipe(catchError(() => of([])));
-  //       }),
-  //     )
-  //     .subscribe((res) => {
-  //       this.results.set(res);
-  //       this.loading.set(false);
-  //     });
-  // }
-  // ngOnDestroy() {
-  //   this.sub?.unsubscribe();
-  // }
-  // onQuery(val: string) {
-  //   this.query.set(val);
-  //   this.search$.next(val);
-  // }
-  // clearQuery() {
-  //   this.query.set('');
-  //   this.results.set([]);
-  //   this.search$.next('');
-  // }
-  // toggleType(type: TrackType) {
-  //   const current = this.selectedTypes();
-  //   const updated = new Set(current);
-  //   if (updated.has(type)) {
-  //     updated.clear();
-  //   } else {
-  //     updated.clear();
-  //     updated.add(type);
-  //   }
-  //   this.selectedTypes.set(updated);
-  // }
-  // isAdded(trackId: string, type?: TrackType): boolean {
-  //   if (type === 'artist') {
-  //     return this.favoriteArtistsSvc.artistIds().has(trackId);
-  //   }
-  //   return this.wishlistSvc.trackIds().has(trackId);
-  // }
-  // async toggle(track: Track) {
-  //   const user = this.authSvc.currentUser();
-  //   if (!user) return;
-  //   if (track.type === 'artist') {
-  //     const artists = this.favoriteArtistsSvc.artists();
-  //     const existing = artists.find((a) => a.artistId === track.id);
-  //     if (existing && existing.id) {
-  //       await this.favoriteArtistsSvc.remove(existing.id);
-  //     } else {
-  //       await this.favoriteArtistsSvc.add(
-  //         track.id,
-  //         track.name,
-  //         track.coverUrl,
-  //         user,
-  //       );
-  //     }
-  //   } else {
-  //     const entries = this.wishlistSvc.entries();
-  //     const existing = entries.find((e) => e.trackId === track.id);
-  //     if (existing && existing.id) {
-  //       await this.wishlistSvc.remove(existing.id);
-  //     } else {
-  //       await this.wishlistSvc.add(track, user);
-  //     }
-  //   }
-  // }
-  // goToArtist(artist: Track) {
-  //   this.search.saveSearchState(
-  //     this.query(),
-  //     this.selectedTypes(),
-  //     this.results(),
-  //   );
-  //   this.router.navigate(['/artist', artist.artistId || artist.id]);
-  // }
-  // formatFans(count: number): string {
-  //   if (count >= 1000000)
-  //     return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-  //   if (count >= 1000)
-  //     return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-  //   return count.toString();
-  // }
+export class SearchComponent implements OnInit, OnDestroy {
+  private search = inject(SearchService);
+  private wishlistSvc = inject(WishlistService);
+  private authSvc = inject(AuthService);
+  private router = inject(Router);
+
+  loading = signal(false);
+  query = signal('');
+  selectedTypes = signal<Set<TrackType>>(new Set());
+
+  results = signal<Track[]>([]);
+
+  artists = computed(() =>
+    this.results().filter((track) => track.type === 'artist'),
+  );
+
+  tracks = computed(() =>
+    this.results().filter((track) => track.type !== 'artist'),
+  );
+
+  filteredArtists = computed(() => {
+    const types = this.selectedTypes();
+    return types.has('artist') ? this.artists() : [];
+  });
+
+  filteredTracks = computed(() => {
+    const types = this.selectedTypes();
+    if (types.size === 0) return this.tracks();
+    if (types.has('artist')) return [];
+    return this.tracks().filter((track) => types.has(track.type));
+  });
+
+  state = computed<SearchState>(() => {
+    const q = this.query().trim();
+    const artists = this.filteredArtists();
+    const tracks = this.filteredTracks();
+    const loading = this.loading();
+
+    if (!q) return 'idle';
+    if (loading) return 'loading';
+    if (!artists.length && !tracks.length) return 'empty';
+
+    return 'results';
+  });
+
+  skeletons = new Array(20);
+
+  private search$ = new Subject<string>();
+  private sub?: Subscription;
+
+  ngOnInit() {
+    const savedState = this.search.getSavedSearchState();
+    if (savedState) {
+      this.query.set(savedState.query);
+      this.selectedTypes.set(savedState.selectedTypes);
+      this.results.set(savedState.results);
+    }
+
+    this.sub = this.search$
+      .pipe(
+        debounceTime(220),
+        distinctUntilChanged(),
+        switchMap((q) => {
+          const trimmed = q.trim();
+
+          if (!trimmed) {
+            this.clearQuery();
+            return of([]);
+          }
+
+          this.loading.set(true);
+
+          return this.search.search(trimmed).pipe(catchError(() => of([])));
+        }),
+      )
+      .subscribe((res) => {
+        this.results.set(res);
+        this.search.saveSearchState(
+          this.query(),
+          this.selectedTypes(),
+          this.results(),
+        );
+        this.loading.set(false);
+      });
+  }
+
+  ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
+
+  onQuery(val: string) {
+    this.query.set(val);
+    this.search$.next(val);
+  }
+
+  clearQuery() {
+    this.query.set('');
+    this.results.set([]);
+    this.selectedTypes.set(new Set());
+    this.search$.next('');
+  }
+
+  toggleType(type: TrackType) {
+    const current = this.selectedTypes();
+    const updated = new Set(current);
+    if (updated.has(type)) {
+      updated.clear();
+    } else {
+      updated.clear();
+      updated.add(type);
+    }
+    this.selectedTypes.set(updated);
+
+    this.search.saveSearchState(
+      this.query(),
+      this.selectedTypes(),
+      this.results(),
+    );
+  }
+
+  isAdded(trackId: string, type?: TrackType): boolean {
+    if (type === 'artist') {
+      // return this.favoriteArtistsSvc.artistIds().has(trackId);
+    }
+    return this.wishlistSvc.trackIds().has(trackId);
+  }
+
+  async toggle(track: Track) {
+    const user = this.authSvc.currentUser();
+    if (!user) return;
+
+    if (track.type === 'artist') {
+      // const artists = this.favoriteArtistsSvc.artists();
+      // const existing = artists.find((a) => a.artistId === track.id);
+      // if (existing && existing.id) {
+      //   await this.favoriteArtistsSvc.remove(existing.id);
+      // } else {
+      //   await this.favoriteArtistsSvc.add(
+      //     track.id,
+      //     track.name,
+      //     track.coverUrl,
+      //     user,
+      //   );
+      // }
+    } else {
+      const entries = this.wishlistSvc.entries();
+      const existing = entries.find((e) => e.trackId === track.id);
+
+      if (existing && existing.id) {
+        await this.wishlistSvc.remove(existing.id);
+      } else {
+        await this.wishlistSvc.add(track, user);
+      }
+    }
+  }
+
+  goToArtist(artist: Track) {
+    this.router.navigate(['/artist', artist.artistId || artist.id]);
+  }
+
+  formatFans(count: number): string {
+    if (count >= 1000000)
+      return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    if (count >= 1000)
+      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return count.toString();
+  }
 }

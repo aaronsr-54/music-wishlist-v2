@@ -11,8 +11,8 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SearchService } from '../../core/api/search.service';
 import { FavoritesService } from '../../core/firebase/favorites.service';
-import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { ReleaseItem } from '../../shared/models/release-item.model';
+import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
 
 const MONTHS = [
   'Enero',
@@ -32,7 +32,7 @@ const MONTHS = [
 @Component({
   selector: 'app-releases',
   standalone: true,
-  imports: [CommonModule, SearchResultItemComponent],
+  imports: [CommonModule, CardItemComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -44,11 +44,14 @@ const MONTHS = [
       <div class="releases-container">
         <div class="month-selector">
           <button class="nav-btn" (click)="prevMonth()" title="Mes anterior">
-            ←
+            <
           </button>
-          <span class="month-label">{{ monthLabel() }}</span>
+          <span class="date-label">
+            <span class="mont-label">{{ monthLabel() }}</span>
+            <span class="year-label">{{ yearLabel() }}</span>
+          </span>
           <button class="nav-btn" (click)="nextMonth()" title="Mes siguiente">
-            →
+            >
           </button>
         </div>
 
@@ -65,11 +68,7 @@ const MONTHS = [
         } @else {
           <div class="releases-list">
             @for (item of filteredReleases(); track item.id) {
-              <app-search-result-item
-                class="result-item"
-                [item]="item"
-                source="releases"
-              />
+              <app-card-item class="result-item" [item]="item" />
             }
           </div>
         }
@@ -83,8 +82,9 @@ const MONTHS = [
         flex-direction: column;
         height: 100%;
         overflow: hidden;
-        padding: 0.5rem 1rem;
+        padding: 0.5rem 1rem 0 1rem;
         gap: 1rem;
+        width: 100%;
       }
 
       .eyebrow {
@@ -112,7 +112,6 @@ const MONTHS = [
         display: flex;
         flex-direction: column;
         height: 100%;
-        padding: 0.5rem 1rem;
         gap: 1.5rem;
         overflow: auto;
       }
@@ -120,11 +119,14 @@ const MONTHS = [
       .month-selector {
         display: flex;
         align-items: center;
-        justify-content: center;
-        gap: 16px;
-        padding: 12px 16px;
-        background: var(--ink-100);
-        border-radius: var(--radius-md);
+        justify-content: space-between;
+        gap: 2rem;
+        padding: 4px 10%;
+        border-bottom: 1.5px solid var(--ink-100);
+
+        @media (min-width: 768px) {
+          padding: 4px 32%;
+        }
       }
 
       .nav-btn {
@@ -154,14 +156,30 @@ const MONTHS = [
         transform: scale(0.9);
       }
 
-      .month-label {
-        font-family: var(--font-display);
-        font-size: 14px;
+      .date-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-size: 24px;
         color: var(--bone);
-        font-weight: 600;
-        letter-spacing: 0.04em;
         min-width: 150px;
         text-align: center;
+        text-transform: uppercase;
+        padding: 16px 0;
+      }
+
+      .month-label {
+        font-weight: 800;
+        letter-spacing: 0.04em;
+      }
+
+      .year-label {
+        font-family: var(--font-display);
+        color: var(--bone-700);
+        font-weight: 300;
+        font-style: italic;
+        margin-top: -3px;
       }
 
       .loading,
@@ -173,13 +191,14 @@ const MONTHS = [
       }
 
       .releases-list {
-        display: flex;
-        flex-direction: column;
-        gap: 12px;
-      }
+        min-width: 0;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
 
-      .result-item {
-        display: block;
+        @media (min-width: 768px) {
+          grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
       }
     `,
   ],
@@ -198,8 +217,11 @@ export class ReleasesComponent implements OnInit {
 
   monthLabel = computed(() => {
     const month = this.selectedMonth();
-    const year = this.selectedYear();
-    return `${MONTHS[month]} ${year}`;
+    return `${MONTHS[month]}`;
+  });
+
+  yearLabel = computed(() => {
+    return this.selectedYear().toString();
   });
 
   filteredReleases = computed(() => {
@@ -268,7 +290,7 @@ export class ReleasesComponent implements OnInit {
     this.loading.set(true);
 
     const releaseObservables = favorites.map((fav) => {
-      return this.searchSvc.getArtistReleases(fav.artistId).pipe(
+      return this.searchSvc.getArtistReleases(fav.artistId, fav.name).pipe(
         catchError((err) => {
           console.error(`Error loading releases for ${fav.name}:`, err);
           return of([]);

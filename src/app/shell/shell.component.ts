@@ -45,7 +45,7 @@ import { filter } from 'rxjs';
             <div class="panel-overlay" (click)="activeTab.set('search')"></div>
           }
           @if (!hasChildRoute()) {
-            <!-- <app-search /> -->
+            <app-search />
           } @else {
             <router-outlet />
           }
@@ -152,7 +152,7 @@ import { filter } from 'rxjs';
       .three-pane > section:not(.dim) {
         border-color: var(--bone);
         box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.1);
-        flex-grow: 1;
+        width: 50%;
       }
 
       .three-pane > section.dim {
@@ -179,7 +179,7 @@ export class ShellComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  activeTab = signal<'search' | 'wishlist' | 'releases'>('search');
+  activeTab = signal<'search' | 'wishlist' | 'releases'>('releases');
   showProfileModal = signal(false);
   hasChildRoute = signal(false);
 
