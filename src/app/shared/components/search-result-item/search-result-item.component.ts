@@ -2,6 +2,7 @@ import { Component, computed, input, output } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Track } from '../../models/track.model';
 import { WishlistEntry } from '../../models/wishlist-entry.model';
+import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { AvatarComponent } from '../avatar/avatar.component';
@@ -11,7 +12,25 @@ import { AvatarComponent } from '../avatar/avatar.component';
   standalone: true,
   imports: [DatePipe, CoverComponent, TypeChipComponent, AvatarComponent],
   template: `
-    @if (source() === 'search') {
+    @if (source() === 'releases') {
+      <div class="item-row">
+        <app-cover
+          [coverUrl]="releaseItem().coverUrl"
+          [name]="releaseItem().name"
+          [size]="56"
+        />
+        <div class="item-meta">
+          <span class="item-title">{{ releaseItem().name }}</span>
+          <div class="item-subtitle">
+            <span class="item-artist">{{ releaseItem().artist }}</span>
+            ·
+            <app-type-chip [type]="releaseItem().type" />
+            ·
+            <span class="release-date">{{ releaseItem().releaseDate }}</span>
+          </div>
+        </div>
+      </div>
+    } @else if (source() === 'search') {
       @switch (type()) {
         @case ('artist') {
           <button
@@ -371,12 +390,19 @@ import { AvatarComponent } from '../avatar/avatar.component';
         color: #e57373;
         transform: scale(1.1);
       }
+
+      .release-date {
+        font-size: 12px;
+        color: var(--bone-600);
+        font-family: var(--font-display);
+        font-style: italic;
+      }
     `,
   ],
 })
 export class SearchResultItemComponent {
-  item = input.required<Track | WishlistEntry>();
-  source = input<'search' | 'wishlist'>('search');
+  item = input.required<Track | WishlistEntry | ReleaseItem>();
+  source = input<'search' | 'wishlist' | 'releases'>('search');
   type = input<'artist' | 'track'>('track');
   isAdded = input(false);
   showAddButton = input(true);
@@ -391,6 +417,7 @@ export class SearchResultItemComponent {
 
   trackItem = computed(() => this.item() as Track);
   wishlistItem = computed(() => this.item() as WishlistEntry);
+  releaseItem = computed(() => this.item() as ReleaseItem);
 
   formatFans(count: number): string {
     if (count >= 1000000)

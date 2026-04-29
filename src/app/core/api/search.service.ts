@@ -2,6 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Observable, forkJoin, from } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Track, TrackType } from '../../shared/models/track.model';
+import { ReleaseItem } from '../../shared/models/release-item.model';
 
 interface SearchState {
   query: string;
@@ -111,6 +112,25 @@ export class SearchService {
       fetch(
         `${this.apiUrl}/artist-info?id=${artistId}`,
       ).then((r) => r.json()),
+    );
+  }
+
+  getArtistReleases(artistId: string): Observable<ReleaseItem[]> {
+    return from(
+      fetch(
+        `${this.apiUrl}/artist?id=${artistId}`,
+      ).then((r) => r.json()),
+    ).pipe(
+      map((res: any) => {
+        return (res.data ?? []).map((a: any) => ({
+          id: String(a.id),
+          name: a.title,
+          artist: a.artist?.name ?? '',
+          coverUrl: a.cover_big ?? a.cover_medium ?? '',
+          type: (a.record_type === 'single' ? 'ep' : 'album') as TrackType,
+          releaseDate: a.release_date ?? '',
+        }));
+      }),
     );
   }
 

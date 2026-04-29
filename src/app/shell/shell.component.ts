@@ -9,6 +9,7 @@ import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
 import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
+import { ReleasesComponent } from '../features/releases/releases.component';
 import { ProfileModalComponent } from '../features/profile/profile-modal.component';
 import { filter } from 'rxjs';
 
@@ -19,32 +20,27 @@ import { filter } from 'rxjs';
     RouterOutlet,
     HeaderComponent,
     TabBarComponent,
+    ReleasesComponent,
     SearchComponent,
     WishlistComponent,
     ProfileModalComponent,
   ],
   template: `
-    <!-- Desktop ≥768px: dos paneles simultáneos -->
+    <!-- Desktop ≥768px: tres paneles simultáneos -->
     <div class="desktop-shell">
       <app-header (openProfile)="showProfileModal.set(true)" />
-      <main class="two-pane">
-        <section [class.dim]="activeTab() !== 'search' && !hasChildRoute()">
-          @if (activeTab() !== 'search' && !hasChildRoute()) {
-            <div class="panel-overlay" (click)="activeTab.set('search')"></div>
-          }
+      <main class="three-pane">
+        <section>
+          <app-releases />
+        </section>
+        <section>
           @if (!hasChildRoute()) {
             <app-search />
           } @else {
             <router-outlet />
           }
         </section>
-        <section [class.dim]="activeTab() === 'search'">
-          @if (activeTab() === 'search') {
-            <div
-              class="panel-overlay"
-              (click)="activeTab.set('wishlist')"
-            ></div>
-          }
+        <section>
           <app-wishlist />
         </section>
       </main>
@@ -115,41 +111,24 @@ import { filter } from 'rxjs';
         }
       }
 
-      .two-pane {
+      .three-pane {
         display: flex;
         width: 100dvw;
         flex: 1;
         overflow: hidden;
         padding: 12px;
+        gap: 12px;
       }
 
-      .two-pane > section {
-        padding: 16px 8px;
+      .three-pane > section {
+        flex: 1;
+        padding: 0;
         position: relative;
         overflow-y: auto;
         height: 100%;
-        transition:
-          opacity var(--dur-base) var(--ease),
-          border-color var(--dur-base) var(--ease);
-        border: 2px solid transparent;
+        transition: border-color var(--dur-base) var(--ease);
+        border: 2px solid var(--bone);
         border-radius: var(--radius-md);
-      }
-
-      .two-pane > section:not(.dim) {
-        border-color: var(--bone);
-        box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.1);
-        flex-grow: 1;
-      }
-
-      .two-pane > section.dim {
-        opacity: 0.2;
-        width: 35%;
-        filter: blur(1.5px);
-      }
-
-      .two-pane > section.dim:hover {
-        opacity: 0.5;
-        filter: blur(1px);
       }
 
       .panel-overlay {
