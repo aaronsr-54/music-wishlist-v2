@@ -26,15 +26,28 @@ export class WishlistService {
   trackIds = computed(() => new Set(this._entries().map(e => e.trackId)));
   total = computed(() => this._entries().length);
 
-  constructor() {
+  private unsubscribe: (() => void) | null = null;
+
+  constructor() {}
+
+  initListener(): void {
+    if (this.unsubscribe) return;
+
     const col = collection(this.firestore, 'wishlist');
     const q = query(col, orderBy('addedAt', 'desc'));
 
-    onSnapshot(q, snap => {
+    this.unsubscribe = onSnapshot(q, snap => {
       this._entries.set(
         snap.docs.map(d => ({ id: d.id, ...d.data() } as WishlistEntry))
       );
     });
+  }
+
+  stopListener(): void {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
   }
 
   async add(track: Track, user: User): Promise<void> {
