@@ -42,17 +42,25 @@ const MONTHS = [
       </div>
 
       <div class="releases-container">
-        <div class="month-selector">
-          <button class="nav-btn" (click)="prevMonth()" title="Mes anterior">
-            <
-          </button>
-          <span class="date-label">
-            <span class="mont-label">{{ monthLabel() }}</span>
-            <span class="year-label">{{ yearLabel() }}</span>
-          </span>
-          <button class="nav-btn" (click)="nextMonth()" title="Mes siguiente">
+        <div class="month-selector-container">
+          <div class="month-selector">
+            <button class="nav-btn" (click)="prevMonth()" title="Mes anterior">
+              <
+            </button>
+            <span class="date-label">
+              <span class="month-label">{{ monthLabel() }}</span>
+              <span class="year-label">{{ yearLabel() }}</span>
+            </span>
+            <button
+              class="nav-btn"
+              [class.disabled]="!canGoToNextMonth()"
+              [disabled]="!canGoToNextMonth()"
+              (click)="nextMonth()"
+              title="Mes siguiente"
             >
-          </button>
+              >
+            </button>
+          </div>
         </div>
 
         @if (loading()) {
@@ -77,6 +85,47 @@ const MONTHS = [
   `,
   styles: [
     `
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes scaleIn {
+        from {
+          opacity: 0;
+          transform: scale(0.95);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.6;
+        }
+      }
+
       .panel {
         display: flex;
         flex-direction: column;
@@ -85,6 +134,7 @@ const MONTHS = [
         padding: 0.5rem 1rem 0 1rem;
         gap: 1rem;
         width: 100%;
+        animation: fadeIn 300ms ease both;
       }
 
       .eyebrow {
@@ -112,8 +162,14 @@ const MONTHS = [
         display: flex;
         flex-direction: column;
         height: 100%;
-        gap: 1.5rem;
-        overflow: auto;
+      }
+
+      .month-selector-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom: 1.5px solid var(--ink-100);
+        animation: slideDown 300ms ease both;
       }
 
       .month-selector {
@@ -121,11 +177,12 @@ const MONTHS = [
         align-items: center;
         justify-content: space-between;
         gap: 2rem;
-        padding: 4px 10%;
-        border-bottom: 1.5px solid var(--ink-100);
+        padding: 4px 0;
+        width: 100%;
 
         @media (min-width: 768px) {
-          padding: 4px 32%;
+          width: 20rem;
+          margin-inline: auto;
         }
       }
 
@@ -156,6 +213,13 @@ const MONTHS = [
         transform: scale(0.9);
       }
 
+      .nav-btn:disabled,
+      .nav-btn.disabled {
+        opacity: 0.2;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
       .date-label {
         display: flex;
         align-items: center;
@@ -167,10 +231,11 @@ const MONTHS = [
         text-align: center;
         text-transform: uppercase;
         padding: 16px 0;
+        transition: opacity 200ms ease;
       }
 
       .month-label {
-        font-weight: 800;
+        font-weight: 600;
         letter-spacing: 0.04em;
       }
 
@@ -182,23 +247,128 @@ const MONTHS = [
         margin-top: -3px;
       }
 
-      .loading,
+      .loading {
+        text-align: center;
+        padding: 40px 20px;
+        color: var(--bone-700);
+        font-size: 14px;
+        animation: fadeIn 300ms ease both;
+      }
+
+      .loading::after {
+        content: '';
+        display: inline-block;
+        width: 4px;
+        height: 4px;
+        margin-left: 4px;
+        background: currentColor;
+        border-radius: 50%;
+        animation: pulse 1.2s ease-in-out infinite;
+      }
+
       .empty {
         text-align: center;
         padding: 40px 20px;
         color: var(--bone-700);
         font-size: 14px;
+        animation: fadeIn 400ms ease both;
       }
 
       .releases-list {
         min-width: 0;
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-rows: max-content;
         gap: 8px;
+        overflow: auto;
+        scrollbar-width: none;
+        height: 100%;
+        padding-top: 16px;
+        animation: fadeIn 300ms ease both;
+
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 16px,
+          black 80%,
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 16px,
+          black 80%,
+          transparent 100%
+        );
 
         @media (min-width: 768px) {
           grid-template-columns: repeat(4, minmax(0, 1fr));
         }
+      }
+
+      .result-item {
+        animation: scaleIn 300ms ease both;
+      }
+
+      .result-item:nth-child(1) {
+        animation-delay: 0ms;
+      }
+      .result-item:nth-child(2) {
+        animation-delay: 30ms;
+      }
+      .result-item:nth-child(3) {
+        animation-delay: 60ms;
+      }
+      .result-item:nth-child(4) {
+        animation-delay: 90ms;
+      }
+      .result-item:nth-child(5) {
+        animation-delay: 120ms;
+      }
+      .result-item:nth-child(6) {
+        animation-delay: 150ms;
+      }
+      .result-item:nth-child(7) {
+        animation-delay: 180ms;
+      }
+      .result-item:nth-child(8) {
+        animation-delay: 210ms;
+      }
+      .result-item:nth-child(9) {
+        animation-delay: 240ms;
+      }
+      .result-item:nth-child(10) {
+        animation-delay: 270ms;
+      }
+      .result-item:nth-child(11) {
+        animation-delay: 300ms;
+      }
+      .result-item:nth-child(12) {
+        animation-delay: 330ms;
+      }
+      .result-item:nth-child(13) {
+        animation-delay: 360ms;
+      }
+      .result-item:nth-child(14) {
+        animation-delay: 390ms;
+      }
+      .result-item:nth-child(15) {
+        animation-delay: 420ms;
+      }
+      .result-item:nth-child(16) {
+        animation-delay: 450ms;
+      }
+      .result-item:nth-child(17) {
+        animation-delay: 480ms;
+      }
+      .result-item:nth-child(18) {
+        animation-delay: 510ms;
+      }
+      .result-item:nth-child(19) {
+        animation-delay: 540ms;
+      }
+      .result-item:nth-child(20) {
+        animation-delay: 570ms;
       }
     `,
   ],
@@ -222,6 +392,16 @@ export class ReleasesComponent implements OnInit {
 
   yearLabel = computed(() => {
     return this.selectedYear().toString();
+  });
+
+  canGoToNextMonth = computed(() => {
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth();
+    const selectedYear = this.selectedYear();
+    const selectedMonth = this.selectedMonth();
+
+    return !(selectedYear === currentYear && selectedMonth === currentMonth);
   });
 
   filteredReleases = computed(() => {
@@ -267,12 +447,22 @@ export class ReleasesComponent implements OnInit {
   }
 
   nextMonth() {
+    if (!this.canGoToNextMonth()) return;
+
     let month = this.selectedMonth() + 1;
     let year = this.selectedYear();
 
     if (month > 11) {
       month = 0;
       year++;
+    }
+
+    const now = new Date();
+    if (
+      year > now.getFullYear() ||
+      (year === now.getFullYear() && month > now.getMonth())
+    ) {
+      return;
     }
 
     this.selectedMonth.set(month);

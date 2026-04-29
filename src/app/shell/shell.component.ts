@@ -40,8 +40,8 @@ import { filter } from 'rxjs';
           }
           <app-releases />
         </section>
-        <section [class.dim]="activeTab() !== 'search' && !hasChildRoute()">
-          @if (activeTab() !== 'search' && !hasChildRoute()) {
+        <section [class.dim]="activeTab() !== 'search'">
+          @if (activeTab() !== 'search') {
             <div class="panel-overlay" (click)="activeTab.set('search')"></div>
           }
           @if (!hasChildRoute()) {

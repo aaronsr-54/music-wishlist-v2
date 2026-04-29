@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
+import { FavoriteArtistsService } from '../../core/firebase/favorite-artists.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { Track } from '../../shared/models/track.model';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
@@ -156,6 +157,22 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
         padding: 0.5rem 1rem;
         gap: 2rem;
         overflow: auto;
+        scrollbar-width: none;
+
+        -webkit-mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 10px,
+          black 80%,
+          transparent 100%
+        );
+        mask-image: linear-gradient(
+          to bottom,
+          transparent 0%,
+          black 10px,
+          black 80%,
+          transparent 100%
+        );
       }
 
       .eyebrow {
@@ -236,8 +253,8 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
       }
 
       .add-artist-btn {
-        width: 48px;
-        height: 48px;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         cursor: pointer;
         display: flex;
@@ -252,6 +269,11 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
         border: 1.5px solid var(--ink-200);
         background: transparent;
         padding: 0;
+
+        @media (min-width: 769px) {
+          width: 48px;
+          height: 48px;
+        }
       }
 
       .add-artist-btn:hover {
@@ -381,6 +403,7 @@ export class ArtistComponent implements OnInit {
   private router = inject(Router);
   private searchSvc = inject(SearchService);
   private wishlistSvc = inject(WishlistService);
+  private favoriteArtistsSvc = inject(FavoriteArtistsService);
   private authSvc = inject(AuthService);
 
   artist = signal<any>(null);
@@ -413,8 +436,8 @@ export class ArtistComponent implements OnInit {
     return this.wishlistSvc.entries().some((e) => e.trackId === trackId);
   }
 
-  isArtistInWishlist(artistId: string): boolean {
-    return this.wishlistSvc.entries().some((e) => e.trackId === artistId);
+  isArtistInWishlist(artistId: string | number): boolean {
+    return this.favoriteArtistsSvc.artistIds().has(String(artistId));
   }
 
   async toggle(track: Track) {
@@ -434,21 +457,24 @@ export class ArtistComponent implements OnInit {
   async toggleArtist(e: Event) {
     e.stopPropagation();
     const currentArtist = this.artist();
-    if (!currentArtist) return;
+    const user = this.authSvc.currentUser();
+    if (!currentArtist || !user) return;
 
-    const artistTrack: Track = {
-      id: currentArtist.id,
-      name: currentArtist.name,
-      artists: [currentArtist.name],
-      coverUrl: currentArtist.picture_big,
-      type: 'artist',
-      uri: '',
-      artistId: currentArtist.id,
-      fanCount: currentArtist.nb_fan,
-      albumCount: currentArtist.nb_album,
-    };
+    const artistId = String(currentArtist.id);
+    const existing = this.favoriteArtistsSvc
+      .artists()
+      .find((a) => a.artistId === artistId);
 
-    await this.toggle(artistTrack);
+    if (existing && existing.id) {
+      await this.favoriteArtistsSvc.remove(existing.id);
+    } else {
+      await this.favoriteArtistsSvc.add(
+        artistId,
+        currentArtist.name,
+        currentArtist.picture_big,
+        user,
+      );
+    }
   }
 
   goBack() {

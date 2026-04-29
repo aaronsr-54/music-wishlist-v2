@@ -35,9 +35,6 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
         background: var(--ink-200);
         gap: 4px;
         width: 100%;
-        height: 100%;
-        min-width: 0;
-        min-height: 0;
         overflow: hidden;
       }
 

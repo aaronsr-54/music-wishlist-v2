@@ -57,7 +57,8 @@
       "Bash(vercel *)",
       "Bash(curl -s \"https://music-wishlist-v2.vercel.app/api/artist-albums?id=12246\")",
       "Bash(taskkill /PID 12280 /F)",
-      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__select_page"
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__select_page",
+      "Bash(curl -s \"https://music-wishlist-v2.vercel.app/api/search/artist?q=Bad%20Bunny\")"
     ]
   }
 }

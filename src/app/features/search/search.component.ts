@@ -62,6 +62,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           />
         </svg>
         <input
+          id="search-input"
           type="text"
           placeholder="Buscar canciones, álbumes..."
           [ngModel]="query()"
@@ -162,7 +163,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                   class="result-item"
                   [item]="artist"
                   type="artist"
-                  [isAdded]="isAdded(artist.id)"
+                  [isAdded]="isAdded(artist.id, 'artist')"
                   [showAddButton]="true"
                   (onArtistClick)="goToArtist($event)"
                   (onAddClick)="toggle($event)"
@@ -376,6 +377,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 export class SearchComponent implements OnInit, OnDestroy {
   private search = inject(SearchService);
   private wishlistSvc = inject(WishlistService);
+  private favoriteArtistsSvc = inject(FavoriteArtistsService);
   private authSvc = inject(AuthService);
   private router = inject(Router);
 
@@ -395,7 +397,10 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   filteredArtists = computed(() => {
     const types = this.selectedTypes();
-    return types.has('artist') ? this.artists() : [];
+    if (types.has('artist') || types.size === 0) {
+      return this.artists();
+    }
+    return [];
   });
 
   filteredTracks = computed(() => {
@@ -495,7 +500,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   isAdded(trackId: string, type?: TrackType): boolean {
     if (type === 'artist') {
-      // return this.favoriteArtistsSvc.artistIds().has(trackId);
+      return this.favoriteArtistsSvc.artistIds().has(trackId);
     }
     return this.wishlistSvc.trackIds().has(trackId);
   }
@@ -505,18 +510,18 @@ export class SearchComponent implements OnInit, OnDestroy {
     if (!user) return;
 
     if (track.type === 'artist') {
-      // const artists = this.favoriteArtistsSvc.artists();
-      // const existing = artists.find((a) => a.artistId === track.id);
-      // if (existing && existing.id) {
-      //   await this.favoriteArtistsSvc.remove(existing.id);
-      // } else {
-      //   await this.favoriteArtistsSvc.add(
-      //     track.id,
-      //     track.name,
-      //     track.coverUrl,
-      //     user,
-      //   );
-      // }
+      const artists = this.favoriteArtistsSvc.artists();
+      const existing = artists.find((a) => a.artistId === track.id);
+      if (existing && existing.id) {
+        await this.favoriteArtistsSvc.remove(existing.id);
+      } else {
+        await this.favoriteArtistsSvc.add(
+          track.id,
+          track.name,
+          track.coverUrl,
+          user,
+        );
+      }
     } else {
       const entries = this.wishlistSvc.entries();
       const existing = entries.find((e) => e.trackId === track.id);
