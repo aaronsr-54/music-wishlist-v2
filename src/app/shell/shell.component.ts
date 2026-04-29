@@ -189,5 +189,10 @@ export class ShellComponent {
       .subscribe(() => {
         this.hasChildRoute.set(!!this.route.firstChild);
       });
+
+    effect(() => {
+      this.activeTab();
+      this.router.navigate(['']);
+    });
   }
 }
