@@ -9,6 +9,7 @@ import {
   onSnapshot,
   query,
   orderBy,
+  where,
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
 import { Track } from '../../shared/models/track.model';
@@ -30,7 +31,7 @@ export class WishlistService {
 
   constructor() {}
 
-  initListener(): void {
+  initListener(userId: string): void {
     if (this.unsubscribe) return;
 
     const col = collection(this.firestore, 'wishlist');

@@ -45,7 +45,7 @@ import { filter } from 'rxjs';
             <div class="panel-overlay" (click)="activeTab.set('search')"></div>
           }
           @if (!hasChildRoute()) {
-            <app-search />
+            <!-- <app-search /> -->
           } @else {
             <router-outlet />
           }

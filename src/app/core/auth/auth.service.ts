@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, NgZone, computed, effect, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   Auth,
@@ -9,25 +9,76 @@ import {
 } from '@angular/fire/auth';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WishlistService } from '../firebase/wishlist.service';
+import { FavoriteArtistsService } from '../firebase/favorite-artists.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private auth = inject(Auth);
   private router = inject(Router);
   private wishlistService = inject(WishlistService);
+  private favoriteArtistsService = inject(FavoriteArtistsService);
+  private ngZone = inject(NgZone);
 
   private firebaseUser = toSignal(authState(this.auth), { initialValue: null });
   demoMode = signal(false);
 
   readonly authState$ = authState(this.auth);
 
-  currentUser = this.firebaseUser;
+  constructor() {
+    effect(() => {
+      const firebaseUser = this.firebaseUser();
+      if (firebaseUser) {
+        this.ngZone.run(() => {
+          this.wishlistService.initListener(firebaseUser.uid);
+          this.favoriteArtistsService.initListener();
+        });
+      } else if (!this.demoMode()) {
+        this.ngZone.run(() => {
+          this.wishlistService.stopListener();
+          this.favoriteArtistsService.stopListener();
+        });
+      }
+    });
+  }
+
+  currentUser = computed(() => {
+    const firebaseUser = this.firebaseUser();
+    if (firebaseUser) return firebaseUser;
+    if (this.demoMode()) {
+      return {
+        uid: 'demo-user',
+        email: 'demo@example.com',
+        displayName: 'Demo User',
+        photoURL: null,
+        emailVerified: false,
+        isAnonymous: false,
+        metadata: {},
+        providerData: [],
+        refreshToken: '',
+        tenantId: null,
+        delete: async () => {},
+        getIdToken: async () => '',
+        getIdTokenResult: async () => ({
+          token: '',
+          expirationTime: '',
+          authTime: '',
+          issuedAtTime: '',
+          signInProvider: null,
+          signInSecondFactor: null,
+          claims: {},
+        }),
+        reload: async () => {},
+        toJSON: () => ({}),
+      } as any;
+    }
+    return null;
+  });
+
   isLoggedIn = computed(() => !!this.currentUser() || this.demoMode());
 
   async loginWithGoogle(): Promise<void> {
     const provider = new GoogleAuthProvider();
     await signInWithPopup(this.auth, provider);
-    this.wishlistService.initListener();
     this.router.navigate(['/']);
   }
 
@@ -41,7 +92,8 @@ export class AuthService {
   setDemoMode(enabled: boolean): void {
     this.demoMode.set(enabled);
     if (enabled) {
-      this.wishlistService.initListener();
+      this.wishlistService.initListener('demo-user');
+      this.favoriteArtistsService.initListener();
     }
   }
 }

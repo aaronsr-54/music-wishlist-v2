@@ -55,7 +55,8 @@
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__get_console_message",
       "Bash(git merge *)",
       "Bash(vercel *)",
-      "Bash(curl -s \"https://music-wishlist-v2.vercel.app/api/artist-albums?id=12246\")"
+      "Bash(curl -s \"https://music-wishlist-v2.vercel.app/api/artist-albums?id=12246\")",
+      "Bash(taskkill /PID 12280 /F)"
     ]
   }
 }

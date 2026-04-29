@@ -33,36 +33,71 @@ import { AvatarComponent } from '../avatar/avatar.component';
     } @else if (source() === 'search') {
       @switch (type()) {
         @case ('artist') {
-          <button
-            class="item-row artist-row"
-            (click)="onArtistClick.emit(trackItem())"
-          >
-            <app-cover
-              [coverUrl]="trackItem().coverUrl"
-              [name]="trackItem().name"
-              [size]="56"
-            />
-            <div class="item-meta">
-              <span class="item-title">{{ trackItem().name }}</span>
-              <div class="item-subtitle">
-                @if (trackItem().fanCount) {
-                  <span class="item-stat item-stat--fans"
-                    ><b>
-                      {{ formatFans(trackItem().fanCount ?? 0) }}
-                    </b>
-                    fan{{ trackItem().fanCount !== 1 ? 's' : '' }}</span
-                  >
-                  <span class="item-sep">·</span>
-                }
-                @if (trackItem().albumCount) {
-                  <span class="item-stat item-stat--albums">
-                    {{ trackItem().albumCount }}
-                    álbum{{ trackItem().albumCount !== 1 ? 's' : '' }}</span
-                  >
-                }
+          <div class="item-row">
+            <button
+              class="artist-link"
+              (click)="onArtistClick.emit(trackItem())"
+              [title]="trackItem().name"
+            >
+              <app-cover
+                [coverUrl]="trackItem().coverUrl"
+                [name]="trackItem().name"
+                [size]="56"
+              />
+              <div class="item-meta">
+                <span class="item-title">{{ trackItem().name }}</span>
+                <div class="item-subtitle">
+                  @if (trackItem().fanCount) {
+                    <span class="item-stat item-stat--fans"
+                      ><b>
+                        {{ formatFans(trackItem().fanCount ?? 0) }}
+                      </b>
+                      fan{{ trackItem().fanCount !== 1 ? 's' : '' }}</span
+                    >
+                    <span class="item-sep">·</span>
+                  }
+                  @if (trackItem().albumCount) {
+                    <span class="item-stat item-stat--albums">
+                      {{ trackItem().albumCount }}
+                      álbum{{ trackItem().albumCount !== 1 ? 's' : '' }}</span
+                    >
+                  }
+                </div>
               </div>
-            </div>
-          </button>
+            </button>
+            @if (showAddButton()) {
+              <button
+                class="add-btn"
+                [class.added]="isAdded()"
+                (click)="onAddClick.emit(trackItem())"
+                [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
+              >
+                @if (isAdded()) {
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 16 16"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    stroke-width="1"
+                  >
+                    <path
+                      d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
+                    />
+                  </svg>
+                } @else {
+                  <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
+                    <path
+                      d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
+                      stroke="currentColor"
+                      stroke-width="1"
+                      stroke-linejoin="round"
+                    />
+                  </svg>
+                }
+              </button>
+            }
+          </div>
         }
         @case ('track') {
           <div class="item-row">
@@ -201,26 +236,28 @@ import { AvatarComponent } from '../avatar/avatar.component';
   `,
   styles: [
     `
-      .artist-row {
+      .artist-link {
         background: none;
         border: none;
         cursor: pointer;
-        padding: 10px 8px;
         text-align: left;
-        width: 100%;
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border-radius: var(--radius-md);
+        transition: background var(--dur-fast) var(--ease);
       }
 
-      .artist-row:hover {
+      .artist-link:hover {
         background: var(--ink-100);
-        border-radius: var(--radius-md);
-        transition: border-radius var(--dur-fast) var(--ease);
       }
 
       .item-row {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 10px 8px;
+        padding: 10px 0;
         border-bottom: 1px solid var(--ink-200);
         transition: background var(--dur-fast) var(--ease);
       }

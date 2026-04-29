@@ -38,7 +38,48 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
           <div class="artist-info">
             @if (artist(); as a) {
               <div class="artist-info artist-info--header">
-                <h1>{{ a.name }}</h1>
+                <div class="artist-title-section">
+                  <h1>{{ a.name }}</h1>
+                  <button
+                    class="add-artist-btn"
+                    [class.added]="isArtistInWishlist(a.id)"
+                    (click)="toggleArtist($event)"
+                    [title]="
+                      isArtistInWishlist(a.id)
+                        ? 'Quitar de wishlist'
+                        : 'Añadir a wishlist'
+                    "
+                  >
+                    @if (isArtistInWishlist(a.id)) {
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 16 16"
+                        fill="currentColor"
+                      >
+                        <path
+                          d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
+                          stroke="currentColor"
+                          stroke-width="1"
+                        />
+                      </svg>
+                    } @else {
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 16 16"
+                        fill="none"
+                      >
+                        <path
+                          d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
+                          stroke="currentColor"
+                          stroke-width="1"
+                          stroke-linejoin="round"
+                        />
+                      </svg>
+                    }
+                  </button>
+                </div>
 
                 <div class="artist-stats">
                   @if (a.nb_fan !== undefined) {
@@ -179,11 +220,55 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
         justify-content: flex-start;
       }
 
+      .artist-title-section {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
       .artist-info h1 {
-        margin: 0 0 20px 0;
+        margin: 0;
         font-size: 4rem;
         font-weight: bold;
         font-family: var(--font-display);
+        flex: 1;
+      }
+
+      .add-artist-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bone-600);
+        flex-shrink: 0;
+        transition:
+          background var(--dur-fast) var(--ease),
+          color var(--dur-fast) var(--ease),
+          transform var(--dur-fast) var(--ease);
+        border: 1.5px solid var(--ink-200);
+        background: transparent;
+        padding: 0;
+      }
+
+      .add-artist-btn:hover {
+        border-color: var(--bone-600);
+        background: var(--ink-100);
+        color: var(--bone-100);
+      }
+
+      .add-artist-btn:active {
+        transform: scale(0.88);
+      }
+
+      .add-artist-btn.added {
+        background: var(--bone);
+        border-color: var(--bone);
+        color: var(--ink);
+        animation: popIn 220ms var(--ease) both;
       }
 
       .artist-stats {
@@ -328,6 +413,10 @@ export class ArtistComponent implements OnInit {
     return this.wishlistSvc.entries().some((e) => e.trackId === trackId);
   }
 
+  isArtistInWishlist(artistId: string): boolean {
+    return this.wishlistSvc.entries().some((e) => e.trackId === artistId);
+  }
+
   async toggle(track: Track) {
     const entries = this.wishlistSvc.entries();
     const existing = entries.find((e) => e.trackId === track.id);
@@ -340,6 +429,26 @@ export class ArtistComponent implements OnInit {
         await this.wishlistSvc.add(track, user);
       }
     }
+  }
+
+  async toggleArtist(e: Event) {
+    e.stopPropagation();
+    const currentArtist = this.artist();
+    if (!currentArtist) return;
+
+    const artistTrack: Track = {
+      id: currentArtist.id,
+      name: currentArtist.name,
+      artists: [currentArtist.name],
+      coverUrl: currentArtist.picture_big,
+      type: 'artist',
+      uri: '',
+      artistId: currentArtist.id,
+      fanCount: currentArtist.nb_fan,
+      albumCount: currentArtist.nb_album,
+    };
+
+    await this.toggle(artistTrack);
   }
 
   goBack() {
