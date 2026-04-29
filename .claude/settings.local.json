@@ -50,7 +50,10 @@
       "Bash(timeout 120 npm start)",
       "Read(//tmp/**)",
       "Bash(xdg-open \"http://localhost:4200/?demo\")",
-      "Bash(open \"http://localhost:4200/?demo\")"
+      "Bash(open \"http://localhost:4200/?demo\")",
+      "Bash(xargs cat *)",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__get_console_message",
+      "Bash(git merge *)"
     ]
   }
 }

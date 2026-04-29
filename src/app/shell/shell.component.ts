@@ -20,6 +20,7 @@ import { filter } from 'rxjs';
     RouterOutlet,
     HeaderComponent,
     TabBarComponent,
+    ReleasesComponent,
     SearchComponent,
     WishlistComponent,
     ReleasesComponent,
@@ -132,6 +133,7 @@ import { filter } from 'rxjs';
         flex: 1;
         overflow: hidden;
         padding: 12px;
+        gap: 12px;
       }
 
       .three-pane > section {
@@ -139,10 +141,8 @@ import { filter } from 'rxjs';
         position: relative;
         overflow-y: auto;
         height: 100%;
-        transition:
-          opacity var(--dur-base) var(--ease),
-          border-color var(--dur-base) var(--ease);
-        border: 2px solid transparent;
+        transition: border-color var(--dur-base) var(--ease);
+        border: 2px solid var(--bone);
         border-radius: var(--radius-md);
       }
 
