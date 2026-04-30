@@ -16,7 +16,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { ReleaseItem } from '../../shared/models/release-item.model';
 import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
-import { IconComponent } from '../../shared/icons/icon.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 const MONTHS = [
   'Enero',
@@ -36,7 +36,7 @@ const MONTHS = [
 @Component({
   selector: 'app-releases',
   standalone: true,
-  imports: [CommonModule, CardItemComponent, SpinnerComponent, IconComponent],
+  imports: [CommonModule, CardItemComponent, SpinnerComponent, EmptyStateComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -73,27 +73,11 @@ const MONTHS = [
             <span class="releases-loading__text">Cargando lanzamientos...</span>
           </div>
         } @else if (filteredReleases().length === 0) {
-          <div class="empty-state">
-            <div class="empty-icon">
-              @if (favorites().length === 0) {
-                <app-icon name="heart" class="tab-icon" />
-              } @else {
-                <app-icon name="music-note" class="tab-icon" />
-              }
-            </div>
-            @if (favorites().length === 0) {
-              <p class="empty-title">Sin artistas</p>
-              <p class="empty-sub">
-                Busca tus artistas favoritos y añádelos aquí.
-              </p>
-            } @else {
-              <p class="empty-title">Sin lanzamientos</p>
-              <p class="empty-sub">
-                Ninguno de tus artistas favoritos ha lanzado algo este mes.
-                Añade más artistas a tu lista de favoritos.
-              </p>
-            }
-          </div>
+          <app-empty-state
+            [icon]="favorites().length === 0 ? 'heart' : 'music-note'"
+            [title]="favorites().length === 0 ? 'Sin artistas' : 'Sin lanzamientos'"
+            [subtitle]="favorites().length === 0 ? 'Busca tus artistas favoritos y añádelos aquí.' : 'Ninguno de tus artistas favoritos ha lanzado algo este mes. Añade más artistas a tu lista de favoritos.'"
+          />
         } @else {
           <div class="releases-list">
             @for (item of filteredReleases(); track item.id + ':' + item.type) {
@@ -111,26 +95,6 @@ const MONTHS = [
   `,
   styles: [
     `
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes slideDown {
-        from {
-          opacity: 0;
-          transform: translateY(-8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
       @keyframes scaleIn {
         from {
           opacity: 0;
@@ -410,44 +374,6 @@ const MONTHS = [
         animation-delay: 570ms;
       }
 
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 60px 20px;
-        text-align: center;
-        animation: emptyEnter var(--dur-slow) var(--ease) both;
-      }
-
-      .empty-icon {
-        color: var(--bone-700);
-        margin-bottom: 4px;
-      }
-
-      .empty-icon app-icon {
-        width: 3.2rem;
-        height: 3.2rem;
-      }
-
-      .empty-title {
-        font-family: var(--font-body);
-        font-size: clamp(1.375rem, 1.2707rem + 0.4049vw, 1.625rem);
-        font-weight: 600;
-        text-transform: uppercase;
-        color: var(--bone);
-        margin: 0;
-      }
-
-      .empty-sub {
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-family: var(--font-display);
-        color: var(--bone-600);
-        font-style: italic;
-        margin: 0;
-        max-width: 240px;
-      }
     `,
   ],
 })

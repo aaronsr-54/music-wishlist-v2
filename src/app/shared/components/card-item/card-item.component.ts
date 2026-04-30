@@ -1,6 +1,6 @@
 import { Component, computed, input, output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { trigger, transition, style, animate } from '@angular/animations';
+import { fadeInOut } from '../../animations/animations';
 import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
@@ -11,17 +11,7 @@ import { IconComponent } from '../../icons/icon.component';
 @Component({
   selector: 'app-card-item',
   standalone: true,
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('200ms ease-in-out', style({ opacity: 1 })),
-      ]),
-      transition(':leave', [
-        animate('200ms ease-in-out', style({ opacity: 0 })),
-      ]),
-    ]),
-  ],
+  animations: [fadeInOut()],
   imports: [
     DatePipe,
     CoverComponent,

@@ -2,14 +2,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
-import { IconComponent } from '../../shared/icons/icon.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 type WishlistTab = 'pending' | 'downloaded';
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [SearchResultItemComponent, IconComponent],
+  imports: [SearchResultItemComponent, EmptyStateComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -57,24 +57,11 @@ type WishlistTab = 'pending' | 'downloaded';
             (onRemove)="remove($event)"
           />
         } @empty {
-          <div class="empty-state">
-            <div class="empty-icon">
-              @if (activeTab() === 'pending') {
-                <app-icon name="plus" />
-              } @else {
-                <app-icon name="check" />
-              }
-            </div>
-            @if (activeTab() === 'pending') {
-              <p class="empty-title">Tu wishlist espera</p>
-              <p class="empty-sub">Busca canciones y añádelas aquí</p>
-            } @else {
-              <p class="empty-title">Nada listo</p>
-              <p class="empty-sub">
-                Marca canciones como listas para verlas aquí
-              </p>
-            }
-          </div>
+          <app-empty-state
+            [icon]="activeTab() === 'pending' ? 'plus' : 'check'"
+            [title]="activeTab() === 'pending' ? 'Tu wishlist espera' : 'Nada listo'"
+            [subtitle]="activeTab() === 'pending' ? 'Busca canciones y añádelas aquí' : 'Marca canciones como listas para verlas aquí'"
+          />
         }
       </div>
     </div>
@@ -211,44 +198,6 @@ type WishlistTab = 'pending' | 'downloaded';
         display: none;
       }
 
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 60px 20px;
-        text-align: center;
-        animation: emptyEnter var(--dur-slow) var(--ease) both;
-      }
-
-      .empty-icon {
-        color: var(--bone-700);
-        margin-bottom: 4px;
-      }
-
-      .empty-icon app-icon {
-        width: 3.2rem;
-        height: 3.2rem;
-      }
-
-      .empty-title {
-        font-family: var(--font-body);
-        font-size: clamp(1.375rem, 1.2707rem + 0.4049vw, 1.625rem);
-        font-weight: 600;
-        text-transform: uppercase;
-        color: var(--bone);
-        margin: 0;
-      }
-
-      .empty-sub {
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-family: var(--font-display);
-        color: var(--bone-600);
-        font-style: italic;
-        margin: 0;
-        max-width: 240px;
-      }
     `,
   ],
 })

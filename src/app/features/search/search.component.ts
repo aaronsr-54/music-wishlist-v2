@@ -27,6 +27,8 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 import { ArtistCardComponent } from '../../shared/components/artist-card/artist-card.component';
 import { Router } from '@angular/router';
 import { IconComponent } from '../../shared/icons/icon.component';
+import { formatFans } from '../../shared/utils/format-fans';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
@@ -40,6 +42,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
     SpinnerComponent,
     ArtistCardComponent,
     IconComponent,
+    EmptyStateComponent,
   ],
   template: `
     <div class="panel">
@@ -105,16 +108,11 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       @switch (state()) {
         @case ('idle') {
           <div class="results">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <app-icon name="search" />
-              </div>
-              <p class="empty-title">Empieza a escribir</p>
-              <p class="empty-sub">
-                Canciones, álbumes o EPs — busca lo que quieras y lo encontramos
-                en Deezer.
-              </p>
-            </div>
+            <app-empty-state
+              icon="search"
+              title="Empieza a escribir"
+              subtitle="Canciones, álbumes o EPs — busca lo que quieras y lo encontramos en Deezer."
+            />
           </div>
         }
         @case ('loading') {
@@ -157,10 +155,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         }
         @case ('empty') {
           <div class="results">
-            <div class="empty-state">
-              <p class="empty-title">Sin resultados</p>
-              <p class="empty-sub">Prueba con otro término de búsqueda</p>
-            </div>
+            <app-empty-state
+              title="Sin resultados"
+              subtitle="Prueba con otro término de búsqueda"
+            />
           </div>
         }
       }
@@ -335,45 +333,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         display: none;
       }
 
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 60px 20px;
-        text-align: center;
-        animation: emptyEnter var(--dur-slow) var(--ease) both;
-      }
-
-      .empty-icon {
-        color: var(--bone-800);
-        margin-bottom: 4px;
-      }
-
-      .empty-icon app-icon {
-        width: 3.2rem;
-        height: 3.2rem;
-      }
-
-      .empty-title {
-        font-family: var(--font-body);
-        font-size: clamp(1.375rem, 1.2707rem + 0.4049vw, 1.625rem);
-        font-weight: 600;
-        text-transform: uppercase;
-        color: var(--bone);
-        margin: 0;
-      }
-
-      .empty-sub {
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-family: var(--font-display);
-        color: var(--bone-600);
-        font-style: italic;
-        margin: 0;
-        max-width: 240px;
-      }
-
       .results-loading {
         display: flex;
         align-items: center;
@@ -399,15 +358,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       .result-item {
         animation: rowEnter var(--dur-base) var(--ease) both;
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
       }
 
       .favorites-slider-container {
@@ -645,11 +595,5 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatFans(count: number): string {
-    if (count >= 1000000)
-      return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (count >= 1000)
-      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    return count.toString();
-  }
+  formatFans = formatFans;
 }

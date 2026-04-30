@@ -10,6 +10,7 @@ import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { IconComponent } from '../../shared/icons/icon.component';
+import { formatFans } from '../../shared/utils/format-fans';
 
 @Component({
   selector: 'app-artist',
@@ -378,15 +379,6 @@ import { IconComponent } from '../../shared/icons/icon.component';
         animation: rowEnter var(--dur-base) var(--ease) both;
       }
 
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
       @media (max-width: 768px) {
         .artist-container {
           padding: 1rem 0;
@@ -494,11 +486,5 @@ export class ArtistComponent implements OnInit {
     this.router.navigate(['']);
   }
 
-  formatFans(count: number): string {
-    if (count >= 1000000)
-      return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (count >= 1000)
-      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    return count.toString();
-  }
+  formatFans = formatFans;
 }

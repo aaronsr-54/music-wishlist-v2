@@ -1,6 +1,6 @@
 import { Component, computed, input, output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import { trigger, transition, style, animate } from '@angular/animations';
+import { fadeInOut } from '../../animations/animations';
 import { Track } from '../../models/track.model';
 import { WishlistEntry } from '../../models/wishlist-entry.model';
 import { ReleaseItem } from '../../models/release-item.model';
@@ -10,21 +10,12 @@ import { AvatarComponent } from '../avatar/avatar.component';
 import { PreviewService } from '../../../core/services/preview.service';
 import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
 import { IconComponent } from '../../icons/icon.component';
+import { formatFans } from '../../utils/format-fans';
 
 @Component({
   selector: 'app-search-result-item',
   standalone: true,
-  animations: [
-    trigger('fadeInOut', [
-      transition(':enter', [
-        style({ opacity: 0 }),
-        animate('200ms ease-in-out', style({ opacity: 1 })),
-      ]),
-      transition(':leave', [
-        animate('200ms ease-in-out', style({ opacity: 0 })),
-      ]),
-    ]),
-  ],
+  animations: [fadeInOut()],
   imports: [
     DatePipe,
     CoverComponent,
@@ -477,13 +468,7 @@ export class SearchResultItemComponent {
   releaseItem = computed(() => this.item() as ReleaseItem);
   previewState = computed(() => this.preview.state());
 
-  formatFans(count: number): string {
-    if (count >= 1000000)
-      return (count / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    if (count >= 1000)
-      return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    return count.toString();
-  }
+  formatFans = formatFans;
 
   onPlayPreview(track: Track): void {
     if (!track.previewUrl) return;
