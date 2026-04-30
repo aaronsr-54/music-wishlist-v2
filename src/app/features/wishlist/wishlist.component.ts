@@ -2,13 +2,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
+import { IconComponent } from '../../shared/icons/icon.component';
 
 type WishlistTab = 'pending' | 'downloaded';
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [SearchResultItemComponent],
+  imports: [SearchResultItemComponent, IconComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -59,24 +60,9 @@ type WishlistTab = 'pending' | 'downloaded';
           <div class="empty-state">
             <div class="empty-icon">
               @if (activeTab() === 'pending') {
-                <svg viewBox="0 0 32 32" fill="none">
-                  <path
-                    d="M16 4v24M4 16h24"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <app-icon name="plus" />
               } @else {
-                <svg viewBox="0 0 32 32" fill="none">
-                  <path
-                    d="M6 17L13 24L26 8"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <app-icon name="check" />
               }
             </div>
             @if (activeTab() === 'pending') {
@@ -241,7 +227,7 @@ type WishlistTab = 'pending' | 'downloaded';
         margin-bottom: 4px;
       }
 
-      .empty-icon svg {
+      .empty-icon app-icon {
         width: 3.2rem;
         height: 3.2rem;
       }

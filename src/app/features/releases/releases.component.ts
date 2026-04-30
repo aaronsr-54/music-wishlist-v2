@@ -16,6 +16,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { ReleaseItem } from '../../shared/models/release-item.model';
 import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import { IconComponent } from '../../shared/icons/icon.component';
 
 const MONTHS = [
   'Enero',
@@ -35,7 +36,7 @@ const MONTHS = [
 @Component({
   selector: 'app-releases',
   standalone: true,
-  imports: [CommonModule, CardItemComponent, SpinnerComponent],
+  imports: [CommonModule, CardItemComponent, SpinnerComponent, IconComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -75,37 +76,9 @@ const MONTHS = [
           <div class="empty-state">
             <div class="empty-icon">
               @if (favorites().length === 0) {
-                <svg viewBox="0 0 22 22" fill="none" class="tab-icon">
-                  <path
-                    d="M11 19S3 13.5 3 8a5 5 0 018-4A5 5 0 0119 8c0 5.5-8 11-8 11z"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linejoin="round"
-                  />
-                </svg>
+                <app-icon name="heart" class="tab-icon" />
               } @else {
-                <svg
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  xml:space="preserve"
-                  class="tab-icon"
-                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <g id="new">
-                      <g>
-                        <polygon
-                          points="13,23 11,23 11,13.7 3,18.4 2,16.6 10,12 2,7.4 3,5.6 11,10.3 11,1 13,1 13,10.3 21,5.6 22,7.4 14,12 22,16.6 21,18.4 13,13.7 "
-                        ></polygon>
-                      </g>
-                    </g>
-                  </g>
-                </svg>
+                <app-icon name="music-note" class="tab-icon" />
               }
             </div>
             @if (favorites().length === 0) {
@@ -453,7 +426,7 @@ const MONTHS = [
         margin-bottom: 4px;
       }
 
-      .empty-icon svg {
+      .empty-icon app-icon {
         width: 3.2rem;
         height: 3.2rem;
       }

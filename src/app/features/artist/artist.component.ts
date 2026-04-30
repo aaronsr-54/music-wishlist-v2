@@ -9,6 +9,7 @@ import { Track } from '../../shared/models/track.model';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import { IconComponent } from '../../shared/icons/icon.component';
 
 @Component({
   selector: 'app-artist',
@@ -18,6 +19,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
     CoverComponent,
     SearchResultItemComponent,
     SpinnerComponent,
+    IconComponent,
   ],
   template: `
     <div class="panel">
@@ -58,30 +60,9 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
                     "
                   >
                     @if (isArtistInWishlist(a.id)) {
-                      <svg
-                        viewBox="0 0 16 18"
-                        fill="currentColor"
-                        class="artist-heart-icon"
-                      >
-                        <path
-                          d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
-                          stroke="currentColor"
-                          stroke-width="1"
-                        />
-                      </svg>
+                      <app-icon name="heart-filled" class="artist-heart-icon" />
                     } @else {
-                      <svg
-                        viewBox="0 0 16 18"
-                        fill="none"
-                        class="artist-heart-icon"
-                      >
-                        <path
-                          d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
-                          stroke="currentColor"
-                          stroke-width="1"
-                          stroke-linejoin="round"
-                        />
-                      </svg>
+                      <app-icon name="heart" class="artist-heart-icon" />
                     }
                   </button>
                 </div>

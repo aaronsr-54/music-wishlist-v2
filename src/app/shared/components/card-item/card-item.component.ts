@@ -6,6 +6,7 @@ import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { PreviewService } from '../../../core/services/preview.service';
 import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
+import { IconComponent } from '../../icons/icon.component';
 
 @Component({
   selector: 'app-card-item',
@@ -26,6 +27,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
     CoverComponent,
     TypeChipComponent,
     PreviewSpinnerComponent,
+    IconComponent,
   ],
   template: `
     <div class="card">
@@ -72,25 +74,10 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
           (click)="onToggleWishlist()"
         >
           @if (isAdded()) {
-            <svg viewBox="0 0 16 16" fill="none" class="card-icon">
-              <path
-                d="M3 8.5L6.5 12L13 5"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
+            <app-icon name="check" class="card-icon" />
             <span>Añadido</span>
           } @else {
-            <svg viewBox="0 0 16 16" fill="none" class="card-icon">
-              <path
-                d="M8 3V13M3 8H13"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-              />
-            </svg>
+            <app-icon name="plus" class="card-icon" />
             <span>Guardar</span>
           }
         </button>

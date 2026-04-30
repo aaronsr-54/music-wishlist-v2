@@ -26,6 +26,7 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { ArtistCardComponent } from '../../shared/components/artist-card/artist-card.component';
 import { Router } from '@angular/router';
+import { IconComponent } from '../../shared/icons/icon.component';
 
 type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
@@ -38,6 +39,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
     SearchResultItemComponent,
     SpinnerComponent,
     ArtistCardComponent,
+    IconComponent,
   ],
   template: `
     <div class="panel">
@@ -48,21 +50,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       </div>
 
       <div class="search-field" [class.has-value]="query()">
-        <svg class="search-icon" viewBox="0 0 20 20" fill="none">
-          <circle
-            cx="8.5"
-            cy="8.5"
-            r="5.75"
-            stroke="currentColor"
-            stroke-width="1.5"
-          />
-          <path
-            d="M13.5 13.5L17 17"
-            stroke="currentColor"
-            stroke-width="1.5"
-            stroke-linecap="round"
-          />
-        </svg>
+        <app-icon name="search" class="search-icon" />
         <input
           id="search-input"
           type="text"
@@ -76,14 +64,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         />
         @if (query()) {
           <button class="clear-btn" (click)="clearQuery()" aria-label="Limpiar">
-            <svg viewBox="0 0 16 16" fill="none">
-              <path
-                d="M4 4L12 12M12 4L4 12"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-              />
-            </svg>
+            <app-icon name="close" />
           </button>
         }
       </div>
@@ -126,21 +107,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           <div class="results">
             <div class="empty-state">
               <div class="empty-icon">
-                <svg viewBox="0 0 32 32" fill="none">
-                  <circle
-                    cx="13"
-                    cy="13"
-                    r="8.5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  />
-                  <path
-                    d="M19.5 19.5L26 26"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
+                <app-icon name="search" />
               </div>
               <p class="empty-title">Empieza a escribir</p>
               <p class="empty-sub">
@@ -297,7 +264,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
       }
 
-      .clear-btn svg {
+      .clear-btn app-icon {
         width: 1em;
         height: 1em;
       }
@@ -384,7 +351,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         margin-bottom: 4px;
       }
 
-      .empty-icon svg {
+      .empty-icon app-icon {
         width: 3.2rem;
         height: 3.2rem;
       }

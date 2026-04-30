@@ -10,25 +10,9 @@
       [title]="isFavorite() ? 'Quitar de favoritos' : 'Añadir a favoritos'"
     >
       @if (isFavorite()) {
-        <svg
-          viewBox="0 0 16 18"
-          fill="currentColor"
-          stroke="currentColor"
-          stroke-width="1"
-        >
-          <path
-            d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
-          />
-        </svg>
+        <app-icon name="heart-filled" />
       } @else {
-        <svg viewBox="0 0 16 18" fill="none">
-          <path
-            d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
-            stroke="currentColor"
-            stroke-width="1"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <app-icon name="heart" />
       }
     </button>
   </div>

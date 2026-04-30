@@ -9,6 +9,7 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { PreviewService } from '../../../core/services/preview.service';
 import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
+import { IconComponent } from '../../icons/icon.component';
 
 @Component({
   selector: 'app-search-result-item',
@@ -30,6 +31,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
     TypeChipComponent,
     AvatarComponent,
     PreviewSpinnerComponent,
+    IconComponent,
   ],
   template: `
     @if (source() === 'search') {
@@ -75,25 +77,9 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
                 [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
               >
                 @if (isAdded()) {
-                  <svg
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
-                    stroke="currentColor"
-                    stroke-width="1"
-                  >
-                    <path
-                      d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
-                    />
-                  </svg>
+                  <app-icon name="heart-filled" />
                 } @else {
-                  <svg viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
-                      stroke="currentColor"
-                      stroke-width="1"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+                  <app-icon name="heart" />
                 }
               </button>
             }
@@ -142,24 +128,9 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
                 [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
               >
                 @if (isAdded()) {
-                  <svg viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M3 8.5L6.5 12L13 5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    />
-                  </svg>
+                  <app-icon name="check" />
                 } @else {
-                  <svg viewBox="0 0 16 16" fill="none">
-                    <path
-                      d="M8 3V13M3 8H13"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                  </svg>
+                  <app-icon name="plus" />
                 }
               </button>
             }
@@ -225,29 +196,14 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
               (click)="onMarkDownloaded.emit(wishlistItem())"
               title="Marcar como listo"
             >
-              <svg viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M3 8.5L6.5 12L13 5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <app-icon name="check" />
             </button>
             <button
               class="action-btn action-danger"
               (click)="onRemove.emit(wishlistItem())"
               title="Eliminar"
             >
-              <svg viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M4 4L12 12M12 4L4 12"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
+              <app-icon name="close" />
             </button>
           } @else {
             <button
@@ -255,29 +211,14 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
               (click)="onUnmarkDownloaded.emit(wishlistItem())"
               title="Mover a pendientes"
             >
-              <svg viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M10 4L6 8L10 12"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
+              <app-icon name="chevron-left" />
             </button>
             <button
               class="action-btn action-danger"
               (click)="onRemove.emit(wishlistItem())"
               title="Eliminar"
             >
-              <svg viewBox="0 0 16 16" fill="none">
-                <path
-                  d="M5 3h6M3 5h10M5 5v7a1 1 0 001 1h4a1 1 0 001-1V5"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
+              <app-icon name="trash" />
             </button>
           }
         </div>
@@ -410,7 +351,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
         padding: 0;
       }
 
-      .add-btn svg {
+      .add-btn app-icon {
         width: clamp(1.25rem, 3vw, 1.5rem);
         height: clamp(1.25rem, 3vw, 1.5rem);
       }
@@ -453,7 +394,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
           transform var(--dur-fast) var(--ease);
       }
 
-      .action-btn svg {
+      .action-btn app-icon {
         width: clamp(1rem, 2.5vw, 1.25rem);
         height: clamp(1rem, 2.5vw, 1.25rem);
       }
