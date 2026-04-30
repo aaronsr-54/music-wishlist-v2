@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
+import { VersionService } from '../../core/version/version.service';
 
 @Component({
   selector: 'app-login',
@@ -8,7 +9,7 @@ import { AuthService } from '../../core/auth/auth.service';
     <div class="screen">
       <header class="eyebrow">
         <span class="label"><span class="label--number">00/</span> ACCESO</span>
-        <span class="version">v0.2 - beta</span>
+        <span class="version">v{{ version() }}</span>
       </header>
 
       <main class="hero">
@@ -252,9 +253,11 @@ import { AuthService } from '../../core/auth/auth.service';
 })
 export class LoginComponent {
   private auth = inject(AuthService);
+  private versionService = inject(VersionService);
 
   loading = signal(false);
   error = signal('');
+  version = signal(this.versionService.getVersion());
 
   async login() {
     this.loading.set(true);

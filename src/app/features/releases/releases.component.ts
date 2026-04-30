@@ -75,30 +75,43 @@ const MONTHS = [
           <div class="empty-state">
             <div class="empty-icon">
               @if (favorites().length === 0) {
-                <svg viewBox="0 0 32 32" fill="none">
+                <svg viewBox="0 0 22 22" fill="none" class="tab-icon">
                   <path
-                    d="M16 4v24M4 16h24"
+                    d="M11 19S3 13.5 3 8a5 5 0 018-4A5 5 0 0119 8c0 5.5-8 11-8 11z"
                     stroke="currentColor"
                     stroke-width="1.5"
-                    stroke-linecap="round"
+                    stroke-linejoin="round"
                   />
                 </svg>
               } @else {
-                <svg viewBox="0 0 32 32" fill="none">
-                  <path
-                    d="M6 17L13 24L26 8"
-                    stroke="currentColor"
-                    stroke-width="1.5"
+                <svg
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  xml:space="preserve"
+                  class="tab-icon"
+                >
+                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                  <g
+                    id="SVGRepo_tracerCarrier"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                  />
+                  ></g>
+                  <g id="SVGRepo_iconCarrier">
+                    <g id="new">
+                      <g>
+                        <polygon
+                          points="13,23 11,23 11,13.7 3,18.4 2,16.6 10,12 2,7.4 3,5.6 11,10.3 11,1 13,1 13,10.3 21,5.6 22,7.4 14,12 22,16.6 21,18.4 13,13.7 "
+                        ></polygon>
+                      </g>
+                    </g>
+                  </g>
                 </svg>
               }
             </div>
             @if (favorites().length === 0) {
               <p class="empty-title">Sin artistas</p>
               <p class="empty-sub">
-                Busca tus artistas favoritos y añádelos aquí
+                Busca tus artistas favoritos y añádelos aquí.
               </p>
             } @else {
               <p class="empty-title">Sin lanzamientos</p>

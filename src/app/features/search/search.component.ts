@@ -445,7 +445,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   filteredArtists = computed(() => {
     const types = this.selectedTypes();
-    if (types.has('artist') || types.size === 0) {
+    if (types.has('artist')) {
       return this.artists();
     }
     return [];
