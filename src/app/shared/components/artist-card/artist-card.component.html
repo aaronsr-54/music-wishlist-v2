@@ -1,0 +1,22 @@
+<button class="artist-card" (click)="onArtistClick.emit(artist())">
+  <div class="cover-container">
+    <img
+      *ngIf="artist().image"
+      [src]="artist().image"
+      [alt]="artist().name"
+      loading="lazy"
+    />
+    <button
+      class="favorite-btn"
+      [class.filled]="isFavorite()"
+      (click)="toggleFavorite($event)"
+      [title]="isFavorite() ? 'Quitar de favoritos' : 'Añadir a favoritos'"
+    >
+      <span *ngIf="isFavorite()" class="heart-icon filled">♥</span>
+      <span *ngIf="!isFavorite()" class="heart-icon">♡</span>
+    </button>
+  </div>
+  <div class="artist-info">
+    <span class="artist-name">{{ artist().name }}</span>
+  </div>
+</button>
