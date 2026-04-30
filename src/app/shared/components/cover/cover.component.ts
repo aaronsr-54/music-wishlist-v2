@@ -65,7 +65,6 @@ export class CoverComponent {
       width: widthValue,
       maxWidth: '100%',
       aspectRatio: '1 / 1',
-      height: this.size ? `${this.size}px` : undefined,
       borderRadius: 'var(--radius-sm)',
       objectFit: 'cover',
       display: 'block',
@@ -80,7 +79,6 @@ export class CoverComponent {
 
     return {
       width: widthValue,
-      height: this.size ? `${this.size}px` : undefined,
       maxWidth: '100%',
       aspectRatio: '1 / 1',
       borderRadius: 'var(--radius-sm)',
