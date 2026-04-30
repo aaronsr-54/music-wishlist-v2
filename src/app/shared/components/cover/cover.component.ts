@@ -39,15 +39,6 @@ function hashVariant(name: string): number {
       </div>
     }
   `,
-  styles: [
-    `
-      /* :host {
-        display: block;
-        width: 100%;
-        max-width: 100%;
-      } */
-    `,
-  ],
 })
 export class CoverComponent {
   @Input({ required: true }) name = '';
@@ -67,9 +58,9 @@ export class CoverComponent {
   private variant = computed(() => VARIANTS[hashVariant(this.name)]);
 
   imgStyle = computed(() => ({
-    width: this.size ? `${this.size}px` : '100%',
+    width: this.size ? `${this.size}px` : 'clamp(50px, 12vw, 280px)',
     maxWidth: '100%',
-    aspectRatio: this.size ? undefined : '1 / 1',
+    aspectRatio: '1 / 1',
     height: this.size ? `${this.size}px` : undefined,
     borderRadius: 'var(--radius-sm)',
     objectFit: 'cover',
@@ -80,10 +71,10 @@ export class CoverComponent {
     const v = this.variant();
 
     return {
-      width: this.size ? `${this.size}px` : '100%',
+      width: this.size ? `${this.size}px` : 'clamp(50px, 12vw, 280px)',
       height: this.size ? `${this.size}px` : undefined,
       maxWidth: '100%',
-      aspectRatio: this.size ? undefined : '1 / 1',
+      aspectRatio: '1 / 1',
       borderRadius: 'var(--radius-sm)',
       background: v.bg,
       color: v.color,
