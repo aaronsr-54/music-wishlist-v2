@@ -13,7 +13,12 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 @Component({
   selector: 'app-artist',
   standalone: true,
-  imports: [CommonModule, CoverComponent, SearchResultItemComponent, SpinnerComponent],
+  imports: [
+    CommonModule,
+    CoverComponent,
+    SearchResultItemComponent,
+    SpinnerComponent,
+  ],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -157,7 +162,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
         flex-direction: column;
         height: 100%;
         padding: 0.5rem 1rem;
-        gap: 2rem;
+        gap: 4rem;
         overflow: auto;
         scrollbar-width: none;
 
@@ -359,7 +364,6 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
         font-weight: 600;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        padding: 8px 8px 0;
         margin: 0;
       }
 
@@ -390,7 +394,6 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
       .tracks-list {
         display: flex;
         flex-direction: column;
-        gap: 12px;
       }
 
       .result-item {

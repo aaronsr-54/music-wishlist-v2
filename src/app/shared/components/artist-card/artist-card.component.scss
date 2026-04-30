@@ -25,7 +25,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   border-radius: var(--radius-md);
   overflow: hidden;
   background: var(--bone-200);
@@ -41,8 +41,8 @@
   position: absolute;
   top: 4px;
   right: 4px;
-  width: 28px;
-  height: 28px;
+  width: 1.5rem;
+  height: 1.5rem;
   border-radius: var(--radius-pill);
   background: rgba(0, 0, 0, 0.4);
   border: none;
@@ -55,20 +55,20 @@
   padding: 0;
   font-size: 14px;
 
+  svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
   &:hover {
     background: rgba(0, 0, 0, 0.6);
   }
 
   &.filled {
+    background: var(--bone);
+    border-color: var(--bone);
+    color: var(--ink);
     animation: popIn var(--dur-fast) var(--ease);
-  }
-
-  .heart-icon {
-    line-height: 1;
-
-    &.filled {
-      color: #ffffc7;
-    }
   }
 }
 

@@ -10,6 +10,7 @@ import {
   orderBy,
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
+import { SearchService } from '../api/search.service';
 
 export interface FavoriteArtist {
   id?: string;
@@ -24,6 +25,7 @@ export interface FavoriteArtist {
 @Injectable({ providedIn: 'root' })
 export class FavoriteArtistsService {
   private firestore = inject(Firestore);
+  private search = inject(SearchService);
 
   private _artists = signal<FavoriteArtist[]>([]);
   artists = this._artists.asReadonly();
@@ -38,10 +40,29 @@ export class FavoriteArtistsService {
     const col = collection(this.firestore, 'favorite-artists');
     const q = query(col, orderBy('addedAt', 'desc'));
 
-    this.unsubscribe = onSnapshot(q, (snap) => {
-      const artists = snap.docs.map(
+    this.unsubscribe = onSnapshot(q, async (snap) => {
+      let artists = snap.docs.map(
         (d) => ({ id: d.id, ...d.data() }) as FavoriteArtist,
       );
+
+      // Enriquecer artistas sin image
+      artists = await Promise.all(
+        artists.map(async (artist) => {
+          if (!artist.image || !artist.image.trim()) {
+            try {
+              const data = await this.search.getArtist(artist.artistId).toPromise();
+              return {
+                ...artist,
+                image: data?.picture_big ?? data?.picture_medium ?? artist.image,
+              };
+            } catch {
+              return artist;
+            }
+          }
+          return artist;
+        })
+      );
+
       this._artists.set(artists);
     });
   }

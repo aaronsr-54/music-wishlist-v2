@@ -32,7 +32,13 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, FormsModule, SearchResultItemComponent, SpinnerComponent, ArtistCardComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    SearchResultItemComponent,
+    SpinnerComponent,
+    ArtistCardComponent,
+  ],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -42,11 +48,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       </div>
 
       <div class="search-field" [class.has-value]="query()">
-        <svg
-          class="search-icon"
-          viewBox="0 0 20 20"
-          fill="none"
-        >
+        <svg class="search-icon" viewBox="0 0 20 20" fill="none">
           <circle
             cx="8.5"
             cy="8.5"
@@ -119,49 +121,33 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         </div>
       }
 
-      @if (!query() && favoriteArtists().length > 0) {
-        <div class="favorites-slider-container">
-          <h3 class="section-title">Tus artistas favoritos</h3>
-          <div class="artists-slider">
-            @for (artist of favoriteArtists(); track artist.id) {
-              <app-artist-card
-                [artist]="artist"
-                (onArtistClick)="navigateToArtist($event)"
-                (onRemoveFavorite)="removeFavorite($event)"
-              />
-            }
-          </div>
-        </div>
-      }
-
       @switch (state()) {
         @case ('idle') {
           <div class="results">
             <div class="empty-state">
-                <div class="empty-icon">
-                  <svg viewBox="0 0 32 32" fill="none">
-                    <circle
-                      cx="13"
-                      cy="13"
-                      r="8.5"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                    />
-                    <path
-                      d="M19.5 19.5L26 26"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linecap="round"
-                    />
-                  </svg>
-                </div>
-                <p class="empty-title">Empieza a escribir</p>
-                <p class="empty-sub">
-                  Canciones, álbumes o EPs — busca lo que quieras y lo encontramos
-                  en Deezer.
-                </p>
+              <div class="empty-icon">
+                <svg viewBox="0 0 32 32" fill="none">
+                  <circle
+                    cx="13"
+                    cy="13"
+                    r="8.5"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                  />
+                  <path
+                    d="M19.5 19.5L26 26"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
               </div>
-            }
+              <p class="empty-title">Empieza a escribir</p>
+              <p class="empty-sub">
+                Canciones, álbumes o EPs — busca lo que quieras y lo encontramos
+                en Deezer.
+              </p>
+            </div>
           </div>
         }
         @case ('loading') {
@@ -210,6 +196,21 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             </div>
           </div>
         }
+      }
+
+      @if (!query() && favoriteArtists().length > 0) {
+        <div class="favorites-slider-container">
+          <h3 class="section-title">Artistas favoritos</h3>
+          <div class="artists-slider">
+            @for (artist of favoriteArtists(); track artist.id) {
+              <app-artist-card
+                [artist]="artist"
+                (onArtistClick)="navigateToArtist($event)"
+                (onRemoveFavorite)="removeFavorite($event)"
+              />
+            }
+          </div>
+        </div>
       }
     </div>
   `,
@@ -439,8 +440,8 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
 
       .favorites-slider-container {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--ink-100);
+        padding: 0.75rem 0 1.5rem 0;
+        border-top: 1px solid var(--ink-100);
         animation: fadeIn 200ms var(--ease) both;
       }
 
@@ -452,6 +453,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         margin: 0 0 0.75rem 0;
         text-transform: uppercase;
         letter-spacing: 0.06em;
+        padding-inline: 8px;
       }
 
       .artists-slider {
@@ -459,7 +461,23 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         gap: 12px;
         overflow-x: auto;
         scrollbar-width: none;
-        padding-bottom: 4px;
+        padding-inline: 8px;
+
+        -webkit-mask-image: linear-gradient(
+          to right,
+          transparent 0%,
+          black 10px,
+          black calc(100% - 10px),
+          transparent 100%
+        );
+
+        mask-image: linear-gradient(
+          to right,
+          transparent 0%,
+          black 10px,
+          black calc(100% - 10px),
+          transparent 100%
+        );
       }
 
       .artists-slider::-webkit-scrollbar {
@@ -614,10 +632,19 @@ export class SearchComponent implements OnInit, OnDestroy {
       if (existing && existing.id) {
         await this.favoriteArtistsSvc.remove(existing.id);
       } else {
+        let coverUrl = track.coverUrl;
+        if (!coverUrl || !coverUrl.trim()) {
+          try {
+            const artistData = await this.search.getArtist(track.id).toPromise();
+            coverUrl = artistData?.picture_big ?? artistData?.picture_medium ?? '';
+          } catch {
+            // Si falla, usar lo que hay
+          }
+        }
         await this.favoriteArtistsSvc.add(
           track.id,
           track.name,
-          track.coverUrl,
+          coverUrl,
           user,
         );
       }

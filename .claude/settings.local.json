@@ -63,7 +63,9 @@
       "Bash(netstat -aon)",
       "Bash(curl -s http://localhost:4202)",
       "Bash(nc -zv localhost 4200)",
-      "Bash(pkill -f \"ng serve|webpack|npm start\")"
+      "Bash(pkill -f \"ng serve|webpack|npm start\")",
+      "Bash(pkill -f \"node.*ng serve\")",
+      "Bash(curl -s http://localhost:4200/)"
     ]
   }
 }
