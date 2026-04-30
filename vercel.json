@@ -4,16 +4,6 @@
   "installCommand": "npm install",
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
-    { "source": "/assets/:path*", "destination": "/assets/:path*" },
-    { "source": "/:path*\\.(?:js|css|woff2|ttf|otf|svg|png|jpg|gif|ico)", "destination": "/:path*" },
-    { "source": "/:path*", "destination": "/index.html" }
-  ],
-  "headers": [
-    {
-      "source": "/index.html",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" }
-      ]
-    }
+    { "source": "/:path((?!.*\\.(?:js|css|woff|ttf|otf|svg|png|jpg|gif|ico|json|map)).*)", "destination": "/index.html" }
   ]
 }
