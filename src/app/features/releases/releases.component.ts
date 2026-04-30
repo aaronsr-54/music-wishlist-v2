@@ -125,7 +125,7 @@ const MONTHS = [
           <div class="releases-list">
             @for (
               item of filteredReleases();
-              track item.id
+              track item.id + ':' + item.type
             ) {
               <app-card-item
                 class="result-item"
@@ -592,8 +592,15 @@ export class ReleasesComponent implements OnInit {
 
     forkJoin(releaseObservables).subscribe((results) => {
       const allReleases = results.flat();
+      const seen = new Set<string>();
+      const deduplicated = allReleases.filter((r) => {
+        const key = `${r.id}:${r.type}`;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
 
-      this.allReleases.set(allReleases);
+      this.allReleases.set(deduplicated);
       this.loading.set(false);
     });
   }
