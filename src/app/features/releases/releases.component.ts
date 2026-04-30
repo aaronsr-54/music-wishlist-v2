@@ -15,6 +15,7 @@ import { WishlistService } from '../../core/firebase/wishlist.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ReleaseItem } from '../../shared/models/release-item.model';
 import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 const MONTHS = [
   'Enero',
@@ -34,7 +35,7 @@ const MONTHS = [
 @Component({
   selector: 'app-releases',
   standalone: true,
-  imports: [CommonModule, CardItemComponent],
+  imports: [CommonModule, CardItemComponent, SpinnerComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -66,13 +67,45 @@ const MONTHS = [
         </div>
 
         @if (loading()) {
-          <div class="loading">Cargando lanzamientos...</div>
+          <div class="releases-loading">
+            <app-spinner size="md" />
+            <span class="releases-loading__text">Cargando lanzamientos...</span>
+          </div>
         } @else if (filteredReleases().length === 0) {
-          <div class="empty">
+          <div class="empty-state">
+            <div class="empty-icon">
+              @if (favorites().length === 0) {
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M16 4v24M4 16h24"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 32 32" fill="none">
+                  <path
+                    d="M6 17L13 24L26 8"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              }
+            </div>
             @if (favorites().length === 0) {
-              Añade artistas a favoritos para ver sus lanzamientos
+              <p class="empty-title">Sin artistas</p>
+              <p class="empty-sub">
+                Busca tus artistas favoritos y añádelos aquí
+              </p>
             } @else {
-              Sin lanzamientos en {{ monthLabel() }}
+              <p class="empty-title">Sin lanzamientos</p>
+              <p class="empty-sub">
+                Ninguno de tus artistas favoritos ha lanzado algo este mes.
+                Añade más artistas a tu lista de favoritos.
+              </p>
             }
           </div>
         } @else {
@@ -256,23 +289,22 @@ const MONTHS = [
         margin-top: -3px;
       }
 
-      .loading {
-        text-align: center;
+      .releases-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 16px;
+        min-height: 300px;
         padding: 40px 20px;
-        color: var(--bone-700);
-        font-size: 14px;
+        color: var(--bone-600);
+        text-align: center;
         animation: fadeIn 300ms ease both;
       }
 
-      .loading::after {
-        content: '';
-        display: inline-block;
-        width: 4px;
-        height: 4px;
-        margin-left: 4px;
-        background: currentColor;
-        border-radius: 50%;
-        animation: pulse 1.2s ease-in-out infinite;
+      .releases-loading__text {
+        font-size: 14px;
+        font-style: italic;
       }
 
       .empty {
@@ -379,6 +411,45 @@ const MONTHS = [
       }
       .result-item:nth-child(20) {
         animation-delay: 570ms;
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 60px 20px;
+        text-align: center;
+        animation: emptyEnter var(--dur-slow) var(--ease) both;
+      }
+
+      .empty-icon {
+        color: var(--bone-700);
+        margin-bottom: 4px;
+      }
+
+      .empty-icon svg {
+        width: 3.2rem;
+        height: 3.2rem;
+      }
+
+      .empty-title {
+        font-family: var(--font-body);
+        font-size: 22px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: var(--bone);
+        margin: 0;
+      }
+
+      .empty-sub {
+        font-size: 14px;
+        font-family: var(--font-display);
+        color: var(--bone-600);
+        font-style: italic;
+        margin: 0;
+        max-width: 240px;
       }
     `,
   ],

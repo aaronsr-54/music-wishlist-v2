@@ -12,10 +12,9 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       >
         <svg
           fill="currentColor"
-          height="18"
-          width="18"
           viewBox="0 0 24 24"
           xml:space="preserve"
+          class="tab-icon"
         >
           <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
           <g
@@ -42,7 +41,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         [class.active]="activeTab === 'search'"
         (click)="tabChange.emit('search')"
       >
-        <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <svg viewBox="0 0 22 22" fill="none" class="tab-icon">
           <circle
             cx="9.5"
             cy="9.5"
@@ -66,7 +65,7 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         [class.active]="activeTab === 'wishlist'"
         (click)="tabChange.emit('wishlist')"
       >
-        <svg width="20" height="20" viewBox="0 0 22 22" fill="none">
+        <svg viewBox="0 0 22 22" fill="none" class="tab-icon">
           <path
             d="M11 19S3 13.5 3 8a5 5 0 018-4A5 5 0 0119 8c0 5.5-8 11-8 11z"
             stroke="currentColor"
@@ -121,6 +120,11 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       .tab span {
         font-family: var(--font-display);
         font-weight: 700;
+      }
+
+      .tab-icon {
+        width: 1.5rem;
+        height: 1.5rem;
       }
 
       .tab.active {

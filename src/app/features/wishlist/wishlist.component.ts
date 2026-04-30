@@ -59,7 +59,7 @@ type WishlistTab = 'pending' | 'downloaded';
           <div class="empty-state">
             <div class="empty-icon">
               @if (activeTab() === 'pending') {
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <svg viewBox="0 0 32 32" fill="none">
                   <path
                     d="M16 4v24M4 16h24"
                     stroke="currentColor"
@@ -68,7 +68,7 @@ type WishlistTab = 'pending' | 'downloaded';
                   />
                 </svg>
               } @else {
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <svg viewBox="0 0 32 32" fill="none">
                   <path
                     d="M6 17L13 24L26 8"
                     stroke="currentColor"
@@ -231,6 +231,11 @@ type WishlistTab = 'pending' | 'downloaded';
       .empty-icon {
         color: var(--bone-700);
         margin-bottom: 4px;
+      }
+
+      .empty-icon svg {
+        width: 3.2rem;
+        height: 3.2rem;
       }
 
       .empty-title {

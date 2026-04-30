@@ -21,8 +21,8 @@ import { WishlistService } from '../../core/firebase/wishlist.service';
 import { FavoriteArtistsService } from '../../core/firebase/favorite-artists.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { Track, TrackType } from '../../shared/models/track.model';
-import { SkeletonRowComponent } from '../../shared/components/skeleton-row/skeleton-row.component';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { Router } from '@angular/router';
 
 type SearchState = 'idle' | 'loading' | 'results' | 'empty';
@@ -30,7 +30,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [FormsModule, SkeletonRowComponent, SearchResultItemComponent],
+  imports: [FormsModule, SearchResultItemComponent, SpinnerComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -42,8 +42,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       <div class="search-field" [class.has-value]="query()">
         <svg
           class="search-icon"
-          width="20"
-          height="20"
           viewBox="0 0 20 20"
           fill="none"
         >
@@ -74,7 +72,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         />
         @if (query()) {
           <button class="clear-btn" (click)="clearQuery()" aria-label="Limpiar">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <svg viewBox="0 0 16 16" fill="none">
               <path
                 d="M4 4L12 12M12 4L4 12"
                 stroke="currentColor"
@@ -124,7 +122,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           <div class="results">
             <div class="empty-state">
               <div class="empty-icon">
-                <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+                <svg viewBox="0 0 32 32" fill="none">
                   <circle
                     cx="13"
                     cy="13"
@@ -149,10 +147,11 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           </div>
         }
         @case ('loading') {
-          <div class="results">
-            @for (_ of skeletons; track $index) {
-              <app-skeleton-row [size]="56" />
-            }
+          <div class="results results-loading">
+            <div class="loading-header">
+              <app-spinner size="md" />
+              <span class="loading-text">Buscando...</span>
+            </div>
           </div>
         }
         @case ('results') {
@@ -240,8 +239,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       .search-icon {
         color: var(--bone-800);
-        width: 12px;
+        width: 1em;
+        height: 1em;
         flex-shrink: 0;
+        font-size: 14px;
       }
 
       .search-input {
@@ -265,11 +266,17 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         border: none;
         cursor: pointer;
         color: var(--bone-600);
-        padding: 2px;
+        padding: 0.25em;
         display: flex;
         align-items: center;
         border-radius: 50%;
         transition: color var(--dur-fast) var(--ease);
+        font-size: 14px;
+      }
+
+      .clear-btn svg {
+        width: 1em;
+        height: 1em;
       }
 
       .clear-btn:hover {
@@ -354,6 +361,11 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         margin-bottom: 4px;
       }
 
+      .empty-icon svg {
+        width: 3.2rem;
+        height: 3.2rem;
+      }
+
       .empty-title {
         font-family: var(--font-body);
         font-size: 22px;
@@ -370,6 +382,42 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         font-style: italic;
         margin: 0;
         max-width: 240px;
+      }
+
+      .results-loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 300px;
+      }
+
+      .loading-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding: 40px 20px;
+        color: var(--bone-600);
+        text-align: center;
+        animation: fadeIn 300ms var(--ease) both;
+      }
+
+      .loading-text {
+        font-size: 14px;
+        font-style: italic;
+      }
+
+      .result-item {
+        animation: rowEnter var(--dur-base) var(--ease) both;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
     `,
   ],
@@ -422,8 +470,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     return 'results';
   });
-
-  skeletons = new Array(20);
 
   private search$ = new Subject<string>();
   private sub?: Subscription;

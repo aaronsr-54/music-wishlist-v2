@@ -74,8 +74,6 @@ import { AvatarComponent } from '../avatar/avatar.component';
               >
                 @if (isAdded()) {
                   <svg
-                    width="20"
-                    height="20"
                     viewBox="0 0 16 16"
                     fill="currentColor"
                     stroke="currentColor"
@@ -86,7 +84,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
                     />
                   </svg>
                 } @else {
-                  <svg width="20" height="20" viewBox="0 0 16 16" fill="none">
+                  <svg viewBox="0 0 16 16" fill="none">
                     <path
                       d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
                       stroke="currentColor"
@@ -122,7 +120,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
                 [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
               >
                 @if (isAdded()) {
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <svg viewBox="0 0 16 16" fill="none">
                     <path
                       d="M3 8.5L6.5 12L13 5"
                       stroke="currentColor"
@@ -132,7 +130,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
                     />
                   </svg>
                 } @else {
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <svg viewBox="0 0 16 16" fill="none">
                     <path
                       d="M8 3V13M3 8H13"
                       stroke="currentColor"
@@ -175,7 +173,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
               (click)="onMarkDownloaded.emit(wishlistItem())"
               title="Marcar como listo"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg viewBox="0 0 16 16" fill="none">
                 <path
                   d="M3 8.5L6.5 12L13 5"
                   stroke="currentColor"
@@ -190,7 +188,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
               (click)="onRemove.emit(wishlistItem())"
               title="Eliminar"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg viewBox="0 0 16 16" fill="none">
                 <path
                   d="M4 4L12 12M12 4L4 12"
                   stroke="currentColor"
@@ -205,7 +203,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
               (click)="onUnmarkDownloaded.emit(wishlistItem())"
               title="Mover a pendientes"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg viewBox="0 0 16 16" fill="none">
                 <path
                   d="M10 4L6 8L10 12"
                   stroke="currentColor"
@@ -220,7 +218,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
               (click)="onRemove.emit(wishlistItem())"
               title="Eliminar"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <svg viewBox="0 0 16 16" fill="none">
                 <path
                   d="M5 3h6M3 5h10M5 5v7a1 1 0 001 1h4a1 1 0 001-1V5"
                   stroke="currentColor"
@@ -342,8 +340,8 @@ import { AvatarComponent } from '../avatar/avatar.component';
       }
 
       .add-btn {
-        width: 36px;
-        height: 36px;
+        width: 2.25rem;
+        height: 2.25rem;
         border-radius: 50%;
         cursor: pointer;
         display: flex;
@@ -358,6 +356,11 @@ import { AvatarComponent } from '../avatar/avatar.component';
         border: none;
         background: none;
         padding: 0;
+      }
+
+      .add-btn svg {
+        width: 1.25rem;
+        height: 1.25rem;
       }
 
       .add-btn:hover {
@@ -382,8 +385,8 @@ import { AvatarComponent } from '../avatar/avatar.component';
       }
 
       .action-btn {
-        width: 32px;
-        height: 32px;
+        width: 2rem;
+        height: 2rem;
         border-radius: 50%;
         border: 1.5px solid var(--ink-100);
         background: none;
@@ -396,6 +399,11 @@ import { AvatarComponent } from '../avatar/avatar.component';
           border-color var(--dur-fast) var(--ease),
           color var(--dur-fast) var(--ease),
           transform var(--dur-fast) var(--ease);
+      }
+
+      .action-btn svg {
+        width: 1rem;
+        height: 1rem;
       }
 
       .action-btn:hover {

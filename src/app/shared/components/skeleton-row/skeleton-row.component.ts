@@ -4,11 +4,11 @@ import { Component, Input } from '@angular/core';
   selector: 'app-skeleton-row',
   standalone: true,
   template: `
-    <div class="row">
-      <div class="cover skeleton" [style.width.px]="size" [style.height.px]="size"></div>
+    <div class="row" [style.animation-delay]="delay + 'ms'">
+      <div class="cover skeleton skeleton--cover" [style.width.px]="size" [style.height.px]="size"></div>
       <div class="lines">
-        <div class="skeleton line-title"></div>
-        <div class="skeleton line-sub"></div>
+        <div class="skeleton skeleton--text line-title"></div>
+        <div class="skeleton skeleton--line line-sub"></div>
       </div>
     </div>
   `,
@@ -18,13 +18,41 @@ import { Component, Input } from '@angular/core';
       align-items: center;
       gap: 12px;
       padding: 10px 0;
+      animation: rowSkeletonEnter 600ms var(--ease) both;
     }
-    .cover { border-radius: var(--radius-md); flex-shrink: 0; }
-    .lines { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-    .line-title { height: 14px; width: 60%; border-radius: var(--radius-sm); }
-    .line-sub   { height: 12px; width: 40%; border-radius: var(--radius-sm); }
+
+    .cover {
+      flex-shrink: 0;
+    }
+
+    .lines {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .line-title {
+      width: 60%;
+    }
+
+    .line-sub {
+      width: 40%;
+    }
+
+    @keyframes rowSkeletonEnter {
+      from {
+        opacity: 0;
+        transform: translateY(-4px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   `]
 })
 export class SkeletonRowComponent {
   @Input() size = 56;
+  @Input() delay = 0;
 }

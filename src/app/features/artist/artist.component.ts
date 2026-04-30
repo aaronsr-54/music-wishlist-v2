@@ -8,11 +8,12 @@ import { AuthService } from '../../core/auth/auth.service';
 import { Track } from '../../shared/models/track.model';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
+import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 
 @Component({
   selector: 'app-artist',
   standalone: true,
-  imports: [CommonModule, CoverComponent, SearchResultItemComponent],
+  imports: [CommonModule, CoverComponent, SearchResultItemComponent, SpinnerComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -53,10 +54,9 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
                   >
                     @if (isArtistInWishlist(a.id)) {
                       <svg
-                        width="20"
-                        height="20"
                         viewBox="0 0 16 16"
                         fill="currentColor"
+                        class="artist-heart-icon"
                       >
                         <path
                           d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
@@ -66,10 +66,9 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
                       </svg>
                     } @else {
                       <svg
-                        width="20"
-                        height="20"
                         viewBox="0 0 16 16"
                         fill="none"
+                        class="artist-heart-icon"
                       >
                         <path
                           d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
@@ -117,7 +116,10 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
           <h2 class="section-title">Canciones populares</h2>
 
           @if (loading()) {
-            <div class="loading">Cargando canciones...</div>
+            <div class="tracks-loading">
+              <app-spinner size="md" />
+              <span class="tracks-loading__text">Cargando canciones...</span>
+            </div>
           } @else if (tracks().length === 0) {
             <div class="empty">No hay canciones disponibles</div>
           } @else {
@@ -293,6 +295,11 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
         animation: popIn 220ms var(--ease) both;
       }
 
+      .artist-heart-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+
       .artist-stats {
         display: flex;
         gap: 30px;
@@ -356,18 +363,47 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
         margin: 0;
       }
 
-      .loading,
       .empty {
         text-align: center;
         padding: 40px 20px;
         color: var(--bone-700);
         font-size: 14px;
+        animation: fadeIn 300ms var(--ease) both;
+      }
+
+      .tracks-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        padding: 40px 20px;
+        color: var(--bone-600);
+        text-align: center;
+        animation: fadeIn 300ms var(--ease) both;
+      }
+
+      .tracks-loading__text {
+        font-size: 14px;
+        font-style: italic;
       }
 
       .tracks-list {
         display: flex;
         flex-direction: column;
         gap: 12px;
+      }
+
+      .result-item {
+        animation: rowEnter var(--dur-base) var(--ease) both;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
 
       @media (max-width: 768px) {
