@@ -7,4 +7,5 @@ export interface ReleaseItem {
   coverUrl: string;
   type: TrackType;
   releaseDate: string;
+  previewUrl?: string;
 }

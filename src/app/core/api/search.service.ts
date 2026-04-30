@@ -41,6 +41,7 @@ export class SearchService {
           type: 'track' as TrackType,
           uri: t.link ?? '',
           artistId: t.artist?.id,
+          previewUrl: t.preview ?? undefined,
         }));
 
         const albums: Track[] = (albumsRes.data ?? []).map((a: any) => ({
@@ -100,6 +101,7 @@ export class SearchService {
           type: 'track' as TrackType,
           uri: t.link ?? '',
           artistId: t.artist?.id,
+          previewUrl: t.preview ?? undefined,
         }));
       }),
     );

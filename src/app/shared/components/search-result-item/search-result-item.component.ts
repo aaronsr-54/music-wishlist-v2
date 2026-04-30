@@ -1,4 +1,4 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
 import { Track } from '../../models/track.model';
 import { WishlistEntry } from '../../models/wishlist-entry.model';
@@ -6,11 +6,19 @@ import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { AvatarComponent } from '../avatar/avatar.component';
+import { PreviewService } from '../../../core/services/preview.service';
+import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
 
 @Component({
   selector: 'app-search-result-item',
   standalone: true,
-  imports: [DatePipe, CoverComponent, TypeChipComponent, AvatarComponent],
+  imports: [
+    DatePipe,
+    CoverComponent,
+    TypeChipComponent,
+    AvatarComponent,
+    PreviewSpinnerComponent,
+  ],
   template: `
     @if (source() === 'releases') {
       <div class="item-row">
@@ -99,11 +107,25 @@ import { AvatarComponent } from '../avatar/avatar.component';
         }
         @case ('track') {
           <div class="item-row">
-            <app-cover
-              [coverUrl]="trackItem().coverUrl"
-              [name]="trackItem().name"
-              [size]="56"
-            />
+            <button
+              class="cover-btn"
+              (click)="onPlayPreview(trackItem())"
+              [title]="previewState().trackId === trackItem().id && previewState().isPlaying ? 'Pausar' : 'Reproducir preview'"
+              [disabled]="!trackItem().previewUrl"
+            >
+              <app-cover
+                [coverUrl]="trackItem().coverUrl"
+                [name]="trackItem().name"
+                [size]="56"
+              />
+              @if (previewState().trackId === trackItem().id && previewState().isPlaying) {
+                <div class="preview-overlay">
+                  <app-preview-spinner
+                    [progress]="previewState().progress"
+                  />
+                </div>
+              }
+            </button>
             <div class="item-meta">
               <span class="item-title">{{ trackItem().name }}</span>
               <div class="item-subtitle">
@@ -428,10 +450,42 @@ import { AvatarComponent } from '../avatar/avatar.component';
         font-family: var(--font-display);
         font-style: italic;
       }
+
+      .cover-btn {
+        position: relative;
+        border: none;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+        border-radius: var(--radius-md);
+        transition: opacity var(--dur-fast) var(--ease);
+      }
+
+      .cover-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      .cover-btn:hover:not(:disabled) {
+        opacity: 0.8;
+      }
+
+      .preview-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: var(--radius-md);
+      }
     `,
   ],
 })
 export class SearchResultItemComponent {
+  private preview = inject(PreviewService);
+
   item = input.required<Track | WishlistEntry | ReleaseItem>();
   source = input<'search' | 'wishlist' | 'releases'>('search');
   type = input<'artist' | 'track'>('track');
@@ -449,6 +503,7 @@ export class SearchResultItemComponent {
   trackItem = computed(() => this.item() as Track);
   wishlistItem = computed(() => this.item() as WishlistEntry);
   releaseItem = computed(() => this.item() as ReleaseItem);
+  previewState = computed(() => this.preview.state());
 
   formatFans(count: number): string {
     if (count >= 1000000)
@@ -456,5 +511,10 @@ export class SearchResultItemComponent {
     if (count >= 1000)
       return (count / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return count.toString();
+  }
+
+  onPlayPreview(track: Track): void {
+    if (!track.previewUrl) return;
+    this.preview.play(track.id, track.previewUrl);
   }
 }

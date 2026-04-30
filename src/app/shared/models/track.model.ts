@@ -10,4 +10,5 @@ export interface Track {
   artistId?: string;
   fanCount?: number;
   albumCount?: number;
+  previewUrl?: string;
 }

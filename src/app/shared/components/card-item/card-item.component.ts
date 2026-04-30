@@ -1,18 +1,34 @@
-import { Component, computed, input, output } from '@angular/core';
+import { Component, computed, input, output, inject } from '@angular/core';
 import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
+import { PreviewService } from '../../../core/services/preview.service';
+import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
 
 @Component({
   selector: 'app-card-item',
   standalone: true,
-  imports: [CoverComponent, TypeChipComponent],
+  imports: [CoverComponent, TypeChipComponent, PreviewSpinnerComponent],
   template: `
     <div class="card">
-      <app-cover
-        [coverUrl]="releaseItem().coverUrl"
-        [name]="releaseItem().name"
-      />
+      <button
+        class="cover-btn"
+        (click)="onPlayPreview(releaseItem())"
+        [title]="previewState().trackId === releaseItem().id && previewState().isPlaying ? 'Pausar' : 'Reproducir preview'"
+        [disabled]="!releaseItem().previewUrl"
+      >
+        <app-cover
+          [coverUrl]="releaseItem().coverUrl"
+          [name]="releaseItem().name"
+        />
+        @if (previewState().trackId === releaseItem().id && previewState().isPlaying) {
+          <div class="preview-overlay">
+            <app-preview-spinner
+              [progress]="previewState().progress"
+            />
+          </div>
+        }
+      </button>
       <div class="item-meta">
         <div class="item-stats">
           <span class="release-date">{{ releaseItem().releaseDate }}</span>
@@ -148,10 +164,43 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
         width: 1.25rem;
         height: 1.25rem;
       }
+
+      .cover-btn {
+        position: relative;
+        border: none;
+        background: none;
+        padding: 0;
+        cursor: pointer;
+        flex-shrink: 0;
+        border-radius: var(--radius-sm);
+        transition: opacity var(--dur-fast) var(--ease);
+        width: 100%;
+      }
+
+      .cover-btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.6;
+      }
+
+      .cover-btn:hover:not(:disabled) {
+        opacity: 0.8;
+      }
+
+      .preview-overlay {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.6);
+        border-radius: var(--radius-sm);
+      }
     `,
   ],
 })
 export class CardItemComponent {
+  private preview = inject(PreviewService);
+
   item = input.required<ReleaseItem>();
   isAdded = input(false);
   showTypeChip = input(true);
@@ -162,6 +211,7 @@ export class CardItemComponent {
   releaseItem = computed(() => {
     return this.item() as ReleaseItem;
   });
+  previewState = computed(() => this.preview.state());
 
   onOpenUrl() {
     this.openUrl.emit(this.item());
@@ -169,5 +219,10 @@ export class CardItemComponent {
 
   onToggleWishlist() {
     this.toggleWishlist.emit(this.item());
+  }
+
+  onPlayPreview(item: ReleaseItem): void {
+    if (!item.previewUrl) return;
+    this.preview.play(item.id, item.previewUrl);
   }
 }
