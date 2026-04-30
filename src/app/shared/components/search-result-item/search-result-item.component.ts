@@ -327,13 +327,13 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .item-title {
-        font-size: 16px;
+        font-size: clamp(1rem, 0.8957rem + 0.4049vw, 1.25rem);
         font-weight: 600;
         color: var(--bone-100);
         line-height: 1;
         white-space: nowrap;
         overflow: hidden;
-        height: 18px;
+        height: clamp(1.125rem, 0.9686rem + 0.6073vw, 1.5rem);
         text-overflow: ellipsis;
         font-family: var(--font-display);
       }
@@ -353,16 +353,16 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .item-artist {
-        font-size: 13px;
+        font-size: clamp(0.8125rem, 0.6822rem + 0.5061vw, 1.125rem);
         color: var(--bone-600);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        height: 15px;
+        height: clamp(0.9375rem, 0.8072rem + 0.5061vw, 1.25rem);
       }
 
       .item-stat {
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone-700);
       }
 
@@ -376,7 +376,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .added-by {
-        font-size: 11px;
+        font-size: clamp(0.6875rem, 0.6093rem + 0.3036vw, 0.875rem);
         color: var(--bone-800);
         display: flex;
         align-items: center;
@@ -475,7 +475,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .release-date {
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone-600);
         font-family: var(--font-display);
         font-style: italic;
