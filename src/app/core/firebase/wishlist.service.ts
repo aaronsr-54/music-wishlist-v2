@@ -14,6 +14,7 @@ import {
 import { User } from '@angular/fire/auth';
 import { Track } from '../../shared/models/track.model';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
+import { ReleaseItem } from '../../shared/models/release-item.model';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistService {
@@ -59,6 +60,23 @@ export class WishlistService {
       artist: track.artists[0] ?? '',
       coverUrl: track.coverUrl,
       type: track.type,
+      addedAt: Date.now(),
+      addedBy: user.displayName ?? user.email ?? 'Anónimo',
+      addedByUid: user.uid,
+      downloaded: false,
+    };
+
+    const col = collection(this.firestore, 'wishlist');
+    await addDoc(col, entry);
+  }
+
+  async addRelease(release: ReleaseItem, user: User): Promise<void> {
+    const entry: Omit<WishlistEntry, 'id'> = {
+      trackId: release.id,
+      name: release.name,
+      artist: release.artist,
+      coverUrl: release.coverUrl,
+      type: release.type,
       addedAt: Date.now(),
       addedBy: user.displayName ?? user.email ?? 'Anónimo',
       addedByUid: user.uid,

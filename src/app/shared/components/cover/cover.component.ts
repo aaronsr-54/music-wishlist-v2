@@ -41,11 +41,11 @@ function hashVariant(name: string): number {
   `,
   styles: [
     `
-      // :host {
-      //   display: block;
-      //   width: 100%;
-      //   max-width: 100%;
-      // }
+      /* :host {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+      } */
     `,
   ],
 })

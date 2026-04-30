@@ -11,6 +11,8 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SearchService } from '../../core/api/search.service';
 import { FavoritesService } from '../../core/firebase/favorites.service';
+import { WishlistService } from '../../core/firebase/wishlist.service';
+import { AuthService } from '../../core/auth/auth.service';
 import { ReleaseItem } from '../../shared/models/release-item.model';
 import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
 
@@ -76,7 +78,13 @@ const MONTHS = [
         } @else {
           <div class="releases-list">
             @for (item of filteredReleases(); track item.id) {
-              <app-card-item class="result-item" [item]="item" />
+              <app-card-item
+                class="result-item"
+                [item]="item"
+                [isAdded]="isInWishlist(item.id)"
+                (openUrl)="openInYouTube($event)"
+                (toggleWishlist)="toggleWishlist($event)"
+              />
             }
           </div>
         }
@@ -378,6 +386,8 @@ const MONTHS = [
 export class ReleasesComponent implements OnInit {
   private searchSvc = inject(SearchService);
   private favoritesSvc = inject(FavoritesService);
+  private wishlistSvc = inject(WishlistService);
+  private authSvc = inject(AuthService);
 
   selectedYear = signal<number>(new Date().getFullYear());
   selectedMonth = signal<number>(new Date().getMonth());
@@ -425,6 +435,10 @@ export class ReleasesComponent implements OnInit {
         return dateB - dateA;
       });
   });
+
+  isInWishlist(itemId: string): boolean {
+    return this.wishlistSvc.entries().some((e) => e.trackId === itemId);
+  }
 
   constructor() {
     effect(() => {
@@ -496,5 +510,23 @@ export class ReleasesComponent implements OnInit {
       this.allReleases.set(allReleases);
       this.loading.set(false);
     });
+  }
+
+  openInYouTube(item: ReleaseItem) {
+    const query = `${item.artist} ${item.name}`;
+    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+    window.open(url, '_blank');
+  }
+
+  async toggleWishlist(item: ReleaseItem) {
+    const entry = this.wishlistSvc.entries().find((e) => e.trackId === item.id);
+
+    if (entry && entry.id) {
+      await this.wishlistSvc.remove(entry.id);
+    } else {
+      const user = this.authSvc.currentUser();
+      if (!user) return;
+      await this.wishlistSvc.addRelease(item, user);
+    }
   }
 }
