@@ -125,7 +125,7 @@ const MONTHS = [
           <div class="releases-list">
             @for (
               item of filteredReleases();
-              track item.id + '-' + item.releaseDate
+              track item.id
             ) {
               <app-card-item
                 class="result-item"

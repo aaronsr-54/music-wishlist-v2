@@ -32,6 +32,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
             ? 'Pausar'
             : 'Reproducir preview'
         "
+        [disabled]="!releaseItem().previewUrl"
       >
         <app-cover
           [coverUrl]="releaseItem().coverUrl"
