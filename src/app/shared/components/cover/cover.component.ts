@@ -60,7 +60,7 @@ export class CoverComponent {
   imgStyle = computed(() => {
     const widthValue = this.size
       ? `clamp(${this.size}px, ${this.size * 1.125}px, ${this.size * 1.25}px)`
-      : 'clamp(64px, 12vw, 80px)';
+      : '100%';
     return {
       width: widthValue,
       maxWidth: '100%',
@@ -76,7 +76,7 @@ export class CoverComponent {
     const v = this.variant();
     const widthValue = this.size
       ? `clamp(${this.size}px, ${this.size * 1.125}px, ${this.size * 1.25}px)`
-      : 'clamp(64px, 12vw, 80px)';
+      : '100%';
 
     return {
       width: widthValue,
