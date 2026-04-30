@@ -21,7 +21,12 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       ]),
     ]),
   ],
-  imports: [DatePipe, CoverComponent, TypeChipComponent, PreviewSpinnerComponent],
+  imports: [
+    DatePipe,
+    CoverComponent,
+    TypeChipComponent,
+    PreviewSpinnerComponent,
+  ],
   template: `
     <div class="card">
       <button
@@ -152,7 +157,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
         color: var(--bone-600);
         font-family: var(--font-display);
         display: flex;
-        gap: 4px;
+        gap: 2px;
         align-items: center;
       }
 
@@ -166,6 +171,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
         font-style: italic;
         font-weight: 400;
         color: var(--bone-600);
+        text-transform: lowercase;
       }
 
       .action-btn {
@@ -209,7 +215,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .action-btn span {
-        font-size: clamp(0.75rem, 0.6979rem + 0.2024vw, 0.875rem);
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         font-weight: 500;
         flex-grow: 1;
         height: 12px;

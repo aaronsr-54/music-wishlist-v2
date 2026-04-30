@@ -19,9 +19,9 @@ function hashColor(name: string): number {
   styles: [
     `
       .avatar {
-        width: calc(var(--size));
-        height: calc(var(--size));
-        font-size: calc(var(--size));
+        width: calc(var(--size) * 1px);
+        height: calc(var(--size) * 1px);
+        font-size: calc(var(--size) * 0.5px);
       }
 
       @media (min-width: 1024px) {
