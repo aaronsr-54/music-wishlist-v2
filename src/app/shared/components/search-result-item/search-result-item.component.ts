@@ -1,11 +1,6 @@
 import { Component, computed, input, output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
-import {
-  trigger,
-  transition,
-  style,
-  animate,
-} from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { Track } from '../../models/track.model';
 import { WishlistEntry } from '../../models/wishlist-entry.model';
 import { ReleaseItem } from '../../models/release-item.model';
@@ -37,25 +32,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
     PreviewSpinnerComponent,
   ],
   template: `
-    @if (source() === 'releases') {
-      <div class="item-row">
-        <app-cover
-          [coverUrl]="releaseItem().coverUrl"
-          [name]="releaseItem().name"
-          [size]="56"
-        />
-        <div class="item-meta">
-          <span class="item-title">{{ releaseItem().name }}</span>
-          <div class="item-subtitle">
-            <span class="item-artist">{{ releaseItem().artist }}</span>
-            ·
-            <app-type-chip [type]="releaseItem().type" />
-            ·
-            <span class="release-date">{{ releaseItem().releaseDate }}</span>
-          </div>
-        </div>
-      </div>
-    } @else if (source() === 'search') {
+    @if (source() === 'search') {
       @switch (type()) {
         @case ('artist') {
           <div class="item-row">
@@ -207,7 +184,10 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
               [name]="wishlistItem().name"
               [size]="64"
             />
-            @if (previewState().trackId === wishlistItem().trackId && (previewState().isPlaying || previewState().isLoading)) {
+            @if (
+              previewState().trackId === wishlistItem().trackId &&
+              (previewState().isPlaying || previewState().isLoading)
+            ) {
               <div class="preview-overlay" @fadeInOut>
                 <app-preview-spinner
                   [progress]="previewState().progress"
@@ -566,7 +546,8 @@ export class SearchResultItemComponent {
 
   onPlayPreview(track: Track): void {
     if (!track.previewUrl) return;
-    this.preview.play(track.id, track.previewUrl);
+    const previewUrl = `/api/preview?url=${encodeURIComponent(track.previewUrl)}`;
+    this.preview.play(track.id, previewUrl);
   }
 
   onPlayPreviewWishlist(entry: WishlistEntry): void {

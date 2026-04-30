@@ -1,4 +1,4 @@
-import { Injectable, NgZone, computed, effect, inject, signal } from '@angular/core';
+import { Injectable, NgZone, computed, effect, inject, runInInjectionContext, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   Auth,
@@ -28,15 +28,11 @@ export class AuthService {
     effect(() => {
       const firebaseUser = this.firebaseUser();
       if (firebaseUser) {
-        this.ngZone.run(() => {
-          this.wishlistService.initListener(firebaseUser.uid);
-          this.favoriteArtistsService.initListener();
-        });
+        this.wishlistService.initListener(firebaseUser.uid);
+        this.favoriteArtistsService.initListener();
       } else if (!this.demoMode()) {
-        this.ngZone.run(() => {
-          this.wishlistService.stopListener();
-          this.favoriteArtistsService.stopListener();
-        });
+        this.wishlistService.stopListener();
+        this.favoriteArtistsService.stopListener();
       }
     });
   }
