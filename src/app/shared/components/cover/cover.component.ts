@@ -57,23 +57,31 @@ export class CoverComponent {
 
   private variant = computed(() => VARIANTS[hashVariant(this.name)]);
 
-  imgStyle = computed(() => ({
-    width: this.size ? `${this.size}px` : 'clamp(64px, 12vw, 80px)',
-    maxWidth: 'clamp(64px, 12vw, 80px)',
-    aspectRatio: '1 / 1',
-    height: this.size ? `${this.size}px` : undefined,
-    borderRadius: 'var(--radius-sm)',
-    objectFit: 'cover',
-    display: 'block',
-  }));
+  imgStyle = computed(() => {
+    const widthValue = this.size
+      ? `clamp(${this.size}px, ${this.size * 1.125}px, ${this.size * 1.25}px)`
+      : 'clamp(64px, 12vw, 80px)';
+    return {
+      width: widthValue,
+      maxWidth: '100%',
+      aspectRatio: '1 / 1',
+      height: this.size ? `${this.size}px` : undefined,
+      borderRadius: 'var(--radius-sm)',
+      objectFit: 'cover',
+      display: 'block',
+    };
+  });
 
   placeholderStyle = computed(() => {
     const v = this.variant();
+    const widthValue = this.size
+      ? `clamp(${this.size}px, ${this.size * 1.125}px, ${this.size * 1.25}px)`
+      : 'clamp(64px, 12vw, 80px)';
 
     return {
-      width: this.size ? `${this.size}px` : 'clamp(64px, 12vw, 80px)',
+      width: widthValue,
       height: this.size ? `${this.size}px` : undefined,
-      maxWidth: 'clamp(64px, 12vw, 80px)',
+      maxWidth: '100%',
       aspectRatio: '1 / 1',
       borderRadius: 'var(--radius-sm)',
       background: v.bg,
