@@ -58,8 +58,8 @@ export class CoverComponent {
   private variant = computed(() => VARIANTS[hashVariant(this.name)]);
 
   imgStyle = computed(() => ({
-    width: this.size ? `${this.size}px` : '100%',
-    maxWidth: '100%',
+    width: this.size ? `${this.size}px` : 'clamp(50px, 12vw, 150px)',
+    maxWidth: 'clamp(50px, 12vw, 150px)',
     aspectRatio: '1 / 1',
     height: this.size ? `${this.size}px` : undefined,
     borderRadius: 'var(--radius-sm)',
@@ -71,9 +71,9 @@ export class CoverComponent {
     const v = this.variant();
 
     return {
-      width: this.size ? `${this.size}px` : '100%',
+      width: this.size ? `${this.size}px` : 'clamp(50px, 12vw, 150px)',
       height: this.size ? `${this.size}px` : undefined,
-      maxWidth: '100%',
+      maxWidth: 'clamp(50px, 12vw, 150px)',
       aspectRatio: '1 / 1',
       borderRadius: 'var(--radius-sm)',
       background: v.bg,
