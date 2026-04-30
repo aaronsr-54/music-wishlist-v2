@@ -30,7 +30,7 @@ const COLORS: Partial<Record<TrackType, string>> = {
         color: var(--bone);
         border: 1px solid;
         font-family: var(--font-body);
-        font-size: 10px;
+        font-size: clamp(0.625rem, 0.5207rem + 0.4049vw, 0.875rem);
         font-weight: 500;
         letter-spacing: 0.04em;
         text-transform: uppercase;

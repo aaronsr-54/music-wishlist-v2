@@ -5,7 +5,7 @@ const COLORS = [
   { bg: 'var(--bone-400)', color: 'var(--ink)' },
   { bg: 'var(--ink-100)', color: 'var(--bone)' },
   { bg: 'var(--bone-300)', color: 'var(--ink-200)' },
-  { bg: 'var(--ink-200)', color: 'var(--bone-300)' }
+  { bg: 'var(--ink-200)', color: 'var(--bone-300)' },
 ];
 
 function hashColor(name: string): number {
@@ -16,7 +16,28 @@ function hashColor(name: string): number {
   selector: 'app-avatar',
   standalone: true,
   imports: [NgStyle],
-  template: `<div [ngStyle]="style()">{{ initial() }}</div>`
+  styles: [
+    `
+      .avatar {
+        width: calc(var(--size));
+        height: calc(var(--size));
+        font-size: calc(var(--size));
+      }
+
+      @media (min-width: 1024px) {
+        .avatar {
+          width: calc(var(--size) * 1.2px);
+          height: calc(var(--size) * 1.2px);
+          font-size: calc(var(--size) * 0.6px);
+        }
+      }
+    `,
+  ],
+  template: `
+    <div class="avatar" [ngStyle]="style()">
+      {{ initial() }}
+    </div>
+  `,
 })
 export class AvatarComponent {
   @Input() name = '';
@@ -26,10 +47,9 @@ export class AvatarComponent {
 
   style = computed(() => {
     const c = COLORS[hashColor(this.name || 'A')];
-    const s = this.size;
+
     return {
-      width: `${s}px`,
-      height: `${s}px`,
+      '--size': this.size,
       borderRadius: '50%',
       background: c.bg,
       color: c.color,
@@ -38,9 +58,8 @@ export class AvatarComponent {
       justifyContent: 'center',
       fontFamily: 'var(--font-body)',
       fontWeight: '600',
-      fontSize: `${Math.round(s * 0.48)}px`,
       flexShrink: '0',
-      verticalAlign: 'middle'
+      verticalAlign: 'middle',
     };
   });
 }

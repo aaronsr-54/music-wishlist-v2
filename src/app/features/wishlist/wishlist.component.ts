@@ -117,7 +117,7 @@ type WishlistTab = 'pending' | 'downloaded';
 
       .label {
         font-family: var(--font-display);
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone);
         font-weight: 700;
         letter-spacing: 0.06em;
@@ -136,7 +136,7 @@ type WishlistTab = 'pending' | 'downloaded';
 
       .eyebrow-sub {
         font-family: var(--font-display);
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone-700);
         letter-spacing: 0.06em;
         font-style: italic;
@@ -168,7 +168,7 @@ type WishlistTab = 'pending' | 'downloaded';
         background: none;
         color: var(--bone-600);
         font-family: var(--font-body);
-        font-size: 13px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-weight: 600;
         cursor: pointer;
         transition: all var(--dur-fast) var(--ease);
@@ -191,7 +191,7 @@ type WishlistTab = 'pending' | 'downloaded';
         border-radius: var(--radius-pill);
         background: var(--ink-100);
         color: var(--bone-600);
-        font-size: 10px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         font-weight: 700;
         letter-spacing: 0.02em;
       }
@@ -248,7 +248,7 @@ type WishlistTab = 'pending' | 'downloaded';
 
       .empty-title {
         font-family: var(--font-body);
-        font-size: 22px;
+        font-size: clamp(1.375rem, 1.2707rem + 0.4049vw, 1.625rem);
         font-weight: 600;
         text-transform: uppercase;
         color: var(--bone);
@@ -256,7 +256,7 @@ type WishlistTab = 'pending' | 'downloaded';
       }
 
       .empty-sub {
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-family: var(--font-display);
         color: var(--bone-600);
         font-style: italic;

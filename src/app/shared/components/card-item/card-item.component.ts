@@ -62,15 +62,28 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
           [class.added]="isAdded()"
           (click)="onToggleWishlist()"
         >
-          <svg viewBox="0 0 16 16" fill="none" class="card-icon">
-            <path
-              d="M8 3V13M3 8H13"
-              stroke="currentColor"
-              stroke-width="1.5"
-              stroke-linecap="round"
-            />
-          </svg>
-          <span> {{ isAdded() ? 'Añadido' : 'Añadir a Wishlist' }}</span>
+          @if (isAdded()) {
+            <svg viewBox="0 0 16 16" fill="none" class="card-icon">
+              <path
+                d="M3 8.5L6.5 12L13 5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>Añadido</span>
+          } @else {
+            <svg viewBox="0 0 16 16" fill="none" class="card-icon">
+              <path
+                d="M8 3V13M3 8H13"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+              />
+            </svg>
+            <span>Guardar</span>
+          }
         </button>
       </div>
     </div>
@@ -111,7 +124,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
 
       .item-title {
         max-width: 100%;
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-weight: 600;
         color: var(--bone-100);
         line-height: 1;
@@ -123,7 +136,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
 
       .item-artist {
         max-width: 100%;
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone-600);
         white-space: nowrap;
         overflow: hidden;
@@ -131,7 +144,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .release-date {
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone-600);
         font-family: var(--font-display);
         font-style: italic;
@@ -172,8 +185,13 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
         animation: popIn 220ms var(--ease) both;
       }
 
+      .action-btn.added span {
+        font-family: var(--font-display);
+        font-weight: 800;
+      }
+
       .action-btn span {
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6979rem + 0.2024vw, 0.875rem);
         font-weight: 500;
         flex-grow: 1;
         height: 12px;

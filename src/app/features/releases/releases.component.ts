@@ -199,7 +199,7 @@ const MONTHS = [
 
       .label {
         font-family: var(--font-display);
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone);
         font-weight: 700;
         letter-spacing: 0.06em;
@@ -251,7 +251,7 @@ const MONTHS = [
         background: none;
         color: var(--bone);
         cursor: pointer;
-        font-size: 18px;
+        font-size: clamp(1.125rem, 1.0207rem + 0.4049vw, 1.375rem);
         font-weight: 600;
         transition:
           color var(--dur-fast) var(--ease),
@@ -283,7 +283,7 @@ const MONTHS = [
         align-items: center;
         justify-content: center;
         gap: 8px;
-        font-size: 24px;
+        font-size: clamp(1.5rem, 1.3957rem + 0.4049vw, 1.75rem);
         color: var(--bone);
         min-width: 150px;
         text-align: center;
@@ -319,7 +319,7 @@ const MONTHS = [
       }
 
       .releases-loading__text {
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-style: italic;
       }
 
@@ -327,7 +327,7 @@ const MONTHS = [
         text-align: center;
         padding: 40px 20px;
         color: var(--bone-700);
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         animation: fadeIn 400ms ease both;
       }
 
@@ -359,15 +359,15 @@ const MONTHS = [
           transparent 100%
         );
 
-        @media (min-width: 992px) and (max-width: 1199px) {
+        @media (min-width: 1100px) and (max-width: 1623px) {
           grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
-        @media (min-width: 1200px) and (max-width: 1399px) {
+        @media (min-width: 1624px) and (max-width: 1899px) {
           grid-template-columns: repeat(4, minmax(0, 1fr));
         }
 
-        @media (min-width: 1400px) {
+        @media (min-width: 1900px) {
           grid-template-columns: repeat(5, minmax(0, 1fr));
         }
       }
@@ -460,7 +460,7 @@ const MONTHS = [
 
       .empty-title {
         font-family: var(--font-body);
-        font-size: 22px;
+        font-size: clamp(1.375rem, 1.2707rem + 0.4049vw, 1.625rem);
         font-weight: 600;
         text-transform: uppercase;
         color: var(--bone);
@@ -468,7 +468,7 @@ const MONTHS = [
       }
 
       .empty-sub {
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-family: var(--font-display);
         color: var(--bone-600);
         font-style: italic;

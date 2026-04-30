@@ -39,7 +39,7 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
 
       .wordmark {
         font-family: var(--font-display);
-        font-size: 24px;
+        font-size: clamp(1.5rem, 1.3957rem + 0.4049vw, 1.75rem);
         font-weight: 700;
         color: var(--bone);
         line-height: 0.8;
@@ -86,7 +86,7 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
         }
 
         .logo-text {
-          font-size: 16px;
+          font-size: clamp(1rem, 0.8957rem + 0.4049vw, 1.25rem);
         }
 
         .user-area {

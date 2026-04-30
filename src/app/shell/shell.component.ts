@@ -169,7 +169,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
       }
 
       .desktop-tabs {
-        margin-top: 15%;
+        margin-top: 15rem;
         width: 300px;
         display: flex;
         flex-direction: column;

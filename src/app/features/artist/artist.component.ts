@@ -59,7 +59,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
                   >
                     @if (isArtistInWishlist(a.id)) {
                       <svg
-                        viewBox="0 0 16 16"
+                        viewBox="0 0 16 18"
                         fill="currentColor"
                         class="artist-heart-icon"
                       >
@@ -71,7 +71,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
                       </svg>
                     } @else {
                       <svg
-                        viewBox="0 0 16 16"
+                        viewBox="0 0 16 18"
                         fill="none"
                         class="artist-heart-icon"
                       >
@@ -191,7 +191,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
       .label {
         font-family: var(--font-display);
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone);
         font-weight: 700;
         letter-spacing: 0.06em;
@@ -203,19 +203,11 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
         font-style: italic;
       }
 
-      .eyebrow-sub {
-        font-family: var(--font-display);
-        font-size: 12px;
-        color: var(--bone-700);
-        letter-spacing: 0.06em;
-        font-style: italic;
-      }
-
       .back-btn {
         background: none;
         border: none;
         color: var(--bone-700);
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         cursor: pointer;
         transition: color var(--dur-fast) var(--ease);
       }
@@ -253,7 +245,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
       .artist-info h1 {
         margin: 0;
-        font-size: 4rem;
+        font-size: clamp(2rem, 1.166rem + 3.2389vw, 4rem);
         font-weight: bold;
         font-family: var(--font-display);
         flex: 1;
@@ -277,7 +269,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
         background: transparent;
         padding: 0;
 
-        @media (min-width: 769px) {
+        @media (min-width: 768px) {
           width: 48px;
           height: 48px;
         }
@@ -303,6 +295,11 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
       .artist-heart-icon {
         width: 1.25rem;
         height: 1.25rem;
+
+        @media (min-width: 768px) {
+          width: 2rem;
+          height: 2rem;
+        }
       }
 
       .artist-stats {
@@ -318,7 +315,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
       }
 
       .stat-label {
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone-700);
         text-transform: uppercase;
         letter-spacing: 0.5px;
@@ -327,7 +324,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
       }
 
       .stat-value {
-        font-size: 18px;
+        font-size: clamp(1.125rem, 1.0207rem + 0.4049vw, 1.375rem);
         font-weight: bold;
       }
 
@@ -338,11 +335,11 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
         color: var(--ink);
         border-radius: var(--radius-sm);
         text-decoration: none;
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-weight: 600;
         transition: opacity var(--dur-fast) var(--ease);
 
-        @media (min-width: 769px) {
+        @media (min-width: 768px) {
           width: fit-content;
         }
       }
@@ -359,7 +356,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 
       .section-title {
         font-family: var(--font-body);
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone-700);
         font-weight: 600;
         letter-spacing: 0.05em;
@@ -371,7 +368,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
         text-align: center;
         padding: 40px 20px;
         color: var(--bone-700);
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         animation: fadeIn 300ms var(--ease) both;
       }
 
@@ -387,7 +384,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
       }
 
       .tracks-loading__text {
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-style: italic;
       }
 
@@ -424,10 +421,6 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
         .artist-cover {
           width: 150px;
           height: 150px;
-        }
-
-        .artist-info h1 {
-          font-size: 2rem;
         }
 
         .artist-stats {
