@@ -22,7 +22,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/version.json"
             ],
             "styles": [
               "src/styles.css"
