@@ -119,24 +119,25 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         </div>
       }
 
+      @if (!query() && favoriteArtists().length > 0) {
+        <div class="favorites-slider-container">
+          <h3 class="section-title">Tus artistas favoritos</h3>
+          <div class="artists-slider">
+            @for (artist of favoriteArtists(); track artist.id) {
+              <app-artist-card
+                [artist]="artist"
+                (onArtistClick)="navigateToArtist($event)"
+                (onRemoveFavorite)="removeFavorite($event)"
+              />
+            }
+          </div>
+        </div>
+      }
+
       @switch (state()) {
         @case ('idle') {
           <div class="results">
-            @if (favoriteArtists().length > 0) {
-              <div class="favorites-container">
-                <h3 class="section-title">Tus artistas favoritos</h3>
-                <div class="artists-grid">
-                  @for (artist of favoriteArtists(); track artist.id) {
-                    <app-artist-card
-                      [artist]="artist"
-                      (onArtistClick)="navigateToArtist($event)"
-                      (onRemoveFavorite)="removeFavorite($event)"
-                    />
-                  }
-                </div>
-              </div>
-            } @else {
-              <div class="empty-state">
+            <div class="empty-state">
                 <div class="empty-icon">
                   <svg viewBox="0 0 32 32" fill="none">
                     <circle
@@ -437,31 +438,37 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         }
       }
 
-      .favorites-container {
-        padding: 1rem;
-        animation: fadeIn 300ms var(--ease) both;
+      .favorites-slider-container {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid var(--ink-100);
+        animation: fadeIn 200ms var(--ease) both;
       }
 
       .section-title {
         font-family: var(--font-display);
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         color: var(--bone-700);
-        margin: 0 0 1rem 0;
+        margin: 0 0 0.75rem 0;
         text-transform: uppercase;
         letter-spacing: 0.06em;
       }
 
-      .artists-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
+      .artists-slider {
+        display: flex;
         gap: 12px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        padding-bottom: 4px;
       }
 
-      @media (min-width: 768px) {
-        .artists-grid {
-          grid-template-columns: repeat(4, 1fr);
-        }
+      .artists-slider::-webkit-scrollbar {
+        display: none;
+      }
+
+      .artists-slider app-artist-card {
+        flex: 0 0 80px;
+        min-width: 80px;
       }
     `,
   ],
