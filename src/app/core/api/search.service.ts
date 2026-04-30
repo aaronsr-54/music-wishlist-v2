@@ -130,6 +130,7 @@ export class SearchService {
           coverUrl: a.cover_big ?? a.cover_medium ?? '',
           type: (a.record_type === 'single' ? 'single' : 'album') as TrackType,
           releaseDate: a.release_date ?? '',
+          previewUrl: a.preview ?? undefined,
         }));
       }),
     );

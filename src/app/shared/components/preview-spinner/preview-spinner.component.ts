@@ -47,6 +47,16 @@ import { CommonModule } from '@angular/common';
         width: 100%;
         height: 100%;
         transform: rotate(-90deg);
+        animation: spin 2s linear infinite;
+      }
+
+      @keyframes spin {
+        from {
+          transform: rotate(-90deg);
+        }
+        to {
+          transform: rotate(270deg);
+        }
       }
 
       .spinner-bg {
