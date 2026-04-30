@@ -234,7 +234,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       .label {
         font-family: var(--font-display);
-        font-size: 12px;
+        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone);
         font-weight: 700;
         letter-spacing: 0.06em;
@@ -265,7 +265,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         width: 1em;
         height: 1em;
         flex-shrink: 0;
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
       }
 
       .search-input {
@@ -275,7 +275,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         outline: none;
         color: var(--bone);
         font-family: var(--font-display);
-        font-size: 24px;
+        font-size: clamp(1.5rem, 1.3957rem + 0.4049vw, 1.75rem);
         font-weight: 400;
       }
 
@@ -294,7 +294,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         align-items: center;
         border-radius: 50%;
         transition: color var(--dur-fast) var(--ease);
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
       }
 
       .clear-btn svg {
@@ -320,7 +320,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         background: transparent;
         color: var(--bone-600);
         font-family: var(--font-display);
-        font-size: 13px;
+        font-size: clamp(0.8125rem, 0.7082rem + 0.4049vw, 1.0625rem);
         font-weight: 500;
         white-space: nowrap;
         cursor: pointer;
@@ -391,7 +391,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       .empty-title {
         font-family: var(--font-body);
-        font-size: 22px;
+        font-size: clamp(1.375rem, 1.2707rem + 0.4049vw, 1.625rem);
         font-weight: 600;
         text-transform: uppercase;
         color: var(--bone);
@@ -399,7 +399,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
 
       .empty-sub {
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-family: var(--font-display);
         color: var(--bone-600);
         font-style: italic;
@@ -426,7 +426,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
 
       .loading-text {
-        font-size: 14px;
+        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
         font-style: italic;
       }
 
@@ -451,7 +451,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       .section-title {
         font-family: var(--font-display);
-        font-size: 11px;
+        font-size: clamp(0.6875rem, 0.6093rem + 0.3036vw, 0.875rem);
         font-weight: 700;
         color: var(--bone-700);
         margin: 0 0 0.75rem 0;

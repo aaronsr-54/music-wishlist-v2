@@ -198,8 +198,8 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .card-icon {
-        width: 1.25rem;
-        height: 1.25rem;
+        width: clamp(1.25rem, 3vw, 1.5rem);
+        height: clamp(1.25rem, 3vw, 1.5rem);
       }
 
       .cover-btn {

@@ -48,15 +48,15 @@ import { Component, Input } from '@angular/core';
     }
 
     .spinner--sm {
-      font-size: 16px;
+      font-size: clamp(16px, 2vw, 20px);
     }
 
     .spinner--md {
-      font-size: 24px;
+      font-size: clamp(24px, 3vw, 30px);
     }
 
     .spinner--lg {
-      font-size: 32px;
+      font-size: clamp(32px, 4vw, 40px);
     }
 
     @keyframes spinner {

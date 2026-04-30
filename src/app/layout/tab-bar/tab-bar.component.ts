@@ -123,8 +123,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
       }
 
       .tab-icon {
-        width: 1.5rem;
-        height: 1.5rem;
+        width: clamp(1.5rem, 3.5vw, 2rem);
+        height: clamp(1.5rem, 3.5vw, 2rem);
       }
 
       .tab.active {

@@ -392,8 +392,8 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .add-btn {
-        width: 2.25rem;
-        height: 2.25rem;
+        width: clamp(2.25rem, 5vw, 2.75rem);
+        height: clamp(2.25rem, 5vw, 2.75rem);
         border-radius: 50%;
         cursor: pointer;
         display: flex;
@@ -411,8 +411,8 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .add-btn svg {
-        width: 1.25rem;
-        height: 1.25rem;
+        width: clamp(1.25rem, 3vw, 1.5rem);
+        height: clamp(1.25rem, 3vw, 1.5rem);
       }
 
       .add-btn:hover {
@@ -437,8 +437,8 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .action-btn {
-        width: 2rem;
-        height: 2rem;
+        width: clamp(2rem, 4.5vw, 2.5rem);
+        height: clamp(2rem, 4.5vw, 2.5rem);
         border-radius: 50%;
         border: 1.5px solid var(--ink-100);
         background: none;
@@ -454,8 +454,8 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
 
       .action-btn svg {
-        width: 1rem;
-        height: 1rem;
+        width: clamp(1rem, 2.5vw, 1.25rem);
+        height: clamp(1rem, 2.5vw, 1.25rem);
       }
 
       .action-btn:hover {

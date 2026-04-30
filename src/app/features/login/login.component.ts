@@ -227,8 +227,8 @@ import { VersionService } from '../../core/version/version.service';
       }
 
       .google-icon {
-        width: 1.125rem;
-        height: 1.125rem;
+        width: clamp(1.125rem, 2.5vw, 1.375rem);
+        height: clamp(1.125rem, 2.5vw, 1.375rem);
       }
 
       .dot-pulse {
