@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="spinner-container">
+    <div class="spinner-container" [class.spinner--small]="source() === 'card'">
       <svg viewBox="0 0 100 100" class="spinner-ring">
         <circle cx="50" cy="50" r="40" class="spinner-bg" />
         <circle
@@ -47,6 +47,11 @@ import { CommonModule } from '@angular/common';
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+
+      .spinner-container.spinner--small {
+        transform: scale(0.7);
+        transform-origin: center;
       }
 
       .spinner-ring {
@@ -95,6 +100,7 @@ import { CommonModule } from '@angular/common';
 export class PreviewSpinnerComponent {
   progress = input(0); // 0-100
   isPlaying = input(true);
+  source = input<'card' | 'default'>('default');
 
   readonly circumference = 2 * Math.PI * 45;
 

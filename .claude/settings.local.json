@@ -66,7 +66,12 @@
       "Bash(pkill -f \"ng serve|webpack|npm start\")",
       "Bash(pkill -f \"node.*ng serve\")",
       "Bash(curl -s http://localhost:4200/)",
-      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__list_network_requests"
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__list_network_requests",
+      "Bash(npx tsc *)",
+      "Bash(npm install *)",
+      "WebFetch(domain:localhost)",
+      "Bash(xargs -r kill -9)",
+      "Bash(npm list *)"
     ]
   }
 }

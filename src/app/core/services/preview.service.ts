@@ -3,6 +3,7 @@ import { Injectable, signal } from '@angular/core';
 export interface PreviewState {
   trackId: string | null;
   isPlaying: boolean;
+  isLoading: boolean;
   progress: number; // 0-100
   duration: number; // in seconds
 }
@@ -16,6 +17,7 @@ export class PreviewService {
   state = signal<PreviewState>({
     trackId: null,
     isPlaying: false,
+    isLoading: false,
     progress: 0,
     duration: 30,
   });
@@ -45,18 +47,26 @@ export class PreviewService {
   private createAudio(trackId: string, previewUrl: string): void {
     this.stop();
 
+    this.state.update((s) => ({
+      ...s,
+      trackId,
+      isLoading: true,
+      progress: 0,
+    }));
+
     this.audio = new Audio(previewUrl);
     this.audio.onended = () => this.onAudioEnd();
     this.audio.onerror = () => this.stop();
+    this.audio.oncanplay = () => {
+      this.state.update((s) => ({ ...s, isLoading: false }));
+    };
 
     this.startTime = Date.now();
     this.audio.play().catch(() => this.stop());
 
     this.state.update((s) => ({
       ...s,
-      trackId,
       isPlaying: true,
-      progress: 0,
     }));
 
     this.startProgressInterval();
@@ -134,6 +144,7 @@ export class PreviewService {
       ...s,
       trackId: null,
       isPlaying: false,
+      isLoading: false,
       progress: 0,
     }));
   }

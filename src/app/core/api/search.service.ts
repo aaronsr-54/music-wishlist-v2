@@ -41,7 +41,7 @@ export class SearchService {
           type: 'track' as TrackType,
           uri: t.link ?? '',
           artistId: t.artist?.id,
-          previewUrl: t.preview ?? undefined,
+          previewUrl: t.preview ? `/api/preview?url=${encodeURIComponent(t.preview)}` : undefined,
         }));
 
         const albums: Track[] = (albumsRes.data ?? []).map((a: any) => ({
@@ -101,7 +101,7 @@ export class SearchService {
           type: 'track' as TrackType,
           uri: t.link ?? '',
           artistId: t.artist?.id,
-          previewUrl: t.preview ?? undefined,
+          previewUrl: t.preview ? `/api/preview?url=${encodeURIComponent(t.preview)}` : undefined,
         }));
       }),
     );
@@ -145,7 +145,9 @@ export class SearchService {
           ).pipe(
             map((tracksRes: any) => ({
               id: s.id,
-              previewUrl: (tracksRes.data?.[0]?.preview as string) ?? undefined,
+              previewUrl: tracksRes.data?.[0]?.preview
+                ? `/api/preview?url=${encodeURIComponent(tracksRes.data[0].preview)}`
+                : undefined,
             })),
             catchError(() => of({ id: s.id, previewUrl: undefined })),
           ),

@@ -207,7 +207,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
               [name]="wishlistItem().name"
               [size]="64"
             />
-            @if (previewState().trackId === wishlistItem().trackId) {
+            @if (previewState().trackId === wishlistItem().trackId && (previewState().isPlaying || previewState().isLoading)) {
               <div class="preview-overlay" @fadeInOut>
                 <app-preview-spinner
                   [progress]="previewState().progress"
@@ -571,6 +571,9 @@ export class SearchResultItemComponent {
 
   onPlayPreviewWishlist(entry: WishlistEntry): void {
     if (!entry.previewUrl) return;
-    this.preview.play(entry.trackId, entry.previewUrl);
+    const previewUrl = entry.previewUrl.startsWith('/api/preview')
+      ? entry.previewUrl
+      : `/api/preview?url=${encodeURIComponent(entry.previewUrl)}`;
+    this.preview.play(entry.trackId, previewUrl);
   }
 }

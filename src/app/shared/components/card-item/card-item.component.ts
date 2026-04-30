@@ -1,10 +1,5 @@
 import { Component, computed, input, output, inject } from '@angular/core';
-import {
-  trigger,
-  transition,
-  style,
-  animate,
-} from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
@@ -37,7 +32,6 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
             ? 'Pausar'
             : 'Reproducir preview'
         "
-        [disabled]="!releaseItem().previewUrl"
       >
         <app-cover
           [coverUrl]="releaseItem().coverUrl"
@@ -48,6 +42,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
             <app-preview-spinner
               [progress]="previewState().progress"
               [isPlaying]="previewState().isPlaying"
+              source="card"
             />
           </div>
         }
@@ -229,17 +224,12 @@ export class CardItemComponent {
   isAdded = input(false);
   showTypeChip = input(true);
 
-  openUrl = output<ReleaseItem>();
   toggleWishlist = output<ReleaseItem>();
 
   releaseItem = computed(() => {
     return this.item() as ReleaseItem;
   });
   previewState = computed(() => this.preview.state());
-
-  onOpenUrl() {
-    this.openUrl.emit(this.item());
-  }
 
   onToggleWishlist() {
     this.toggleWishlist.emit(this.item());
