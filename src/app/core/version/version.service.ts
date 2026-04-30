@@ -1,8 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class VersionService {
-  private version = '0.0.0';
+  version = signal('0.0.0');
 
   constructor() {
     this.loadVersion();
@@ -12,13 +12,9 @@ export class VersionService {
     try {
       const response = await fetch('/version.json');
       const data = await response.json();
-      this.version = data.version;
+      this.version.set(data.version);
     } catch (error) {
       console.warn('Could not load version.json:', error);
     }
-  }
-
-  getVersion(): string {
-    return this.version;
   }
 }

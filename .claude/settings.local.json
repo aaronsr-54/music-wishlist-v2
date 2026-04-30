@@ -75,7 +75,8 @@
       "Bash(git stash *)",
       "Bash(curl -I https://music-wishlist-v2.vercel.app/index.html)",
       "Bash(curl -I https://music-wishlist-v2.vercel.app/chunk-FEDOZIIL.js)",
-      "Bash(grep -E '\\\\.\\(js|css\\)$')"
+      "Bash(grep -E '\\\\.\\(js|css\\)$')",
+      "Bash(curl -s https://music-wishlist-v2.vercel.app/version.json)"
     ]
   }
 }

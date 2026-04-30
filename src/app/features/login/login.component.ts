@@ -253,11 +253,11 @@ import { VersionService } from '../../core/version/version.service';
 })
 export class LoginComponent {
   private auth = inject(AuthService);
-  private versionService = inject(VersionService);
+  versionService = inject(VersionService);
 
   loading = signal(false);
   error = signal('');
-  version = signal(this.versionService.getVersion());
+  version = this.versionService.version;
 
   async login() {
     this.loading.set(true);
