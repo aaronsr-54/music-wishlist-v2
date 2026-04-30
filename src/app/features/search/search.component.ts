@@ -6,7 +6,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { CommonModule, NgFor } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   Subject,
@@ -32,7 +32,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [CommonModule, NgFor, FormsModule, SearchResultItemComponent, SpinnerComponent, ArtistCardComponent],
+  imports: [CommonModule, FormsModule, SearchResultItemComponent, SpinnerComponent, ArtistCardComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -122,11 +122,11 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       @switch (state()) {
         @case ('idle') {
           <div class="results">
-            @if (favoriteArtistsSvc.artists().length > 0) {
+            @if (favoriteArtists().length > 0) {
               <div class="favorites-container">
                 <h3 class="section-title">Tus artistas favoritos</h3>
                 <div class="artists-grid">
-                  @for (artist of favoriteArtistsSvc.artists(); track artist.id) {
+                  @for (artist of favoriteArtists(); track artist.id) {
                     <app-artist-card
                       [artist]="artist"
                       (onArtistClick)="navigateToArtist($event)"
@@ -478,6 +478,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   selectedTypes = signal<Set<TrackType>>(new Set());
 
   results = signal<Track[]>([]);
+
+  favoriteArtists = computed(() => this.favoriteArtistsSvc.artists());
 
   artists = computed(() =>
     this.results().filter((track) => track.type === 'artist'),
