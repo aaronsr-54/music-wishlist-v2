@@ -14,7 +14,19 @@
       ]
     },
     {
-      "source": "/.*-[A-F0-9]{8}\\.(js|css|woff2|ttf|otf)$",
+      "source": "/(chunk-*|main-*|polyfills-*|styles-*).js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(chunk-*|main-*|polyfills-*|styles-*).css",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(fonts|assets)/**/*",
       "headers": [
         { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
       ]
