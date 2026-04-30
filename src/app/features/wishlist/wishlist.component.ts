@@ -109,6 +109,10 @@ type WishlistTab = 'pending' | 'downloaded';
         align-items: center;
         justify-content: space-between;
         gap: 8px;
+
+        @media (min-width: 768px) {
+          justify-content: flex-end;
+        }
       }
 
       .label {
@@ -118,6 +122,10 @@ type WishlistTab = 'pending' | 'downloaded';
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
+
+        @media (min-width: 768px) {
+          display: none;
+        }
       }
 
       .label--number {

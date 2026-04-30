@@ -203,6 +203,10 @@ const MONTHS = [
         color: var(--bone);
         font-weight: 700;
         letter-spacing: 0.06em;
+
+        @media (min-width: 768px) {
+          display: none;
+        }
       }
 
       .label--number {
@@ -364,7 +368,7 @@ const MONTHS = [
         }
 
         @media (min-width: 1400px) {
-          grid-template-columns: repeat(6, minmax(0, 1fr));
+          grid-template-columns: repeat(5, minmax(0, 1fr));
         }
       }
 

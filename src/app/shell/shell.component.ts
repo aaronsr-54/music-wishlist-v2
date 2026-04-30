@@ -164,7 +164,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
         padding: 16px;
         border-radius: var(--radius-xl);
         border: 1px solid var(--ink-200);
-        box-shadow: 0 2px 20px 4px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 12px 4px rgba(0, 0, 0, 0.15);
         height: 100%;
       }
 
@@ -283,10 +283,7 @@ export class ShellComponent {
 
     effect(() => {
       this.activeTab();
-
-      if (this.hasChildRoute()) {
-        this.router.navigate(['']);
-      }
+      this.router.navigate(['']);
     });
   }
 }

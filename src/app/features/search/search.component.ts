@@ -239,6 +239,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
+
+        @media (min-width: 768px) {
+          display: none;
+        }
       }
 
       .label--number {
@@ -635,18 +639,16 @@ export class SearchComponent implements OnInit, OnDestroy {
         let coverUrl = track.coverUrl;
         if (!coverUrl || !coverUrl.trim()) {
           try {
-            const artistData = await this.search.getArtist(track.id).toPromise();
-            coverUrl = artistData?.picture_big ?? artistData?.picture_medium ?? '';
+            const artistData = await this.search
+              .getArtist(track.id)
+              .toPromise();
+            coverUrl =
+              artistData?.picture_big ?? artistData?.picture_medium ?? '';
           } catch {
             // Si falla, usar lo que hay
           }
         }
-        await this.favoriteArtistsSvc.add(
-          track.id,
-          track.name,
-          coverUrl,
-          user,
-        );
+        await this.favoriteArtistsSvc.add(track.id, track.name, coverUrl, user);
       }
     } else {
       const entries = this.wishlistSvc.entries();
