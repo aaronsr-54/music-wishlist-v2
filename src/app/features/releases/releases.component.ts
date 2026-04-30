@@ -355,8 +355,16 @@ const MONTHS = [
           transparent 100%
         );
 
-        @media (min-width: 768px) {
+        @media (min-width: 992px) and (max-width: 1199px) {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        @media (min-width: 1200px) and (max-width: 1399px) {
           grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        @media (min-width: 1400px) {
+          grid-template-columns: repeat(6, minmax(0, 1fr));
         }
       }
 

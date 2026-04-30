@@ -1,71 +1,100 @@
-import { Component, signal, inject, effect } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import {
-  RouterOutlet,
   ActivatedRoute,
   NavigationEnd,
   Router,
+  RouterOutlet,
 } from '@angular/router';
+
+import { filter } from 'rxjs';
+
 import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
+
 import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
 import { ReleasesComponent } from '../features/releases/releases.component';
+
 import { ProfileModalComponent } from '../features/profile/profile-modal.component';
-import { filter } from 'rxjs';
+
+type Tab = 'releases' | 'search' | 'wishlist';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
   imports: [
     RouterOutlet,
+
     HeaderComponent,
     TabBarComponent,
+
     ReleasesComponent,
     SearchComponent,
     WishlistComponent,
-    ReleasesComponent,
+
     ProfileModalComponent,
   ],
   template: `
-    <!-- Desktop ≥768px: tres paneles simultáneos -->
+    <!-- DESKTOP -->
     <div class="desktop-shell">
       <app-header (openProfile)="showProfileModal.set(true)" />
-      <main class="three-pane">
-        <section [class.dim]="activeTab() !== 'releases'">
-          @if (activeTab() !== 'releases') {
-            <div
-              class="panel-overlay"
-              (click)="activeTab.set('releases')"
-            ></div>
-          }
-          <app-releases />
-        </section>
-        <section [class.dim]="activeTab() !== 'search'">
-          @if (activeTab() !== 'search') {
-            <div class="panel-overlay" (click)="activeTab.set('search')"></div>
-          }
-          @if (!hasChildRoute()) {
-            <app-search />
-          } @else {
+
+      <main class="desktop-layout">
+        <aside class="desktop-tabs">
+          <button
+            class="tab-button"
+            [class.active]="activeTab() === 'releases'"
+            (click)="activeTab.set('releases')"
+          >
+            <span class="tab-button-number">01/</span>
+            <span class="tab-button-title">LANZAMIENTOS</span>
+          </button>
+
+          <button
+            class="tab-button"
+            [class.active]="activeTab() === 'search'"
+            (click)="activeTab.set('search')"
+          >
+            <span class="tab-button-number">02/</span>
+            <span class="tab-button-title">BUSCADOR</span>
+          </button>
+
+          <button
+            class="tab-button"
+            [class.active]="activeTab() === 'wishlist'"
+            (click)="activeTab.set('wishlist')"
+          >
+            <span class="tab-button-number">03/</span>
+            <span class="tab-button-title">WHISLIST</span>
+          </button>
+        </aside>
+        <section class="desktop-content">
+          @if (hasChildRoute()) {
             <router-outlet />
+          } @else {
+            @switch (activeTab()) {
+              @case ('releases') {
+                <app-releases />
+              }
+
+              @case ('search') {
+                <app-search />
+              }
+
+              @case ('wishlist') {
+                <app-wishlist />
+              }
+            }
           }
-        </section>
-        <section [class.dim]="activeTab() !== 'wishlist'">
-          @if (activeTab() !== 'wishlist') {
-            <div
-              class="panel-overlay"
-              (click)="activeTab.set('wishlist')"
-            ></div>
-          }
-          <app-wishlist />
         </section>
       </main>
     </div>
 
-    <!-- Mobile <768px: header + panel único + tab bar -->
+    <!-- MOBILE -->
     <div class="mobile-shell">
       <app-header (openProfile)="showProfileModal.set(true)" />
-      <div class="mobile-content">
+
+      <main class="mobile-content">
         @if (hasChildRoute()) {
           <router-outlet />
         } @else {
@@ -73,15 +102,18 @@ import { filter } from 'rxjs';
             @case ('releases') {
               <app-releases />
             }
+
             @case ('search') {
               <app-search />
             }
+
             @case ('wishlist') {
               <app-wishlist />
             }
           }
         }
-      </div>
+      </main>
+
       <app-tab-bar
         [activeTab]="activeTab()"
         (tabChange)="activeTab.set($event)"
@@ -98,13 +130,95 @@ import { filter } from 'rxjs';
       :host {
         display: block;
         height: 100%;
+        overflow: hidden;
       }
+
+      /* -------------------- */
+      /* DESKTOP */
+      /* -------------------- */
 
       .desktop-shell {
         display: none;
         flex-direction: column;
         height: 100%;
       }
+
+      .desktop-layout {
+        display: flex;
+        flex: 1;
+        overflow: hidden;
+        gap: 4rem;
+        padding: 12px;
+        width: 100%;
+        margin-inline: auto;
+
+        @media (min-width: 1400px) {
+          margin-inline: 10%;
+          width: calc(100% - (10% * 2));
+        }
+      }
+
+      .desktop-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 16px;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--ink-200);
+        box-shadow: 0 2px 20px 4px rgba(0, 0, 0, 0.1);
+        height: 100%;
+      }
+
+      .desktop-tabs {
+        margin-top: 15%;
+        width: 300px;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .tab-button {
+        display: inline-flex;
+        gap: 8px;
+        color: var(--bone-700);
+        font-size: 28px;
+        font-weight: 300;
+        font-style: italic;
+        font-family: var(--font-display);
+        cursor: pointer;
+        text-transform: uppercase;
+        transition:
+          transform var(--dur-fast) var(--ease),
+          color var(--dur-base) var(--ease);
+      }
+
+      .tab-button:hover {
+        transform: scale(1.01);
+      }
+
+      .tab-button-title {
+        flex-shrink: 1;
+      }
+
+      .tab-button-number {
+        width: 3.5rem;
+        text-align: right;
+        opacity: 0;
+        cursor: auto;
+      }
+
+      .tab-button.active .tab-button-title {
+        color: var(--bone);
+        font-style: normal;
+        font-weight: 700;
+      }
+
+      .tab-button.active .tab-button-number {
+        opacity: 1;
+      }
+
+      /* -------------------- */
+      /* MOBILE */
+      /* -------------------- */
 
       .mobile-shell {
         display: flex;
@@ -118,59 +232,34 @@ import { filter } from 'rxjs';
       }
 
       .mobile-content > * {
-        animation: panelEnter var(--dur-base) var(--ease) both;
+        animation: panelEnter var(--dur-base) var(--ease);
       }
+
+      /* -------------------- */
+      /* RESPONSIVE */
+      /* -------------------- */
 
       @media (min-width: 768px) {
         .desktop-shell {
           display: flex;
         }
+
         .mobile-shell {
           display: none;
         }
       }
 
-      .three-pane {
-        display: flex;
-        width: 100dvw;
-        flex: 1;
-        overflow: hidden;
-        padding: 12px;
-        gap: 12px;
+      /* -------------------- */
+      /* SCROLLBAR */
+      /* -------------------- */
+
+      .desktop-content::-webkit-scrollbar {
+        width: 8px;
       }
 
-      .three-pane > section {
-        padding: 16px 8px;
-        position: relative;
-        overflow-y: auto;
-        height: 100%;
-        transition: border-color var(--dur-base) var(--ease);
-        border-radius: var(--radius-md);
-        border: 2px solid var(--bone-900);
-      }
-
-      .three-pane > section:not(.dim) {
-        border-color: var(--bone);
-        box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.1);
-        width: 50%;
-      }
-
-      .three-pane > section.dim {
-        opacity: 0.2;
-        width: 25%;
-        filter: blur(1.5px);
-      }
-
-      .three-pane > section.dim:hover {
-        opacity: 0.5;
-        filter: blur(1px);
-      }
-
-      .panel-overlay {
-        position: absolute;
-        inset: 0;
-        cursor: pointer;
-        z-index: 10;
+      .desktop-content::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.1);
       }
     `,
   ],
@@ -179,8 +268,10 @@ export class ShellComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  activeTab = signal<'search' | 'wishlist' | 'releases'>('releases');
+  activeTab = signal<Tab>('releases');
+
   showProfileModal = signal(false);
+
   hasChildRoute = signal(false);
 
   constructor() {
@@ -192,7 +283,10 @@ export class ShellComponent {
 
     effect(() => {
       this.activeTab();
-      this.router.navigate(['']);
+
+      if (this.hasChildRoute()) {
+        this.router.navigate(['']);
+      }
     });
   }
 }
