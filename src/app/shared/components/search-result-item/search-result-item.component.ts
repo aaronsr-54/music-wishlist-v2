@@ -1,5 +1,11 @@
 import { Component, computed, input, output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import {
+  trigger,
+  transition,
+  style,
+  animate,
+} from '@angular/animations';
 import { Track } from '../../models/track.model';
 import { WishlistEntry } from '../../models/wishlist-entry.model';
 import { ReleaseItem } from '../../models/release-item.model';
@@ -12,6 +18,17 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
 @Component({
   selector: 'app-search-result-item',
   standalone: true,
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('200ms ease-in-out', style({ opacity: 1 })),
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in-out', style({ opacity: 0 })),
+      ]),
+    ]),
+  ],
   imports: [
     DatePipe,
     CoverComponent,
@@ -110,7 +127,12 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
             <button
               class="cover-btn"
               (click)="onPlayPreview(trackItem())"
-              [title]="previewState().trackId === trackItem().id && previewState().isPlaying ? 'Pausar' : 'Reproducir preview'"
+              [title]="
+                previewState().trackId === trackItem().id &&
+                previewState().isPlaying
+                  ? 'Pausar'
+                  : 'Reproducir preview'
+              "
               [disabled]="!trackItem().previewUrl"
             >
               <app-cover
@@ -118,10 +140,11 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
                 [name]="trackItem().name"
                 [size]="56"
               />
-              @if (previewState().trackId === trackItem().id && previewState().isPlaying) {
-                <div class="preview-overlay">
+              @if (previewState().trackId === trackItem().id) {
+                <div class="preview-overlay" @fadeInOut>
                   <app-preview-spinner
                     [progress]="previewState().progress"
+                    [isPlaying]="previewState().isPlaying"
                   />
                 </div>
               }
@@ -168,11 +191,38 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       }
     } @else {
       <div class="item-row wishlist-row">
-        <app-cover
-          [coverUrl]="wishlistItem().coverUrl"
-          [name]="wishlistItem().name"
-          [size]="64"
-        />
+        @if (wishlistItem().type === 'track' && wishlistItem().previewUrl) {
+          <button
+            class="cover-btn"
+            (click)="onPlayPreviewWishlist(wishlistItem())"
+            [title]="
+              previewState().trackId === wishlistItem().trackId &&
+              previewState().isPlaying
+                ? 'Pausar'
+                : 'Reproducir preview'
+            "
+          >
+            <app-cover
+              [coverUrl]="wishlistItem().coverUrl"
+              [name]="wishlistItem().name"
+              [size]="64"
+            />
+            @if (previewState().trackId === wishlistItem().trackId) {
+              <div class="preview-overlay" @fadeInOut>
+                <app-preview-spinner
+                  [progress]="previewState().progress"
+                  [isPlaying]="previewState().isPlaying"
+                />
+              </div>
+            }
+          </button>
+        } @else {
+          <app-cover
+            [coverUrl]="wishlistItem().coverUrl"
+            [name]="wishlistItem().name"
+            [size]="64"
+          />
+        }
         <div class="item-meta">
           <span class="item-title">{{ wishlistItem().name }}</span>
           <span class="item-subtitle">
@@ -478,7 +528,8 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
         align-items: center;
         justify-content: center;
         background: rgba(0, 0, 0, 0.6);
-        border-radius: var(--radius-md);
+        border-radius: var(--radius-sm);
+        backdrop-filter: blur(1.5px);
       }
     `,
   ],
@@ -516,5 +567,10 @@ export class SearchResultItemComponent {
   onPlayPreview(track: Track): void {
     if (!track.previewUrl) return;
     this.preview.play(track.id, track.previewUrl);
+  }
+
+  onPlayPreviewWishlist(entry: WishlistEntry): void {
+    if (!entry.previewUrl) return;
+    this.preview.play(entry.trackId, entry.previewUrl);
   }
 }

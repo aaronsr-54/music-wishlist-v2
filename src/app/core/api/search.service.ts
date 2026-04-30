@@ -1,6 +1,6 @@
 import { Injectable, signal } from '@angular/core';
-import { Observable, forkJoin, from } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, forkJoin, from, of } from 'rxjs';
+import { map, switchMap, catchError } from 'rxjs/operators';
 import { Track, TrackType } from '../../shared/models/track.model';
 import { ReleaseItem } from '../../shared/models/release-item.model';
 
@@ -122,16 +122,44 @@ export class SearchService {
         r.json(),
       ),
     ).pipe(
-      map((res: any) => {
-        return (res.data ?? []).map((a: any) => ({
+      map((res: any): ReleaseItem[] =>
+        (res.data ?? []).map((a: any) => ({
           id: String(a.id),
           name: a.title,
           artist: artistName ?? '',
           coverUrl: a.cover_big ?? a.cover_medium ?? '',
           type: (a.record_type === 'single' ? 'single' : 'album') as TrackType,
           releaseDate: a.release_date ?? '',
-          previewUrl: a.preview ?? undefined,
-        }));
+          previewUrl: undefined,
+        })),
+      ),
+      switchMap((releases: ReleaseItem[]) => {
+        const singles = releases.filter((r) => r.type === 'single');
+        if (singles.length === 0) return of(releases);
+
+        const previewCalls = singles.map((s) =>
+          from(
+            fetch(`${this.apiUrl}/album-tracks?id=${s.id}`).then((r) =>
+              r.json(),
+            ),
+          ).pipe(
+            map((tracksRes: any) => ({
+              id: s.id,
+              previewUrl: (tracksRes.data?.[0]?.preview as string) ?? undefined,
+            })),
+            catchError(() => of({ id: s.id, previewUrl: undefined })),
+          ),
+        );
+
+        return forkJoin(previewCalls).pipe(
+          map((previews) => {
+            const previewMap = new Map(previews.map((p) => [p.id, p.previewUrl]));
+            return releases.map((r) => ({
+              ...r,
+              previewUrl: previewMap.get(r.id),
+            }));
+          }),
+        );
       }),
     );
   }

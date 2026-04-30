@@ -8,27 +8,33 @@ import { CommonModule } from '@angular/common';
   template: `
     <div class="spinner-container">
       <svg viewBox="0 0 100 100" class="spinner-ring">
+        <circle cx="50" cy="50" r="40" class="spinner-bg" />
         <circle
           cx="50"
           cy="50"
-          r="45"
-          class="spinner-bg"
-        />
-        <circle
-          cx="50"
-          cy="50"
-          r="45"
+          r="40"
           class="spinner-progress"
+          [style.stroke-dasharray]="circumference"
           [style.stroke-dashoffset]="strokeDashoffset()"
         />
       </svg>
       <div class="spinner-center">
-        <svg class="play-icon" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M5 3l14 9-14 9V3z"
-            fill="currentColor"
-          />
-        </svg>
+        @if (isPlaying()) {
+          <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
+            <rect x="5" y="3" width="5" height="18" rx="1.5" />
+            <rect x="14" y="3" width="5" height="18" rx="1.5" />
+          </svg>
+        } @else {
+          <svg class="icon icon--play" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M5 3l14 9-14 9V3z"
+              fill="currentColor"
+              stroke="currentColor"
+              stroke-width="3"
+              stroke-linejoin="round"
+            />
+          </svg>
+        }
       </div>
     </div>
   `,
@@ -47,28 +53,18 @@ import { CommonModule } from '@angular/common';
         width: 100%;
         height: 100%;
         transform: rotate(-90deg);
-        animation: spin 2s linear infinite;
-      }
-
-      @keyframes spin {
-        from {
-          transform: rotate(-90deg);
-        }
-        to {
-          transform: rotate(270deg);
-        }
       }
 
       .spinner-bg {
         fill: none;
-        stroke: var(--ink-100);
-        stroke-width: 2;
+        stroke: var(--bone-800);
+        stroke-width: 5;
       }
 
       .spinner-progress {
         fill: none;
-        stroke: var(--bone);
-        stroke-width: 2;
+        stroke: var(--bone-100);
+        stroke-width: 5;
         stroke-linecap: round;
         transition: stroke-dashoffset 100ms linear;
       }
@@ -81,30 +77,28 @@ import { CommonModule } from '@angular/common';
         display: flex;
         align-items: center;
         justify-content: center;
-        color: var(--bone);
+        color: var(--bone-100);
       }
 
-      .play-icon {
-        width: 40%;
-        height: 40%;
+      .icon {
+        width: 65%;
+        height: 65%;
+        transition: opacity 200ms ease-in-out;
       }
 
-      @keyframes pulse {
-        0%, 100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.7;
-        }
+      .icon--play {
+        margin-left: 2px;
       }
     `,
   ],
 })
 export class PreviewSpinnerComponent {
   progress = input(0); // 0-100
+  isPlaying = input(true);
+
+  readonly circumference = 2 * Math.PI * 45;
 
   strokeDashoffset = (): number => {
-    const circumference = 2 * Math.PI * 45;
-    return circumference - (this.progress() / 100) * circumference;
+    return this.circumference - (this.progress() / 100) * this.circumference;
   };
 }

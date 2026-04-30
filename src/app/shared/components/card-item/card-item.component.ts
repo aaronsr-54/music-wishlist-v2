@@ -1,4 +1,10 @@
 import { Component, computed, input, output, inject } from '@angular/core';
+import {
+  trigger,
+  transition,
+  style,
+  animate,
+} from '@angular/animations';
 import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
@@ -8,23 +14,40 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
 @Component({
   selector: 'app-card-item',
   standalone: true,
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('200ms ease-in-out', style({ opacity: 1 })),
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in-out', style({ opacity: 0 })),
+      ]),
+    ]),
+  ],
   imports: [CoverComponent, TypeChipComponent, PreviewSpinnerComponent],
   template: `
     <div class="card">
       <button
         class="cover-btn"
         (click)="onPlayPreview(releaseItem())"
-        [title]="previewState().trackId === releaseItem().id && previewState().isPlaying ? 'Pausar' : 'Reproducir preview'"
+        [title]="
+          previewState().trackId === releaseItem().id &&
+          previewState().isPlaying
+            ? 'Pausar'
+            : 'Reproducir preview'
+        "
         [disabled]="!releaseItem().previewUrl"
       >
         <app-cover
           [coverUrl]="releaseItem().coverUrl"
           [name]="releaseItem().name"
         />
-        @if (previewState().trackId === releaseItem().id && previewState().isPlaying) {
-          <div class="preview-overlay">
+        @if (previewState().trackId === releaseItem().id) {
+          <div class="preview-overlay" @fadeInOut>
             <app-preview-spinner
               [progress]="previewState().progress"
+              [isPlaying]="previewState().isPlaying"
             />
           </div>
         }
@@ -194,6 +217,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
         justify-content: center;
         background: rgba(0, 0, 0, 0.6);
         border-radius: var(--radius-sm);
+        backdrop-filter: blur(1.5px);
       }
     `,
   ],
