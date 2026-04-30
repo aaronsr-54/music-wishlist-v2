@@ -123,10 +123,7 @@ const MONTHS = [
           </div>
         } @else {
           <div class="releases-list">
-            @for (
-              item of filteredReleases();
-              track item.id + ':' + item.type
-            ) {
+            @for (item of filteredReleases(); track item.id + ':' + item.type) {
               <app-card-item
                 class="result-item"
                 [item]="item"

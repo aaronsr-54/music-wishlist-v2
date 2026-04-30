@@ -237,6 +237,7 @@ export class CardItemComponent {
   }
 
   onPlayPreview(item: ReleaseItem): void {
+    console.log('🚀 ~ CardItemComponent ~ onPlayPreview ~ item:', item);
     if (!item.previewUrl) return;
     this.preview.play(item.id, item.previewUrl);
   }

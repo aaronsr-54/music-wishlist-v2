@@ -546,15 +546,11 @@ export class SearchResultItemComponent {
 
   onPlayPreview(track: Track): void {
     if (!track.previewUrl) return;
-    const previewUrl = `/api/preview?url=${encodeURIComponent(track.previewUrl)}`;
-    this.preview.play(track.id, previewUrl);
+    this.preview.play(track.id, track.previewUrl);
   }
 
   onPlayPreviewWishlist(entry: WishlistEntry): void {
     if (!entry.previewUrl) return;
-    const previewUrl = entry.previewUrl.startsWith('/api/preview')
-      ? entry.previewUrl
-      : `/api/preview?url=${encodeURIComponent(entry.previewUrl)}`;
-    this.preview.play(entry.trackId, previewUrl);
+    this.preview.play(entry.trackId, entry.previewUrl);
   }
 }
