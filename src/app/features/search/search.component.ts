@@ -6,6 +6,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { CommonModule, NgFor } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   Subject,
@@ -23,6 +24,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { Track, TrackType } from '../../shared/models/track.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import { ArtistCardComponent } from '../../shared/components/artist-card/artist-card.component';
 import { Router } from '@angular/router';
 
 type SearchState = 'idle' | 'loading' | 'results' | 'empty';
@@ -30,7 +32,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [FormsModule, SearchResultItemComponent, SpinnerComponent],
+  imports: [CommonModule, NgFor, FormsModule, SearchResultItemComponent, SpinnerComponent, ArtistCardComponent],
   template: `
     <div class="panel">
       <div class="eyebrow">
@@ -120,30 +122,45 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       @switch (state()) {
         @case ('idle') {
           <div class="results">
-            <div class="empty-state">
-              <div class="empty-icon">
-                <svg viewBox="0 0 32 32" fill="none">
-                  <circle
-                    cx="13"
-                    cy="13"
-                    r="8.5"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                  />
-                  <path
-                    d="M19.5 19.5L26 26"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                  />
-                </svg>
+            @if (favoriteArtistsSvc.artists().length > 0) {
+              <div class="favorites-container">
+                <h3 class="section-title">Tus artistas favoritos</h3>
+                <div class="artists-grid">
+                  @for (artist of favoriteArtistsSvc.artists(); track artist.id) {
+                    <app-artist-card
+                      [artist]="artist"
+                      (onArtistClick)="navigateToArtist($event)"
+                      (onRemoveFavorite)="removeFavorite($event)"
+                    />
+                  }
+                </div>
               </div>
-              <p class="empty-title">Empieza a escribir</p>
-              <p class="empty-sub">
-                Canciones, álbumes o EPs — busca lo que quieras y lo encontramos
-                en Deezer.
-              </p>
-            </div>
+            } @else {
+              <div class="empty-state">
+                <div class="empty-icon">
+                  <svg viewBox="0 0 32 32" fill="none">
+                    <circle
+                      cx="13"
+                      cy="13"
+                      r="8.5"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                    />
+                    <path
+                      d="M19.5 19.5L26 26"
+                      stroke="currentColor"
+                      stroke-width="1.5"
+                      stroke-linecap="round"
+                    />
+                  </svg>
+                </div>
+                <p class="empty-title">Empieza a escribir</p>
+                <p class="empty-sub">
+                  Canciones, álbumes o EPs — busca lo que quieras y lo encontramos
+                  en Deezer.
+                </p>
+              </div>
+            }
           </div>
         }
         @case ('loading') {
@@ -419,6 +436,33 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           opacity: 1;
         }
       }
+
+      .favorites-container {
+        padding: 1rem;
+        animation: fadeIn 300ms var(--ease) both;
+      }
+
+      .section-title {
+        font-family: var(--font-display);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--bone-700);
+        margin: 0 0 1rem 0;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      .artists-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      @media (min-width: 768px) {
+        .artists-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
     `,
   ],
 })
@@ -582,6 +626,18 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   goToArtist(artist: Track) {
     this.router.navigate(['/artist', artist.artistId || artist.id]);
+  }
+
+  navigateToArtist(artist: any) {
+    this.router.navigate(['/artist', artist.artistId]);
+  }
+
+  removeFavorite(artistId: string) {
+    const artists = this.favoriteArtistsSvc.artists();
+    const existing = artists.find((a) => a.artistId === artistId);
+    if (existing && existing.id) {
+      this.favoriteArtistsSvc.remove(existing.id);
+    }
   }
 
   formatFans(count: number): string {
