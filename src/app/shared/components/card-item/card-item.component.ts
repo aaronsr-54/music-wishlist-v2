@@ -1,4 +1,5 @@
 import { Component, computed, input, output, inject } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { trigger, transition, style, animate } from '@angular/animations';
 import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
@@ -20,7 +21,7 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       ]),
     ]),
   ],
-  imports: [CoverComponent, TypeChipComponent, PreviewSpinnerComponent],
+  imports: [DatePipe, CoverComponent, TypeChipComponent, PreviewSpinnerComponent],
   template: `
     <div class="card">
       <button
@@ -50,7 +51,10 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
       </button>
       <div class="item-meta">
         <div class="item-stats">
-          <span class="release-date">{{ releaseItem().releaseDate }}</span>
+          <span class="release-date">
+            <b>{{ releaseItem().releaseDate | date: 'dd' }}</b>
+            <em>{{ releaseItem().releaseDate | date: 'LLL' }}</em>
+          </span>
           <app-type-chip [type]="releaseItem().type" />
         </div>
         <div class="item-content">
@@ -147,7 +151,21 @@ import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.comp
         font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
         color: var(--bone-600);
         font-family: var(--font-display);
+        display: flex;
+        gap: 4px;
+        align-items: center;
+      }
+
+      .release-date b {
+        font-weight: 700;
+        font-style: normal;
+        color: var(--bone-700);
+      }
+
+      .release-date em {
         font-style: italic;
+        font-weight: 400;
+        color: var(--bone-600);
       }
 
       .action-btn {
