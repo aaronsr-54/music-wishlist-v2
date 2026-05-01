@@ -21,7 +21,7 @@ import { AuthService } from '../auth/auth.service';
 export class WishlistService {
   private firestore = inject(Firestore);
 
-  private _entries = signal<WishlistEntry[]>([]);
+  private _entries = signal<(WishlistEntry & { isOwner: boolean })[]>([]);
   entries = this._entries.asReadonly();
 
   pending = computed(() => this._entries().filter((e) => !e.downloaded));
@@ -77,18 +77,23 @@ export class WishlistService {
     this.unsubscribe = [unsubscribe1, unsubscribe2];
   }
 
-  private ownEntries: WishlistEntry[] = [];
-  private sharedEntries: WishlistEntry[] = [];
+  private ownEntries: (WishlistEntry & { isOwner: boolean })[] = [];
+  private sharedEntries: (WishlistEntry & { isOwner: boolean })[] = [];
 
   private updateEntries(
     uid: string,
     entries: WishlistEntry[],
     type: 'own' | 'shared'
   ): void {
+    const marked = entries.map((e) => ({
+      ...e,
+      isOwner: type === 'own',
+    }));
+
     if (type === 'own') {
-      this.ownEntries = entries;
+      this.ownEntries = marked as any;
     } else {
-      this.sharedEntries = entries;
+      this.sharedEntries = marked as any;
     }
 
     const combined = [...this.ownEntries, ...this.sharedEntries].sort(
@@ -101,7 +106,9 @@ export class WishlistService {
     const key = `wishlist-${uid}`;
     const stored = localStorage.getItem(key);
     const entries: WishlistEntry[] = stored ? JSON.parse(stored) : [];
-    this._entries.set(entries);
+    const marked = entries.map((e) => ({ ...e, isOwner: true }));
+    this._entries.set(marked as any);
+    this.ownEntries = marked as any;
   }
 
   stopListener(): void {
@@ -130,7 +137,9 @@ export class WishlistService {
       const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
       entries.unshift(newEntry);
       localStorage.setItem(key, JSON.stringify(entries));
-      this._entries.set(entries);
+      const marked = entries.map((e) => ({ ...e, isOwner: true }));
+      this._entries.set(marked as any);
+      this.ownEntries = marked as any;
       return;
     }
 
@@ -159,7 +168,9 @@ export class WishlistService {
       const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
       entries.unshift(newEntry);
       localStorage.setItem(key, JSON.stringify(entries));
-      this._entries.set(entries);
+      const marked = entries.map((e) => ({ ...e, isOwner: true }));
+      this._entries.set(marked as any);
+      this.ownEntries = marked as any;
       return;
     }
 
