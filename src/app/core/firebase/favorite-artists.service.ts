@@ -8,9 +8,11 @@ import {
   onSnapshot,
   query,
   orderBy,
+  where,
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
 import { SearchService } from '../api/search.service';
+import { AuthService } from '../auth/auth.service';
 
 export interface FavoriteArtist {
   id?: string;
@@ -33,12 +35,26 @@ export class FavoriteArtistsService {
   artistIds = computed(() => new Set(this._artists().map((a) => a.artistId)));
 
   private unsubscribe: (() => void) | null = null;
+  private isDemoMode = false;
 
-  initListener(): void {
+  initListener(uid: string): void {
     if (this.unsubscribe) return;
 
+    // Lazy inject to avoid circular dependency
+    const auth = inject(AuthService);
+    this.isDemoMode = auth.demoMode();
+
+    if (this.isDemoMode) {
+      this.initLocalStorage(uid);
+      return;
+    }
+
     const col = collection(this.firestore, 'favorite-artists');
-    const q = query(col, orderBy('addedAt', 'desc'));
+    const q = query(
+      col,
+      where('addedByUid', '==', uid),
+      orderBy('addedAt', 'desc')
+    );
 
     this.unsubscribe = onSnapshot(q, async (snap) => {
       let artists = snap.docs.map(
@@ -67,6 +83,13 @@ export class FavoriteArtistsService {
     });
   }
 
+  private initLocalStorage(uid: string): void {
+    const key = `favorite-artists-${uid}`;
+    const stored = localStorage.getItem(key);
+    const artists: FavoriteArtist[] = stored ? JSON.parse(stored) : [];
+    this._artists.set(artists);
+  }
+
   stopListener(): void {
     if (this.unsubscribe) {
       this.unsubscribe();
@@ -84,11 +107,36 @@ export class FavoriteArtistsService {
       addedByUid: user.uid,
     };
 
+    if (this.isDemoMode) {
+      const key = `favorite-artists-${user.uid}`;
+      const stored = localStorage.getItem(key);
+      const artists: FavoriteArtist[] = stored ? JSON.parse(stored) : [];
+      const newArtist: FavoriteArtist = { id: Date.now().toString(), ...entry };
+      artists.unshift(newArtist);
+      localStorage.setItem(key, JSON.stringify(artists));
+      this._artists.set(artists);
+      return;
+    }
+
     const col = collection(this.firestore, 'favorite-artists');
     await addDoc(col, entry);
   }
 
   async remove(id: string): Promise<void> {
+    if (this.isDemoMode) {
+      const current = this._artists();
+      const updated = current.filter((a) => a.id !== id);
+      this._artists.set(updated);
+      // Persist to localStorage
+      const artists = this._artists();
+      if (artists.length > 0) {
+        const uid = artists[0].addedByUid;
+        const key = `favorite-artists-${uid}`;
+        localStorage.setItem(key, JSON.stringify(updated));
+      }
+      return;
+    }
+
     await deleteDoc(doc(this.firestore, 'favorite-artists', id));
   }
 }
