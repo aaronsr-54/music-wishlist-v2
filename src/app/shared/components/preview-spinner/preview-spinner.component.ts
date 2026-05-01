@@ -14,6 +14,10 @@ import { Component, input } from '@angular/core';
     }
     .spinner-loading {
       animation: spin 1s linear infinite;
+      opacity: 1;
+    }
+    svg {
+      transition: opacity 300ms ease-smooth;
     }
   `,
   template: `
@@ -32,13 +36,13 @@ import { Component, input } from '@angular/core';
             cy="50"
             r="40"
             stroke="currentColor"
-            stroke-width="2"
+            stroke-width="5"
             opacity="0.15"
           />
           <path
             d="M50 10a40 40 0 0140 40"
             stroke="currentColor"
-            stroke-width="2"
+            stroke-width="5"
             stroke-linecap="round"
             stroke-dasharray="62.8 200"
           />
@@ -77,7 +81,7 @@ import { Component, input } from '@angular/core';
                 d="M5 3l14 9-14 9V3z"
                 fill="currentColor"
                 stroke="currentColor"
-                stroke-width="3"
+                stroke-width="5"
                 stroke-linejoin="round"
               />
             </svg>
