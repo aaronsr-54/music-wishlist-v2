@@ -26,14 +26,6 @@
   --color-ink-800: #0d0d09;
   --color-ink-900: #070705;
 
-  /* Dark mode (default) */
-  --bg-primary: #22201f;
-  --bg-secondary: #35322a;
-  --text-primary: #cdc5b7;
-  --text-secondary: #a09080;
-  --border-color: #35322a;
-  --scrollbar-thumb: #403d32;
-
   --color-accent-track: #ffffc7;
   --color-accent-album: #3aa7a3;
   --color-accent-ep: #a37871;
@@ -80,83 +72,36 @@
   --accent-album: var(--color-accent-album);
   --accent-ep: var(--color-accent-ep);
 
+  /* --font-display, --font-body, --radius-* defined by @theme above — same var names, no alias needed */
+
   --ease: var(--ease-smooth);
   --dur-fast: var(--duration-fast);
   --dur-base: var(--duration-base);
   --dur-slow: var(--duration-slow);
 }
 
-@media (prefers-color-scheme: light) {
-  :root:not([data-theme="dark"]) {
-    --bg-primary: #f9f8f6;
-    --bg-secondary: #f0ede8;
-    --text-primary: #22201f;
-    --text-secondary: #725c4a;
-    --border-color: #e5e0d8;
-    --scrollbar-thumb: #b8ae9e;
-
-    --color-bone: #22201f;
-    --color-bone-100: #070705;
-    --color-bone-200: #0d0d09;
-    --color-bone-300: #14130e;
-    --color-bone-400: #1a1912;
-    --color-bone-500: #22201f;
-    --color-bone-600: #28261e;
-    --color-bone-700: #2d2a22;
-    --color-bone-800: #35322a;
-    --color-bone-900: #403d32;
-
-    --color-ink: #cdc5b7;
-    --color-ink-100: #725c4a;
-    --color-ink-200: #8b7664;
-    --color-ink-300: #a09080;
-    --color-ink-400: #b8ae9e;
-    --color-ink-500: #cdc5b7;
-    --color-ink-600: #d8d0c5;
-    --color-ink-700: #e5e0d8;
-    --color-ink-800: #f0ede8;
-    --color-ink-900: #f9f8f6;
-  }
-}
-
-:root[data-theme="light"] {
-  --bg-primary: #f9f8f6;
-  --bg-secondary: #f0ede8;
-  --text-primary: #22201f;
-  --text-secondary: #725c4a;
-  --border-color: #e5e0d8;
-  --scrollbar-thumb: #b8ae9e;
-
+html.dark {
   --color-bone: #22201f;
-  --color-bone-100: #070705;
-  --color-bone-200: #0d0d09;
-  --color-bone-300: #14130e;
-  --color-bone-400: #1a1912;
-  --color-bone-500: #22201f;
-  --color-bone-600: #28261e;
-  --color-bone-700: #2d2a22;
-  --color-bone-800: #35322a;
-  --color-bone-900: #403d32;
+  --color-bone-100: #403d32;
+  --color-bone-200: #35322a;
+  --color-bone-300: #2d2a22;
+  --color-bone-400: #28261e;
+  --color-bone-500: #222019;
+  --color-bone-600: #1a1912;
+  --color-bone-700: #14130e;
+  --color-bone-800: #0d0d09;
+  --color-bone-900: #070705;
 
   --color-ink: #cdc5b7;
-  --color-ink-100: #725c4a;
-  --color-ink-200: #8b7664;
-  --color-ink-300: #a09080;
-  --color-ink-400: #b8ae9e;
+  --color-ink-100: #f9f8f6;
+  --color-ink-200: #f0ede8;
+  --color-ink-300: #e5e0d8;
+  --color-ink-400: #d8d0c5;
   --color-ink-500: #cdc5b7;
-  --color-ink-600: #d8d0c5;
-  --color-ink-700: #e5e0d8;
-  --color-ink-800: #f0ede8;
-  --color-ink-900: #f9f8f6;
-}
-
-html.dark {
-  --bg-primary: #22201f;
-  --bg-secondary: #35322a;
-  --text-primary: #cdc5b7;
-  --text-secondary: #a09080;
-  --border-color: #35322a;
-  --scrollbar-thumb: #403d32;
+  --color-ink-600: #b8ae9e;
+  --color-ink-700: #a09080;
+  --color-ink-800: #8b7664;
+  --color-ink-900: #725c4a;
 }
 
 *,
@@ -172,8 +117,8 @@ body {
 }
 
 body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
+  background: var(--ink);
+  color: var(--bone);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -211,9 +156,9 @@ body {
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--bg-secondary) 0%,
-    var(--border-color) 50%,
-    var(--bg-secondary) 100%
+    var(--ink-300) 0%,
+    var(--ink-100) 50%,
+    var(--ink-300) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
@@ -362,14 +307,13 @@ body {
 
 .spinner-bg {
   fill: none;
-  stroke: var(--text-secondary);
+  stroke: var(--bone-800);
   stroke-width: 5;
-  opacity: 0.3;
 }
 
 .spinner-progress {
   fill: none;
-  stroke: var(--text-primary);
+  stroke: var(--bone-100);
   stroke-width: 5;
   stroke-linecap: round;
   transition: stroke-dashoffset 100ms linear;
@@ -520,11 +464,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
+  background: var(--ink-100);
   border-radius: var(--radius-pill);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-secondary);
+  background: var(--bone-700);
 }
 
 app-icon {
@@ -594,7 +538,7 @@ app-icon span {
 /* Segmented control */
 .seg-control {
   padding: 4px;
-  background: var(--bg-secondary);
+  background: var(--ink-200);
   border-radius: var(--radius-pill);
   margin: 12px 0;
 }
@@ -616,7 +560,7 @@ app-icon span {
   border-radius: var(--radius-md);
   border: none;
   background: none;
-  color: var(--text-secondary);
+  color: var(--bone-600);
   font-family: var(--font-body);
   font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
   font-weight: 600;
@@ -626,8 +570,8 @@ app-icon span {
 }
 
 .seg-btn.active {
-  background: var(--text-primary);
-  color: var(--bg-primary);
+  background: var(--bone);
+  color: var(--ink);
   font-weight: 700;
 }
 
@@ -639,15 +583,15 @@ app-icon span {
   height: 18px;
   padding: 0 5px;
   border-radius: var(--radius-pill);
-  background: #403d32;
-  color: var(--text-secondary);
+  background: var(--ink-100);
+  color: var(--bone-600);
   font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 
 .seg-btn.active .seg-count {
-  background: #2d2a22;
+  background: var(--ink-300);
 }
 
 /* Card item save button */
@@ -656,11 +600,11 @@ app-icon span {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  border: 1px solid var(--text-secondary);
+  border: 1px solid var(--bone-600);
   border-radius: var(--radius-card);
   background: none;
   cursor: pointer;
-  color: var(--text-secondary);
+  color: var(--bone-600);
   padding: 6px 12px;
   text-transform: uppercase;
   transition:
@@ -670,9 +614,9 @@ app-icon span {
 }
 
 .card-save-btn:hover {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border-color: var(--text-primary);
+  background: var(--ink-200);
+  color: var(--bone-100);
+  border-color: var(--bone-100);
 }
 
 .card-save-btn:active {
@@ -680,9 +624,9 @@ app-icon span {
 }
 
 .card-save-btn.added {
-  background: var(--text-primary);
-  color: var(--bg-primary);
-  border-color: var(--text-primary);
+  background: var(--bone);
+  color: var(--ink);
+  border-color: var(--bone);
   animation: popIn 220ms var(--ease) both;
 }
 
@@ -765,7 +709,7 @@ app-icon span {
 
 .desktop-content::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: var(--scrollbar-thumb);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Mobile panel animation */
