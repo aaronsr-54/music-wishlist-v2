@@ -76,7 +76,14 @@
       "Bash(curl -I https://music-wishlist-v2.vercel.app/index.html)",
       "Bash(curl -I https://music-wishlist-v2.vercel.app/chunk-FEDOZIIL.js)",
       "Bash(grep -E '\\\\.\\(js|css\\)$')",
-      "Bash(curl -s https://music-wishlist-v2.vercel.app/version.json)"
+      "Bash(curl -s https://music-wishlist-v2.vercel.app/version.json)",
+      "Bash(xargs grep *)",
+      "Bash(xargs basename *)",
+      "Bash(npm ls *)",
+      "Bash(npm uninstall *)",
+      "Bash(npm update *)",
+      "Bash(awk 'NR>1 {print $2}')",
+      "Bash(pkill -f \"ng serve\")"
     ]
   }
 }
