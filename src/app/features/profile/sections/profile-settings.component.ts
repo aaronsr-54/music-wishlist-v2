@@ -9,25 +9,25 @@ type TabType = 'releases' | 'search' | 'wishlist';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <section class="mb-8">
-      <h2 class="font-display text-base font-semibold text-bone mt-0 mb-4 uppercase tracking-wider">
+    <section class="px-2 mb-6">
+      <h3
+        class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em]"
+      >
         Configuración
-      </h2>
+      </h3>
 
-      <div class="bg-ink-100 p-4 rounded-card">
-        <label class="flex flex-col gap-2 cursor-pointer">
-          <span class="text-sm font-semibold text-bone">Tab inicial al abrir</span>
-          <select
-            [(ngModel)]="defaultTab"
-            (change)="saveDefaultTab()"
-            class="px-3 py-2.5 bg-ink-200 border border-ink-300 rounded-md text-bone font-body text-sm cursor-pointer focus:outline-none focus:border-bone transition-colors duration-fast"
-          >
-            <option value="releases">01/ Lanzamientos</option>
-            <option value="search">02/ Buscador</option>
-            <option value="wishlist">03/ Wishlist</option>
-          </select>
-        </label>
-      </div>
+      <label class="flex items-center gap-3 py-4 border-b border-ink-100 cursor-pointer">
+        <span class="flex-1 text-sm font-semibold text-bone">Tab inicial al abrir</span>
+        <select
+          [(ngModel)]="defaultTab"
+          (change)="saveDefaultTab()"
+          class="bg-transparent border-none outline-none text-bone font-body text-sm cursor-pointer transition-colors duration-fast hover:opacity-80"
+        >
+          <option value="releases">01/ Lanzamientos</option>
+          <option value="search">02/ Buscador</option>
+          <option value="wishlist">03/ Wishlist</option>
+        </select>
+      </label>
     </section>
   `,
 })

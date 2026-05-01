@@ -21,58 +21,57 @@ import { IconComponent } from '../../../shared/icons/icon.component';
   standalone: true,
   imports: [CommonModule, FormsModule, IconComponent],
   template: `
-    <section class="mb-10">
-      <h2
-        class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2"
+    <section class="px-2 mb-6">
+      <h3
+        class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em]"
       >
         Social
-      </h2>
+      </h3>
 
-      <div class="border border-ink-200 rounded-lg overflow-hidden">
-        <!-- INVITE BAR -->
-        <div class="flex items-center gap-3 py-8 px-6 border-b border-ink-100">
-          <app-icon name="mail" class="text-bone-800 w-6 h-6 shrink-0" />
-          <input
-            type="email"
-            placeholder="Invitar a alguien por email"
-            [(ngModel)]="emailInput"
-            (keyup.enter)="inviteUser()"
-            [disabled]="loading()"
-            class="flex-1 bg-transparent border-none outline-none text-bone font-display text-lg placeholder:text-bone-800 placeholder:italic"
-          />
-          <button
-            (click)="inviteUser()"
-            [disabled]="loading()"
-            class="text-sm font-semibold text-bone-600 hover:text-bone transition-colors duration-fast cursor-pointer disabled:opacity-50"
-          >
-            {{ loading() ? 'Enviando' : 'Enviar' }}
-          </button>
-        </div>
+      <!-- INVITE BAR -->
+      <div class="flex items-center gap-2.5 py-4 border-b border-ink-100 mb-4">
+        <app-icon name="mail" class="text-bone-800 w-5 h-5 shrink-0" />
+        <input
+          type="email"
+          placeholder="Invitar a alguien por email"
+          [(ngModel)]="emailInput"
+          (keyup.enter)="inviteUser()"
+          [disabled]="loading()"
+          class="flex-1 bg-transparent border-none outline-none text-bone font-display text-base placeholder:text-bone-800 placeholder:italic"
+        />
+        <button
+          (click)="inviteUser()"
+          [disabled]="loading()"
+          class="text-sm font-semibold text-bone-600 hover:text-bone transition-colors duration-fast cursor-pointer disabled:opacity-50"
+        >
+          {{ loading() ? 'Enviando' : 'Enviar' }}
+        </button>
+      </div>
 
-        <!-- SENT INVITES -->
-        <div class="p-4 border-b border-ink-100">
-          <h3 class="text-xs uppercase tracking-wider text-bone-700 mb-3 font-semibold">
+      <!-- SENT INVITES -->
+      <div class="mb-4 pb-4">
+          <h4 class="text-xs uppercase tracking-wider text-bone-700 mb-3 font-semibold mt-0">
             Invitaciones enviadas
-          </h3>
-          <div class="flex flex-col">
-            @for (invite of sentInvites(); track invite.id) {
-              <div class="flex items-center justify-between py-3">
-                <div class="flex flex-col min-w-0">
-                  <span class="text-bone text-sm truncate">
-                    {{ invite.invitedEmail }}
-                  </span>
-                  <span
-                    class="mt-1 text-[11px] uppercase tracking-wider font-semibold w-fit px-2 py-0.5 rounded-full"
-                    [class.bg-ink-200]="invite.status === 'pending'"
-                    [class.text-orange-400]="invite.status === 'pending'"
-                    [class.bg-green-900/20]="invite.status === 'accepted'"
-                    [class.text-green-400]="invite.status === 'accepted'"
-                    [class.bg-red-900/20]="invite.status === 'declined'"
-                    [class.text-red-400]="invite.status === 'declined'"
-                  >
-                    {{ getStatusLabel(invite.status) }}
-                  </span>
-                </div>
+          </h4>
+        <div class="flex flex-col">
+          @for (invite of sentInvites(); track invite.id) {
+            <div class="flex items-center justify-between py-3 border-b border-ink-100/50">
+              <div class="flex flex-col min-w-0">
+                <span class="text-bone text-sm truncate">
+                  {{ invite.invitedEmail }}
+                </span>
+                <span
+                  class="mt-1 text-[11px] uppercase tracking-wider font-semibold w-fit px-2 py-0.5 rounded-full"
+                  [class.bg-ink-200]="invite.status === 'pending'"
+                  [class.text-orange-400]="invite.status === 'pending'"
+                  [class.bg-green-900/20]="invite.status === 'accepted'"
+                  [class.text-green-400]="invite.status === 'accepted'"
+                  [class.bg-red-900/20]="invite.status === 'declined'"
+                  [class.text-red-400]="invite.status === 'declined'"
+                >
+                  {{ getStatusLabel(invite.status) }}
+                </span>
+              </div>
                 <div class="flex items-center gap-3">
                   @if (invite.status === 'accepted') {
                     <button
@@ -96,43 +95,42 @@ import { IconComponent } from '../../../shared/icons/icon.component';
           </div>
         </div>
 
-        <!-- PENDING INVITES -->
-        @if (pendingInvites().length > 0) {
-          <div class="p-4">
-            <h3 class="text-xs uppercase tracking-wider text-bone-700 mb-3 font-semibold">
-              Pendientes
-            </h3>
-            <div class="flex flex-col">
-              @for (invite of pendingInvites(); track invite.id) {
-                <div class="flex items-center justify-between py-3">
-                  <div class="flex flex-col">
-                    <span class="text-bone text-sm font-medium">
-                      {{ invite.wishlistOwnerName }}
-                    </span>
-                    <span class="text-bone-600 text-xs">
-                      {{ invite.wishlistOwnerId }}
-                    </span>
-                  </div>
-                  <div class="flex gap-2">
-                    <button
-                      (click)="acceptInvite(invite.id!)"
-                      class="px-3 py-1 text-sm font-semibold rounded-md bg-green-600 text-ink hover:bg-green-500 transition-colors duration-fast cursor-pointer"
-                    >
-                      aceptar
-                    </button>
-                    <button
-                      (click)="declineInvite(invite.id!)"
-                      class="px-3 py-1 text-sm font-semibold rounded-md bg-red-600 text-white hover:bg-red-500 transition-colors duration-fast cursor-pointer"
-                    >
-                      rechazar
-                    </button>
-                  </div>
+      <!-- PENDING INVITES -->
+      @if (pendingInvites().length > 0) {
+        <div class="pt-4 border-t border-ink-100">
+          <h4 class="text-xs uppercase tracking-wider text-bone-700 mb-3 font-semibold mt-0">
+            Pendientes
+          </h4>
+          <div class="flex flex-col">
+            @for (invite of pendingInvites(); track invite.id) {
+              <div class="flex items-center justify-between py-3 border-b border-ink-100/50">
+                <div class="flex flex-col">
+                  <span class="text-bone text-sm font-medium">
+                    {{ invite.wishlistOwnerName }}
+                  </span>
+                  <span class="text-bone-600 text-xs">
+                    {{ invite.wishlistOwnerId }}
+                  </span>
                 </div>
-              }
-            </div>
+                <div class="flex gap-2">
+                  <button
+                    (click)="acceptInvite(invite.id!)"
+                    class="px-3 py-1 text-sm font-semibold rounded-md bg-green-600 text-ink hover:bg-green-500 transition-colors duration-fast cursor-pointer"
+                  >
+                    aceptar
+                  </button>
+                  <button
+                    (click)="declineInvite(invite.id!)"
+                    class="px-3 py-1 text-sm font-semibold rounded-md bg-red-600 text-white hover:bg-red-500 transition-colors duration-fast cursor-pointer"
+                  >
+                    rechazar
+                  </button>
+                </div>
+              </div>
+            }
           </div>
-        }
-      </div>
+        </div>
+      }
     </section>
   `,
 })
