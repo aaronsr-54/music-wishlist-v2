@@ -44,7 +44,12 @@ export class FavoritesService {
       if (this.unsubscribeFn) this.unsubscribeFn();
       this._favorites.set([]);
 
-      if (inDemoMode || !user) {
+      if (!user) {
+        return;
+      }
+
+      if (inDemoMode) {
+        this.loadFromLocalStorage(user.uid);
         return;
       }
 
@@ -63,6 +68,13 @@ export class FavoritesService {
         });
       });
     });
+  }
+
+  private loadFromLocalStorage(uid: string): void {
+    const key = `favorite-artists-${uid}`;
+    const stored = localStorage.getItem(key);
+    const artists: FavoriteArtist[] = stored ? JSON.parse(stored) : [];
+    this._favorites.set(artists);
   }
 
   async add(track: Track, user: User): Promise<void> {
