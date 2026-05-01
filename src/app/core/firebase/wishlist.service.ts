@@ -9,11 +9,13 @@ import {
   onSnapshot,
   query,
   orderBy,
+  where,
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
 import { Track } from '../../shared/models/track.model';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { ReleaseItem } from '../../shared/models/release-item.model';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistService {
@@ -28,14 +30,26 @@ export class WishlistService {
   total = computed(() => this._entries().length);
 
   private unsubscribe: (() => void) | null = null;
+  private isDemoMode = false;
 
-  constructor() {}
-
-  initListener(): void {
+  initListener(uid: string): void {
     if (this.unsubscribe) return;
 
+    // Lazy inject to avoid circular dependency
+    const auth = inject(AuthService);
+    this.isDemoMode = auth.demoMode();
+
+    if (this.isDemoMode) {
+      this.initLocalStorage(uid);
+      return;
+    }
+
     const col = collection(this.firestore, 'wishlist');
-    const q = query(col, orderBy('addedAt', 'desc'));
+    const q = query(
+      col,
+      where('addedByUid', '==', uid),
+      orderBy('addedAt', 'desc')
+    );
 
     this.unsubscribe = onSnapshot(q, (snap) => {
       const entries = snap.docs.map(
@@ -43,6 +57,13 @@ export class WishlistService {
       );
       this._entries.set(entries);
     });
+  }
+
+  private initLocalStorage(uid: string): void {
+    const key = `wishlist-${uid}`;
+    const stored = localStorage.getItem(key);
+    const entries: WishlistEntry[] = stored ? JSON.parse(stored) : [];
+    this._entries.set(entries);
   }
 
   stopListener(): void {
@@ -66,6 +87,17 @@ export class WishlistService {
       ...(track.previewUrl ? { previewUrl: track.previewUrl } : {}),
     };
 
+    if (this.isDemoMode) {
+      const key = `wishlist-${user.uid}`;
+      const stored = localStorage.getItem(key);
+      const entries: WishlistEntry[] = stored ? JSON.parse(stored) : [];
+      const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
+      entries.unshift(newEntry);
+      localStorage.setItem(key, JSON.stringify(entries));
+      this._entries.set(entries);
+      return;
+    }
+
     const col = collection(this.firestore, 'wishlist');
     await addDoc(col, entry);
   }
@@ -84,19 +116,70 @@ export class WishlistService {
       ...(release.previewUrl ? { previewUrl: release.previewUrl } : {}),
     };
 
+    if (this.isDemoMode) {
+      const key = `wishlist-${user.uid}`;
+      const stored = localStorage.getItem(key);
+      const entries: WishlistEntry[] = stored ? JSON.parse(stored) : [];
+      const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
+      entries.unshift(newEntry);
+      localStorage.setItem(key, JSON.stringify(entries));
+      this._entries.set(entries);
+      return;
+    }
+
     const col = collection(this.firestore, 'wishlist');
     await addDoc(col, entry);
   }
 
   async remove(id: string): Promise<void> {
+    if (this.isDemoMode) {
+      const current = this._entries();
+      const updated = current.filter((e) => e.id !== id);
+      this._entries.set(updated);
+      if (current.length > 0) {
+        const uid = current[0].addedByUid;
+        const key = `wishlist-${uid}`;
+        localStorage.setItem(key, JSON.stringify(updated));
+      }
+      return;
+    }
+
     await deleteDoc(doc(this.firestore, 'wishlist', id));
   }
 
   async markDownloaded(id: string): Promise<void> {
+    if (this.isDemoMode) {
+      const current = this._entries();
+      const updated = current.map((e) =>
+        e.id === id ? { ...e, downloaded: true } : e,
+      );
+      this._entries.set(updated);
+      if (current.length > 0) {
+        const uid = current[0].addedByUid;
+        const key = `wishlist-${uid}`;
+        localStorage.setItem(key, JSON.stringify(updated));
+      }
+      return;
+    }
+
     await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: true });
   }
 
   async unmarkDownloaded(id: string): Promise<void> {
+    if (this.isDemoMode) {
+      const current = this._entries();
+      const updated = current.map((e) =>
+        e.id === id ? { ...e, downloaded: false } : e,
+      );
+      this._entries.set(updated);
+      if (current.length > 0) {
+        const uid = current[0].addedByUid;
+        const key = `wishlist-${uid}`;
+        localStorage.setItem(key, JSON.stringify(updated));
+      }
+      return;
+    }
+
     await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: false });
   }
 }

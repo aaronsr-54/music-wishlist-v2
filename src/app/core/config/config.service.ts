@@ -11,4 +11,8 @@ export class ConfigService {
       this.demoMode.set(params['demo'] === '');
     });
   }
+
+  isDemoMode(): boolean {
+    return this.demoMode();
+  }
 }
