@@ -26,6 +26,14 @@
   --color-ink-800: #0d0d09;
   --color-ink-900: #070705;
 
+  /* Dark mode (default) */
+  --bg-primary: #22201f;
+  --bg-secondary: #35322a;
+  --text-primary: #cdc5b7;
+  --text-secondary: #a09080;
+  --border-color: #35322a;
+  --scrollbar-thumb: #403d32;
+
   --color-accent-track: #ffffc7;
   --color-accent-album: #3aa7a3;
   --color-accent-ep: #a37871;
@@ -72,12 +80,83 @@
   --accent-album: var(--color-accent-album);
   --accent-ep: var(--color-accent-ep);
 
-  /* --font-display, --font-body, --radius-* defined by @theme above — same var names, no alias needed */
-
   --ease: var(--ease-smooth);
   --dur-fast: var(--duration-fast);
   --dur-base: var(--duration-base);
   --dur-slow: var(--duration-slow);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg-primary: #f9f8f6;
+    --bg-secondary: #f0ede8;
+    --text-primary: #22201f;
+    --text-secondary: #725c4a;
+    --border-color: #e5e0d8;
+    --scrollbar-thumb: #b8ae9e;
+
+    --color-bone: #22201f;
+    --color-bone-100: #070705;
+    --color-bone-200: #0d0d09;
+    --color-bone-300: #14130e;
+    --color-bone-400: #1a1912;
+    --color-bone-500: #22201f;
+    --color-bone-600: #28261e;
+    --color-bone-700: #2d2a22;
+    --color-bone-800: #35322a;
+    --color-bone-900: #403d32;
+
+    --color-ink: #cdc5b7;
+    --color-ink-100: #725c4a;
+    --color-ink-200: #8b7664;
+    --color-ink-300: #a09080;
+    --color-ink-400: #b8ae9e;
+    --color-ink-500: #cdc5b7;
+    --color-ink-600: #d8d0c5;
+    --color-ink-700: #e5e0d8;
+    --color-ink-800: #f0ede8;
+    --color-ink-900: #f9f8f6;
+  }
+}
+
+:root[data-theme="light"] {
+  --bg-primary: #f9f8f6;
+  --bg-secondary: #f0ede8;
+  --text-primary: #22201f;
+  --text-secondary: #725c4a;
+  --border-color: #e5e0d8;
+  --scrollbar-thumb: #b8ae9e;
+
+  --color-bone: #22201f;
+  --color-bone-100: #070705;
+  --color-bone-200: #0d0d09;
+  --color-bone-300: #14130e;
+  --color-bone-400: #1a1912;
+  --color-bone-500: #22201f;
+  --color-bone-600: #28261e;
+  --color-bone-700: #2d2a22;
+  --color-bone-800: #35322a;
+  --color-bone-900: #403d32;
+
+  --color-ink: #cdc5b7;
+  --color-ink-100: #725c4a;
+  --color-ink-200: #8b7664;
+  --color-ink-300: #a09080;
+  --color-ink-400: #b8ae9e;
+  --color-ink-500: #cdc5b7;
+  --color-ink-600: #d8d0c5;
+  --color-ink-700: #e5e0d8;
+  --color-ink-800: #f0ede8;
+  --color-ink-900: #f9f8f6;
+}
+
+html.dark {
+  --bg-primary: #22201f;
+  --bg-secondary: #35322a;
+  --text-primary: #cdc5b7;
+  --text-secondary: #a09080;
+  --border-color: #35322a;
+  --scrollbar-thumb: #403d32;
 }
 
 *,
@@ -93,11 +172,12 @@ body {
 }
 
 body {
-  background: var(--ink);
-  color: var(--bone);
+  background: var(--bg-primary);
+  color: var(--text-primary);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 240ms cubic-bezier(0.4, 0, 0.2, 1), color 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @keyframes shimmer {
@@ -131,9 +211,9 @@ body {
 .skeleton {
   background: linear-gradient(
     90deg,
-    var(--ink-300) 0%,
-    var(--ink-100) 50%,
-    var(--ink-300) 100%
+    var(--bg-secondary) 0%,
+    var(--border-color) 50%,
+    var(--bg-secondary) 100%
   );
   background-size: 200% 100%;
   animation: shimmer 2s ease-in-out infinite;
@@ -282,13 +362,14 @@ body {
 
 .spinner-bg {
   fill: none;
-  stroke: var(--bone-800);
+  stroke: var(--text-secondary);
   stroke-width: 5;
+  opacity: 0.3;
 }
 
 .spinner-progress {
   fill: none;
-  stroke: var(--bone-100);
+  stroke: var(--text-primary);
   stroke-width: 5;
   stroke-linecap: round;
   transition: stroke-dashoffset 100ms linear;
@@ -439,11 +520,11 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--ink-100);
+  background: var(--scrollbar-thumb);
   border-radius: var(--radius-pill);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--bone-700);
+  background: var(--text-secondary);
 }
 
 app-icon {
@@ -513,7 +594,7 @@ app-icon span {
 /* Segmented control */
 .seg-control {
   padding: 4px;
-  background: var(--ink-200);
+  background: var(--bg-secondary);
   border-radius: var(--radius-pill);
   margin: 12px 0;
 }
@@ -535,7 +616,7 @@ app-icon span {
   border-radius: var(--radius-md);
   border: none;
   background: none;
-  color: var(--bone-600);
+  color: var(--text-secondary);
   font-family: var(--font-body);
   font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
   font-weight: 600;
@@ -545,8 +626,8 @@ app-icon span {
 }
 
 .seg-btn.active {
-  background: var(--bone);
-  color: var(--ink);
+  background: var(--text-primary);
+  color: var(--bg-primary);
   font-weight: 700;
 }
 
@@ -558,15 +639,15 @@ app-icon span {
   height: 18px;
   padding: 0 5px;
   border-radius: var(--radius-pill);
-  background: var(--ink-100);
-  color: var(--bone-600);
+  background: #403d32;
+  color: var(--text-secondary);
   font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 
 .seg-btn.active .seg-count {
-  background: var(--ink-300);
+  background: #2d2a22;
 }
 
 /* Card item save button */
@@ -575,11 +656,11 @@ app-icon span {
   align-items: center;
   justify-content: center;
   gap: 4px;
-  border: 1px solid var(--bone-600);
+  border: 1px solid var(--text-secondary);
   border-radius: var(--radius-card);
   background: none;
   cursor: pointer;
-  color: var(--bone-600);
+  color: var(--text-secondary);
   padding: 6px 12px;
   text-transform: uppercase;
   transition:
@@ -589,9 +670,9 @@ app-icon span {
 }
 
 .card-save-btn:hover {
-  background: var(--ink-200);
-  color: var(--bone-100);
-  border-color: var(--bone-100);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border-color: var(--text-primary);
 }
 
 .card-save-btn:active {
@@ -599,9 +680,9 @@ app-icon span {
 }
 
 .card-save-btn.added {
-  background: var(--bone);
-  color: var(--ink);
-  border-color: var(--bone);
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  border-color: var(--text-primary);
   animation: popIn 220ms var(--ease) both;
 }
 
@@ -684,7 +765,7 @@ app-icon span {
 
 .desktop-content::-webkit-scrollbar-thumb {
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--scrollbar-thumb);
 }
 
 /* Mobile panel animation */

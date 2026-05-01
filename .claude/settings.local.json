@@ -96,7 +96,9 @@
       "PowerShell(Start-Sleep -Seconds 8; \"Servidor debería estar listo\")",
       "PowerShell(Start-Sleep -Seconds 5; \"Esperado\")",
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__get_network_request",
-      "Bash(npm i *)"
+      "Bash(npm i *)",
+      "Bash(timeout 60 bash *)",
+      "Bash(timeout 120 bash *)"
     ]
   }
 }
