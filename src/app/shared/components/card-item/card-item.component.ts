@@ -22,7 +22,7 @@ import { IconComponent } from '../../icons/icon.component';
         [disabled]="!releaseItem().previewUrl"
       >
         <app-cover [coverUrl]="releaseItem().coverUrl" [name]="releaseItem().name" />
-        @if (previewState().trackId === releaseItem().id) {
+        @if (previewState().trackId === releaseItem().id && (previewState().isPlaying || previewState().isLoading)) {
           <div
             class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-sm backdrop-blur-[1.5px]"
             @fadeInOut
@@ -30,6 +30,7 @@ import { IconComponent } from '../../icons/icon.component';
             <app-preview-spinner
               [progress]="previewState().progress"
               [isPlaying]="previewState().isPlaying"
+              [isLoading]="previewState().isLoading"
               source="card"
             />
           </div>

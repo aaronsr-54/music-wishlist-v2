@@ -18,7 +18,7 @@ import { IconComponent } from '../../icons/icon.component';
   template: `
     <div class="relative w-full">
       <div
-        class="w-100 flex items-centergap-2.5 py-4 border-b border-solid border-ink-100 group hover:border-bone-600 transition-colors duration-base"
+        class="w-100 flex items-center gap-2.5 py-4 border-b border-solid border-ink-100 group hover:border-bone-600 transition-colors duration-base"
       >
         <app-icon
           name="mail"

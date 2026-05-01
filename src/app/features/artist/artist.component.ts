@@ -40,10 +40,10 @@ import { formatFans } from '../../shared/utils/format-fans';
       </div>
 
       <div
-        class="flex flex-col h-full px-4 py-2 gap-16 overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_10px,black_80%,transparent_100%)] [mask-image:linear-gradient(to_bottom,transparent_0%,black_10px,black_80%,transparent_100%)]"
+        class="flex flex-col h-full p-4 py-2 gap-16 overflow-auto scroll-fade"
       >
         <div
-          class="flex gap-[30px] max-md:flex-col max-md:items-center max-md:gap-5 max-md:text-center"
+          class="flex gap-[30px] max-md:flex-col max-md:items-center max-md:gap-5 max-md:text-center mt-4"
         >
           <div
             class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-[150px] max-md:h-[150px]"
