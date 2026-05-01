@@ -64,6 +64,21 @@ import { WishlistInvite } from '../../../shared/models/wishlist-invite.model';
                     {{ getStatusLabel(invite.status) }}
                   </span>
                 </div>
+                @if (getStatusLabel(invite.status) === 'Aceptada') {
+                  <button
+                    class="user-action"
+                    (click)="cancelSharing(invite.id!)"
+                  >
+                    Dejar de compartir
+                  </button>
+                } @else if (getStatusLabel(invite.status) === 'Rechazada') {
+                  <button
+                    class="user-action"
+                    (click)="inviteUser(invite.invitedEmail)"
+                  >
+                    Reenviar invitación
+                  </button>
+                }
               </li>
             }
           </ul>
@@ -232,6 +247,9 @@ import { WishlistInvite } from '../../../shared/models/wishlist-invite.model';
       }
 
       .user-item {
+        display: inline-flex;
+        justify-content: space-between;
+        align-items: center;
         padding: 10px 12px;
         background: var(--ink-200);
         border-radius: var(--radius-md);
@@ -382,12 +400,12 @@ export class ProfileSharedComponent {
     const q = query(
       col,
       where('wishlistOwnerId', '==', uid),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc'),
     );
 
     this.unsubscribe = onSnapshot(q, (snap) => {
       const invites = snap.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistInvite
+        (d) => ({ id: d.id, ...d.data() }) as WishlistInvite,
       );
       this.sentInvites.set(invites);
     });
@@ -400,8 +418,10 @@ export class ProfileSharedComponent {
     }
   }
 
-  async inviteUser() {
-    if (!this.emailInput.trim()) return;
+  async inviteUser(emailUser?: string) {
+    if (!this.emailInput.trim() && !emailUser) return;
+
+    let mail = this.emailInput.trim() ?? emailUser;
 
     this.loading.set(true);
     try {
@@ -409,14 +429,14 @@ export class ProfileSharedComponent {
       if (!user) return;
 
       await this.inviteService.invite(
-        this.emailInput,
+        mail,
         user.uid,
-        user.displayName || user.email || 'Usuario'
+        user.displayName || user.email || 'Usuario',
       );
 
-      this.inviteMessage.set(`Invitación enviada a ${this.emailInput}`);
+      this.inviteMessage.set(`Invitación enviada a ${mail}`);
       this.inviteSuccess.set(true);
-      this.emailInput = '';
+      mail = '';
 
       setTimeout(() => {
         this.inviteMessage.set('');
@@ -442,7 +462,10 @@ export class ProfileSharedComponent {
       await this.inviteService.accept(inviteId, user.uid);
 
       const wishlistCol = collection(this.firestore, 'wishlist');
-      const q = query(wishlistCol, where('addedByUid', '==', invite.wishlistOwnerId));
+      const q = query(
+        wishlistCol,
+        where('addedByUid', '==', invite.wishlistOwnerId),
+      );
       const snapshot = await getDocs(q);
 
       for (const doc of snapshot.docs) {
@@ -462,6 +485,15 @@ export class ProfileSharedComponent {
     this.loading.set(true);
     try {
       await this.inviteService.decline(inviteId);
+    } finally {
+      this.loading.set(false);
+    }
+  }
+
+  async cancelSharing(inviteId: string) {
+    this.loading.set(true);
+    try {
+      await this.inviteService.remove(inviteId);
     } finally {
       this.loading.set(false);
     }

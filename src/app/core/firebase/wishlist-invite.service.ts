@@ -12,6 +12,7 @@ import {
 } from '@angular/fire/firestore';
 import { AuthService } from '../auth/auth.service';
 import { WishlistInvite } from '../../shared/models/wishlist-invite.model';
+import { deleteDoc } from 'firebase/firestore';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistInviteService {
@@ -22,7 +23,7 @@ export class WishlistInviteService {
   invites = this._invites.asReadonly();
 
   pending = computed(() =>
-    this._invites().filter((i) => i.status === 'pending')
+    this._invites().filter((i) => i.status === 'pending'),
   );
 
   private unsubscribe: (() => void) | null = null;
@@ -45,12 +46,12 @@ export class WishlistInviteService {
     const q = query(
       col,
       where('invitedEmail', '==', this.auth.currentUser()?.email),
-      orderBy('createdAt', 'desc')
+      orderBy('createdAt', 'desc'),
     );
 
     this.unsubscribe = onSnapshot(q, (snap) => {
       const invites = snap.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistInvite
+        (d) => ({ id: d.id, ...d.data() }) as WishlistInvite,
       );
       this._invites.set(invites);
     });
@@ -63,7 +64,11 @@ export class WishlistInviteService {
     }
   }
 
-  async invite(email: string, wishlistOwnerId: string, ownerName: string): Promise<void> {
+  async invite(
+    email: string,
+    wishlistOwnerId: string,
+    ownerName: string,
+  ): Promise<void> {
     const col = collection(this.firestore, 'wishlist-invites');
     await addDoc(col, {
       wishlistOwnerId,
@@ -85,5 +90,10 @@ export class WishlistInviteService {
   async decline(inviteId: string): Promise<void> {
     const col = collection(this.firestore, 'wishlist-invites');
     await updateDoc(doc(col, inviteId), { status: 'declined' });
+  }
+
+  async remove(inviteId: string): Promise<void> {
+    const col = collection(this.firestore, 'wishlist-invites');
+    await deleteDoc(doc(col, inviteId));
   }
 }

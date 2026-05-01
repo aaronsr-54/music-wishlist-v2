@@ -21,14 +21,15 @@ export const routes: Routes = [
             (m) => m.ArtistComponent,
           ),
       },
-      {
-        path: 'profile',
-        loadComponent: () =>
-          import('./features/profile/profile.component').then(
-            (m) => m.ProfileComponent,
-          ),
-      },
     ],
+  },
+
+  {
+    path: 'profile',
+    loadComponent: () =>
+      import('./features/profile/profile.component').then(
+        (m) => m.ProfileComponent,
+      ),
   },
 
   { path: '**', redirectTo: '' },

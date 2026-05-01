@@ -21,12 +21,20 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
   ],
   template: `
     <div class="profile-page">
-      <header class="profile-header">
-        <button class="back-btn" (click)="goBack()" aria-label="Volver">
+      <div class="profile-header">
+        <button
+          class="bg-transparent border-none text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast ease-smooth hover:text-bone"
+          (click)="goBack()"
+          aria-label="Volver"
+        >
           ← Volver
         </button>
-        <span class="label"><span class="label--number">04/</span> PERFIL</span>
-      </header>
+        <span
+          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em]"
+        >
+          <span class="text-bone-700 font-normal italic">04/</span> PERFIL
+        </span>
+      </div>
 
       @if (auth.currentUser(); as user) {
         <main class="profile-content">
@@ -71,9 +79,9 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
       .profile-header {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 12px;
         padding: 16px 16px;
-        border-bottom: 1.5px solid var(--ink-100);
 
         @media (min-width: 768px) {
           padding: 24px;
