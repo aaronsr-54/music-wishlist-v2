@@ -22,32 +22,17 @@ import { Component, input } from '@angular/core';
       [style.transform]="source() === 'card' ? 'scale(0.7)' : null"
     >
       @if (isLoading()) {
-        <svg
-          class="w-full h-full spinner-loading text-bone-100"
-          viewBox="0 0 100 100"
-          fill="none"
-        >
-          <circle
-            cx="50"
-            cy="50"
-            r="40"
-            stroke="currentColor"
-            stroke-width="5"
-            opacity="0.15"
-          />
+        <svg class="w-full h-full spinner-loading" viewBox="0 0 100 100">
+          <circle class="spinner-bg" cx="50" cy="50" r="40" />
           <path
+            class="spinner-progress"
             d="M50 10a40 40 0 0140 40"
-            stroke="currentColor"
-            stroke-width="5"
             stroke-linecap="round"
             stroke-dasharray="62.8 200"
           />
         </svg>
       } @else {
-        <svg
-          viewBox="0 0 100 100"
-          class="w-full h-full -rotate-90"
-        >
+        <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
           <circle cx="50" cy="50" r="40" class="spinner-bg" />
           <circle
             cx="50"

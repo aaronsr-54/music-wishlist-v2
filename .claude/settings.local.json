@@ -90,7 +90,11 @@
       "Bash(curl -s \"http://localhost:4202/?demo\")",
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__hover",
       "Bash(Get-ChildItem -Path \"D:\\\\aaron\\\\Documents\\\\Personal\\\\Proyectos\\\\Desarrollo\\\\music-wishlist-v2\\\\src\\\\app\\\\features\\\\profile\" -Recurse -Include \"*.ts\", \"*.html\", \"*.css\")",
-      "Bash(Select-Object -ExpandProperty FullName)"
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Start-Sleep -Seconds 8)",
+      "Bash(\"Servidor debería estar listo\")",
+      "PowerShell(Start-Sleep -Seconds 8; \"Servidor debería estar listo\")",
+      "PowerShell(Start-Sleep -Seconds 5; \"Esperado\")"
     ]
   }
 }
