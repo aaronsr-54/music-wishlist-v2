@@ -10,7 +10,6 @@ import {
   query,
   orderBy,
   where,
-  arrayContains,
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
 import { Track } from '../../shared/models/track.model';
