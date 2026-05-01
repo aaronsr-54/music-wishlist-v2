@@ -165,7 +165,7 @@ import { formatFans } from '../../utils/format-fans';
           <span class="text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] text-bone-800 flex items-center gap-1 flex-wrap font-semibold">
             <app-avatar [name]="wishlistItem().addedBy" [size]="14" />
             {{ wishlistItem().addedBy }}
-            @if ((wishlistItem() as any).isOwner === false) {
+            @if (isShared()) {
               <span class="text-[clamp(0.6rem,0.5rem+0.3vw,0.75rem)] px-1.5 py-0.5 bg-ink-200 rounded text-bone-700 font-normal">Compartida</span>
             }
             ·
@@ -248,5 +248,10 @@ export class SearchResultItemComponent {
   onPlayPreviewWishlist(entry: WishlistEntry): void {
     if (!entry.previewUrl) return;
     this.preview.play(entry.trackId, entry.previewUrl);
+  }
+
+  isShared(): boolean {
+    const entry = this.wishlistItem() as any;
+    return entry?.isOwner === false;
   }
 }
