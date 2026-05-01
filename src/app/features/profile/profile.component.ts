@@ -20,15 +20,19 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
     ProfileSettingsComponent,
   ],
   template: `
-    <div class="profile-page">
-      <div class="profile-header">
+    <div class="min-h-dvh flex flex-col">
+      <!-- HEADER -->
+      <div
+        class="flex items-center justify-between gap-3 px-4 py-4 md:px-6 md:py-6"
+      >
         <button
-          class="bg-transparent border-none text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast ease-smooth hover:text-bone"
+          class="bg-transparent text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-150 ease-in-out hover:text-bone"
           (click)="goBack()"
           aria-label="Volver"
         >
           ← Volver
         </button>
+
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em]"
         >
@@ -37,130 +41,43 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
       </div>
 
       @if (auth.currentUser(); as user) {
-        <main class="profile-content">
-          <!-- Header con avatar -->
-          <div class="profile-hero">
-            <app-avatar
-              [name]="user.displayName ?? user.email ?? 'Usuario'"
-              [size]="100"
-            />
-            <div class="profile-info">
-              <h1 class="profile-name">
-                {{ user.displayName ?? user.email }}
-              </h1>
-              <p class="profile-email">{{ user.email }}</p>
+        <main
+          class="flex flex-col flex-1 justify-between w-full max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8"
+        >
+          <!-- TOP CONTENT -->
+          <section class="flex flex-col">
+            <!-- HERO -->
+            <div class="flex gap-5 pb-6 mb-6">
+              <app-avatar
+                [name]="user.displayName ?? user.email ?? 'Usuario'"
+                [size]="80"
+              />
+
+              <div class="flex flex-col justify-center gap-2">
+                <h1
+                  class="font-display text-[24px] font-bold text-bone leading-tight m-0"
+                >
+                  {{ user.displayName ?? user.email }}
+                </h1>
+
+                <p class="text-sm text-bone-600 m-0">
+                  {{ user.email }}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <!-- Stats -->
-          <app-profile-stats />
+            <!-- SECTIONS -->
+            <app-profile-stats />
+            <app-profile-shared />
+            <app-profile-settings />
+          </section>
 
-          <!-- Wishlist compartidas -->
-          <app-profile-shared />
-
-          <!-- Configuración -->
-          <app-profile-settings />
-
-          <!-- Account -->
+          <!-- BOTTOM -->
           <app-profile-account />
         </main>
       }
     </div>
   `,
-  styles: [
-    `
-      .profile-page {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        padding: 0;
-      }
-
-      .profile-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 16px 16px;
-
-        @media (min-width: 768px) {
-          padding: 24px;
-        }
-      }
-
-      .back-btn {
-        background: none;
-        border: none;
-        color: var(--bone);
-        cursor: pointer;
-        font-size: 14px;
-        padding: 8px;
-        transition: opacity 160ms var(--ease);
-
-        &:hover {
-          opacity: 0.7;
-        }
-      }
-
-      .label {
-        font-family: var(--font-display);
-        font-size: 12px;
-        color: var(--bone);
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        flex: 1;
-      }
-
-      .label--number {
-        color: var(--bone-700);
-        font-weight: 400;
-        font-style: italic;
-      }
-
-      .profile-content {
-        flex: 1;
-        padding: 24px 16px;
-        max-width: 800px;
-        margin: 0 auto;
-        width: 100%;
-
-        @media (min-width: 768px) {
-          padding: 32px 24px;
-        }
-      }
-
-      .profile-hero {
-        display: flex;
-        gap: 20px;
-        padding-bottom: 24px;
-        margin-bottom: 24px;
-        border-bottom: 1.5px solid var(--ink-100);
-      }
-
-      .profile-info {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 8px;
-      }
-
-      .profile-name {
-        font-family: var(--font-display);
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--bone);
-        margin: 0;
-        line-height: 1.2;
-      }
-
-      .profile-email {
-        font-size: 14px;
-        color: var(--bone-600);
-        margin: 0;
-      }
-    `,
-  ],
 })
 export class ProfileComponent {
   auth = inject(AuthService);

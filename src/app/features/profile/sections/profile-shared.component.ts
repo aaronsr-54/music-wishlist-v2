@@ -8,365 +8,133 @@ import {
   query,
   where,
   updateDoc,
-  doc,
   onSnapshot,
   orderBy,
 } from '@angular/fire/firestore';
 import { AuthService } from '../../../core/auth/auth.service';
 import { WishlistInviteService } from '../../../core/firebase/wishlist-invite.service';
 import { WishlistInvite } from '../../../shared/models/wishlist-invite.model';
+import { IconComponent } from '../../../shared/icons/icon.component';
 
 @Component({
   selector: 'app-profile-shared',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, IconComponent],
   template: `
-    <section class="shared-section">
-      <h2 class="section-title">Social</h2>
+    <section class="mb-10">
+      <h2
+        class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2"
+      >
+        Social
+      </h2>
 
-      <div class="invite-box">
-        <h3 class="subsection-title">Invitar amigos</h3>
-        <div class="invite-form">
+      <div class="border border-ink-200 rounded-lg overflow-hidden">
+        <!-- INVITE BAR -->
+        <div class="flex items-center gap-3 py-8 px-6 border-b border-ink-100">
+          <app-icon name="mail" class="text-bone-800 w-6 h-6 shrink-0" />
           <input
             type="email"
-            placeholder="Email del amigo"
-            class="invite-input"
+            placeholder="Invitar a alguien por email"
             [(ngModel)]="emailInput"
             (keyup.enter)="inviteUser()"
             [disabled]="loading()"
+            class="flex-1 bg-transparent border-none outline-none text-bone font-display text-lg placeholder:text-bone-800 placeholder:italic"
           />
           <button
-            class="invite-btn"
             (click)="inviteUser()"
             [disabled]="loading()"
+            class="text-sm font-semibold text-bone-600 hover:text-bone transition-colors duration-fast cursor-pointer disabled:opacity-50"
           >
-            {{ loading() ? 'Enviando...' : 'Enviar invitación' }}
+            {{ loading() ? 'Enviando' : 'Enviar' }}
           </button>
         </div>
-        @if (inviteMessage()) {
-          <p class="invite-message" [class.success]="inviteSuccess()">
-            {{ inviteMessage() }}
-          </p>
-        }
-      </div>
 
-      <div class="shared-list">
-        <h3 class="subsection-title">Invitaciones enviadas</h3>
-        @if (sentInvites().length === 0) {
-          <p class="empty-state">Aún no has invitado a nadie</p>
-        } @else {
-          <ul class="users-list">
+        <!-- SENT INVITES -->
+        <div class="p-4 border-b border-ink-100">
+          <h3 class="text-xs uppercase tracking-wider text-bone-700 mb-3 font-semibold">
+            Invitaciones enviadas
+          </h3>
+          <div class="flex flex-col">
             @for (invite of sentInvites(); track invite.id) {
-              <li class="user-item">
-                <div class="user-info">
-                  <span class="user-email">{{ invite.invitedEmail }}</span>
-                  <span class="invite-status" [class]="invite.status">
+              <div class="flex items-center justify-between py-3">
+                <div class="flex flex-col min-w-0">
+                  <span class="text-bone text-sm truncate">
+                    {{ invite.invitedEmail }}
+                  </span>
+                  <span
+                    class="mt-1 text-[11px] uppercase tracking-wider font-semibold w-fit px-2 py-0.5 rounded-full"
+                    [class.bg-ink-200]="invite.status === 'pending'"
+                    [class.text-orange-400]="invite.status === 'pending'"
+                    [class.bg-green-900/20]="invite.status === 'accepted'"
+                    [class.text-green-400]="invite.status === 'accepted'"
+                    [class.bg-red-900/20]="invite.status === 'declined'"
+                    [class.text-red-400]="invite.status === 'declined'"
+                  >
                     {{ getStatusLabel(invite.status) }}
                   </span>
                 </div>
-                @if (getStatusLabel(invite.status) === 'Aceptada') {
-                  <button
-                    class="user-action"
-                    (click)="cancelSharing(invite.id!)"
-                  >
-                    Dejar de compartir
-                  </button>
-                } @else if (getStatusLabel(invite.status) === 'Rechazada') {
-                  <button
-                    class="user-action"
-                    (click)="inviteUser(invite.invitedEmail)"
-                  >
-                    Reenviar invitación
-                  </button>
-                }
-              </li>
+                <div class="flex items-center gap-3">
+                  @if (invite.status === 'accepted') {
+                    <button
+                      (click)="cancelSharing(invite.id!)"
+                      class="text-xs text-bone-600 hover:text-bone transition-colors duration-fast cursor-pointer"
+                    >
+                      quitar
+                    </button>
+                  }
+                  @if (invite.status === 'declined') {
+                    <button
+                      (click)="inviteUser(invite.invitedEmail)"
+                      class="text-xs text-bone hover:underline transition-colors duration-fast cursor-pointer"
+                    >
+                      reenviar
+                    </button>
+                  }
+                </div>
+              </div>
             }
-          </ul>
+          </div>
+        </div>
+
+        <!-- PENDING INVITES -->
+        @if (pendingInvites().length > 0) {
+          <div class="p-4">
+            <h3 class="text-xs uppercase tracking-wider text-bone-700 mb-3 font-semibold">
+              Pendientes
+            </h3>
+            <div class="flex flex-col">
+              @for (invite of pendingInvites(); track invite.id) {
+                <div class="flex items-center justify-between py-3">
+                  <div class="flex flex-col">
+                    <span class="text-bone text-sm font-medium">
+                      {{ invite.wishlistOwnerName }}
+                    </span>
+                    <span class="text-bone-600 text-xs">
+                      {{ invite.wishlistOwnerId }}
+                    </span>
+                  </div>
+                  <div class="flex gap-2">
+                    <button
+                      (click)="acceptInvite(invite.id!)"
+                      class="px-3 py-1 text-sm font-semibold rounded-md bg-green-600 text-ink hover:bg-green-500 transition-colors duration-fast cursor-pointer"
+                    >
+                      aceptar
+                    </button>
+                    <button
+                      (click)="declineInvite(invite.id!)"
+                      class="px-3 py-1 text-sm font-semibold rounded-md bg-red-600 text-white hover:bg-red-500 transition-colors duration-fast cursor-pointer"
+                    >
+                      rechazar
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
         }
       </div>
-
-      @if (pendingInvites().length > 0) {
-        <div class="pending-invites">
-          <h3 class="subsection-title">Invitaciones pendientes</h3>
-          <ul class="invites-list">
-            @for (invite of pendingInvites(); track invite.id) {
-              <li class="invite-item">
-                <div class="invite-info">
-                  <span class="owner-name">{{ invite.wishlistOwnerName }}</span>
-                  <span class="owner-email">{{ invite.wishlistOwnerId }}</span>
-                </div>
-                <div class="invite-actions">
-                  <button
-                    class="accept-btn"
-                    (click)="acceptInvite(invite.id!)"
-                    [disabled]="loading()"
-                  >
-                    Aceptar
-                  </button>
-                  <button
-                    class="decline-btn"
-                    (click)="declineInvite(invite.id!)"
-                    [disabled]="loading()"
-                  >
-                    Rechazar
-                  </button>
-                </div>
-              </li>
-            }
-          </ul>
-        </div>
-      }
     </section>
   `,
-  styles: [
-    `
-      .shared-section {
-        margin-bottom: 32px;
-      }
-
-      .section-title {
-        font-family: var(--font-display);
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--bone);
-        margin: 0 0 16px 0;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-
-      .subsection-title {
-        font-family: var(--font-body);
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--bone);
-        margin: 0 0 12px 0;
-      }
-
-      .invite-box {
-        background: var(--ink-100);
-        padding: 16px;
-        border-radius: var(--radius-card);
-        margin-bottom: 20px;
-      }
-
-      .invite-form {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 12px;
-
-        @media (max-width: 480px) {
-          flex-direction: column;
-        }
-      }
-
-      .invite-input,
-      .invite-btn {
-        &:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-      }
-
-      .invite-input {
-        flex: 1;
-        padding: 10px 12px;
-        background: var(--ink-200);
-        border: 1px solid var(--ink-300);
-        border-radius: var(--radius-md);
-        color: var(--bone);
-        font-size: 14px;
-        font-family: var(--font-body);
-
-        &::placeholder {
-          color: var(--bone-600);
-        }
-
-        &:focus {
-          outline: none;
-          border-color: var(--bone);
-        }
-      }
-
-      .invite-btn {
-        padding: 10px 16px;
-        background: var(--bone);
-        color: var(--ink);
-        border: none;
-        border-radius: var(--radius-md);
-        font-weight: 600;
-        font-size: 14px;
-        cursor: pointer;
-        transition: opacity 160ms var(--ease);
-
-        &:hover:not(:disabled) {
-          opacity: 0.88;
-        }
-
-        &:active:not(:disabled) {
-          opacity: 0.8;
-        }
-      }
-
-      .invite-message {
-        font-size: 13px;
-        margin: 8px 0 0 0;
-        padding: 8px 0;
-
-        &.success {
-          color: #81c784;
-        }
-
-        &:not(.success) {
-          color: #e57373;
-        }
-      }
-
-      .shared-list,
-      .pending-invites {
-        background: var(--ink-100);
-        padding: 16px;
-        border-radius: var(--radius-card);
-        margin-bottom: 20px;
-      }
-
-      .empty-state {
-        font-size: 14px;
-        color: var(--bone-600);
-        margin: 0;
-        text-align: center;
-        padding: 16px 0;
-      }
-
-      .users-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .user-item {
-        display: inline-flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 12px;
-        background: var(--ink-200);
-        border-radius: var(--radius-md);
-        font-size: 14px;
-      }
-
-      .user-info {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .user-email {
-        color: var(--bone);
-      }
-
-      .invite-status {
-        font-size: 12px;
-        text-transform: uppercase;
-        font-weight: 600;
-
-        &.pending {
-          color: #ffa726;
-        }
-
-        &.accepted {
-          color: #81c784;
-        }
-
-        &.declined {
-          color: #e57373;
-        }
-      }
-
-      .invites-list {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-      }
-
-      .invite-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px;
-        background: var(--ink-200);
-        border-radius: var(--radius-md);
-        gap: 12px;
-
-        @media (max-width: 480px) {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-      }
-
-      .invite-info {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        flex: 1;
-      }
-
-      .owner-name {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--bone);
-      }
-
-      .owner-email {
-        font-size: 12px;
-        color: var(--bone-600);
-      }
-
-      .invite-actions {
-        display: flex;
-        gap: 8px;
-
-        @media (max-width: 480px) {
-          width: 100%;
-          gap: 4px;
-        }
-      }
-
-      .accept-btn,
-      .decline-btn {
-        padding: 8px 12px;
-        border: none;
-        border-radius: var(--radius-md);
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: opacity 160ms var(--ease);
-
-        &:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        &:hover:not(:disabled) {
-          opacity: 0.88;
-        }
-      }
-
-      .accept-btn {
-        background: #81c784;
-        color: var(--ink);
-      }
-
-      .decline-btn {
-        background: #e57373;
-        color: white;
-      }
-    `,
-  ],
 })
 export class ProfileSharedComponent {
   private auth = inject(AuthService);
@@ -396,6 +164,7 @@ export class ProfileSharedComponent {
 
   private initSentInvitesListener(uid: string): void {
     this.stopSentInvitesListener();
+
     const col = collection(this.firestore, 'wishlist-invites');
     const q = query(
       col,
@@ -404,26 +173,24 @@ export class ProfileSharedComponent {
     );
 
     this.unsubscribe = onSnapshot(q, (snap) => {
-      const invites = snap.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistInvite,
+      this.sentInvites.set(
+        snap.docs.map((d) => ({ id: d.id, ...d.data() }) as WishlistInvite),
       );
-      this.sentInvites.set(invites);
     });
   }
 
   private stopSentInvitesListener(): void {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-      this.unsubscribe = null;
-    }
+    this.unsubscribe?.();
+    this.unsubscribe = null;
   }
 
   async inviteUser(emailUser?: string) {
     if (!this.emailInput.trim() && !emailUser) return;
 
-    let mail = this.emailInput.trim() ?? emailUser;
+    const mail = this.emailInput.trim() || emailUser || '';
 
     this.loading.set(true);
+
     try {
       const user = this.auth.currentUser();
       if (!user) return;
@@ -436,14 +203,9 @@ export class ProfileSharedComponent {
 
       this.inviteMessage.set(`Invitación enviada a ${mail}`);
       this.inviteSuccess.set(true);
-      mail = '';
+      this.emailInput = '';
 
-      setTimeout(() => {
-        this.inviteMessage.set('');
-      }, 3000);
-    } catch (error) {
-      this.inviteMessage.set('Error al enviar invitación');
-      this.inviteSuccess.set(false);
+      setTimeout(() => this.inviteMessage.set(''), 3000);
     } finally {
       this.loading.set(false);
     }
@@ -451,12 +213,15 @@ export class ProfileSharedComponent {
 
   async acceptInvite(inviteId: string) {
     this.loading.set(true);
+
     try {
       const user = this.auth.currentUser();
       if (!user) return;
 
-      const pendingInvites = this.inviteService.pending();
-      const invite = pendingInvites.find((i) => i.id === inviteId);
+      const invite = this.inviteService
+        .pending()
+        .find((i) => i.id === inviteId);
+
       if (!invite) return;
 
       await this.inviteService.accept(inviteId, user.uid);
@@ -466,14 +231,16 @@ export class ProfileSharedComponent {
         wishlistCol,
         where('addedByUid', '==', invite.wishlistOwnerId),
       );
+
       const snapshot = await getDocs(q);
 
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
+      for (const d of snapshot.docs) {
+        const data = d.data();
         const sharedWith = (data['sharedWith'] as string[]) || [];
+
         if (!sharedWith.includes(user.uid)) {
           sharedWith.push(user.uid);
-          await updateDoc(doc.ref, { sharedWith });
+          await updateDoc(d.ref, { sharedWith });
         }
       }
     } finally {
@@ -500,11 +267,12 @@ export class ProfileSharedComponent {
   }
 
   getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      pending: 'Pendiente',
-      accepted: 'Aceptada',
-      declined: 'Rechazada',
-    };
-    return labels[status] || status;
+    return (
+      {
+        pending: 'Pendiente',
+        accepted: 'Aceptada',
+        declined: 'Rechazada',
+      }[status] || status
+    );
   }
 }

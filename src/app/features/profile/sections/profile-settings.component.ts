@@ -9,16 +9,18 @@ type TabType = 'releases' | 'search' | 'wishlist';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <section class="settings-section">
-      <h2 class="section-title">Configuración</h2>
+    <section class="mb-8">
+      <h2 class="font-display text-base font-semibold text-bone mt-0 mb-4 uppercase tracking-wider">
+        Configuración
+      </h2>
 
-      <div class="setting-item">
-        <label class="setting-label">
-          <span class="label-text">Tab inicial al abrir</span>
+      <div class="bg-ink-100 p-4 rounded-card">
+        <label class="flex flex-col gap-2 cursor-pointer">
+          <span class="text-sm font-semibold text-bone">Tab inicial al abrir</span>
           <select
-            class="tab-select"
             [(ngModel)]="defaultTab"
             (change)="saveDefaultTab()"
+            class="px-3 py-2.5 bg-ink-200 border border-ink-300 rounded-md text-bone font-body text-sm cursor-pointer focus:outline-none focus:border-bone transition-colors duration-fast"
           >
             <option value="releases">01/ Lanzamientos</option>
             <option value="search">02/ Buscador</option>
@@ -28,63 +30,6 @@ type TabType = 'releases' | 'search' | 'wishlist';
       </div>
     </section>
   `,
-  styles: [
-    `
-      .settings-section {
-        margin-bottom: 32px;
-      }
-
-      .section-title {
-        font-family: var(--font-display);
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--bone);
-        margin: 0 0 16px 0;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-      }
-
-      .setting-item {
-        background: var(--ink-100);
-        padding: 16px;
-        border-radius: var(--radius-card);
-      }
-
-      .setting-label {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        cursor: pointer;
-      }
-
-      .label-text {
-        font-size: 14px;
-        font-weight: 600;
-        color: var(--bone);
-      }
-
-      .tab-select {
-        padding: 10px 12px;
-        background: var(--ink-200);
-        border: 1px solid var(--ink-300);
-        border-radius: var(--radius-md);
-        color: var(--bone);
-        font-family: var(--font-body);
-        font-size: 14px;
-        cursor: pointer;
-
-        &:focus {
-          outline: none;
-          border-color: var(--bone);
-        }
-
-        option {
-          background: var(--ink);
-          color: var(--bone);
-        }
-      }
-    `,
-  ],
 })
 export class ProfileSettingsComponent {
   defaultTab = signal<TabType>('releases');
