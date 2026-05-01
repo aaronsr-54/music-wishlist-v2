@@ -47,7 +47,9 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
   template: `
     <div class="panel">
       <div class="eyebrow">
-        <span class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em] uppercase md:hidden">
+        <span
+          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em] uppercase md:hidden"
+        >
           <span class="text-bone-700 font-normal italic">02/</span> BUSCADOR
         </span>
       </div>
@@ -58,7 +60,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       >
         <app-icon
           name="search"
-          class="text-bone-800 w-[1em] h-[1em] shrink-0 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)]"
+          class="text-bone-800 w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] shrink-0 "
         />
         <input
           id="search-input"
@@ -77,13 +79,18 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             (click)="clearQuery()"
             aria-label="Limpiar"
           >
-            <app-icon name="close" class="w-[1em] h-[1em]" />
+            <app-icon
+              name="close"
+              class="w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)]"
+            />
           </button>
         }
       </div>
 
       @if (query()) {
-        <div class="flex gap-2 overflow-x-auto [animation:slideDown_200ms_var(--ease)_both] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          class="flex gap-2 overflow-x-auto [animation:slideDown_200ms_var(--ease)_both] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           <button
             class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
             [class.!bg-bone]="selectedTypes().has('artist')"
@@ -134,10 +141,17 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           </div>
         }
         @case ('loading') {
-          <div class="scroll-fade flex items-center justify-center min-h-[300px]">
-            <div class="flex flex-col items-center gap-4 py-10 px-5 text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]">
+          <div
+            class="scroll-fade flex items-center justify-center min-h-[300px]"
+          >
+            <div
+              class="flex flex-col items-center gap-4 py-10 px-5 text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]"
+            >
               <app-spinner size="md" />
-              <span class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic">Buscando...</span>
+              <span
+                class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
+                >Buscando...</span
+              >
             </div>
           </div>
         }
@@ -182,8 +196,12 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
 
       @if (!query() && favoriteArtists().length > 0) {
-        <div class="py-3 pb-6 border-t border-ink-100 [animation:fadeIn_200ms_var(--ease)_both]">
-          <h3 class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2">
+        <div
+          class="py-3 pb-6 border-t border-ink-100 [animation:fadeIn_200ms_var(--ease)_both]"
+        >
+          <h3
+            class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2"
+          >
             Artistas favoritos
           </h3>
           <div
@@ -267,7 +285,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
     this.sub = this.search$
       .pipe(
-        debounceTime(220),
+        debounceTime(0),
         distinctUntilChanged(),
         switchMap((q) => {
           const trimmed = q.trim();
@@ -352,9 +370,7 @@ export class SearchComponent implements OnInit, OnDestroy {
               .toPromise();
             coverUrl =
               artistData?.picture_big ?? artistData?.picture_medium ?? '';
-          } catch {
-            // Si falla, usar lo que hay
-          }
+          } catch {}
         }
         await this.favoriteArtistsSvc.add(track.id, track.name, coverUrl, user);
       }

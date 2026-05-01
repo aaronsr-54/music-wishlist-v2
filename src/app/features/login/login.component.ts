@@ -8,22 +8,30 @@ import { IconComponent } from '../../shared/icons/icon.component';
   standalone: true,
   imports: [IconComponent],
   template: `
-    <div class="login-screen min-h-dvh bg-ink flex flex-col p-8 min-[600px]:px-24 mx-auto relative overflow-hidden">
+    <div
+      class="login-screen min-h-dvh bg-ink flex flex-col p-8 min-[600px]:px-24 mx-auto relative overflow-hidden"
+    >
       <header
         class="flex justify-between items-center pb-6"
         style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 0ms"
       >
-        <span class="font-display text-[12px] text-bone font-bold tracking-[0.06em] uppercase">
+        <span
+          class="font-display text-[12px] text-bone font-bold tracking-[0.06em] uppercase"
+        >
           <span class="text-bone-700 font-normal italic">00/</span> ACCESO
         </span>
-        <span class="text-bone-700 text-[11px] italic font-medium">v{{ version() }}</span>
+        <span class="text-bone-700 text-[11px] italic font-medium"
+          >v{{ version() }}</span
+        >
       </header>
 
       <main
         class="flex-1 flex flex-col justify-center gap-5 py-12"
         style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 80ms"
       >
-        <h1 class="font-display text-[clamp(68px,10vw,88px)] font-bold leading-[0.8] m-0 tracking-[-0.03em] bg-linear-to-br from-bone from-[60%] to-bone-600 bg-clip-text text-transparent">
+        <h1
+          class="font-display text-[clamp(68px,10vw,88px)] font-bold leading-[0.8] m-0 tracking-[-0.03em] bg-linear-to-br from-bone from-[60%] to-bone-600 bg-clip-text"
+        >
           Music <span class="font-extralight italic ml-[-7px]">Wishlist</span>.
         </h1>
         <p class="font-body text-sm leading-[1.2] text-bone-600 m-0">
@@ -36,7 +44,9 @@ import { IconComponent } from '../../shared/icons/icon.component';
         class="flex flex-col gap-4 pt-6"
         style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 200ms"
       >
-        <span class="font-body text-[12px] font-medium text-bone-700">INICIA SESIÓN CON</span>
+        <span class="font-body text-[12px] font-medium text-bone-700"
+          >INICIA SESIÓN CON</span
+        >
 
         <div class="flex gap-4 flex-wrap items-end">
           <button
@@ -49,7 +59,10 @@ import { IconComponent } from '../../shared/icons/icon.component';
                 <span></span><span></span><span></span>
               </span>
             } @else {
-              <app-icon name="google" class="w-[clamp(1.125rem,2.5vw,1.375rem)] h-[clamp(1.125rem,2.5vw,1.375rem)]" />
+              <app-icon
+                name="google"
+                class="w-[clamp(1.125rem,2.5vw,1.375rem)] h-[clamp(1.125rem,2.5vw,1.375rem)]"
+              />
               Continuar con Google
             }
           </button>

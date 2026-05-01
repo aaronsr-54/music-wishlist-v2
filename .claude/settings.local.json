@@ -83,7 +83,14 @@
       "Bash(npm uninstall *)",
       "Bash(npm update *)",
       "Bash(awk 'NR>1 {print $2}')",
-      "Bash(pkill -f \"ng serve\")"
+      "Bash(pkill -f \"ng serve\")",
+      "Bash(curl -s http://localhost:4201)",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__press_key",
+      "Bash(curl -s http://localhost:4201/?demo)",
+      "Bash(curl -s \"http://localhost:4202/?demo\")",
+      "mcp__plugin_chrome-devtools-mcp_chrome-devtools__hover",
+      "Bash(Get-ChildItem -Path \"D:\\\\aaron\\\\Documents\\\\Personal\\\\Proyectos\\\\Desarrollo\\\\music-wishlist-v2\\\\src\\\\app\\\\features\\\\profile\" -Recurse -Include \"*.ts\", \"*.html\", \"*.css\")",
+      "Bash(Select-Object -ExpandProperty FullName)"
     ]
   }
 }

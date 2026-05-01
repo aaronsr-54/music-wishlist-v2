@@ -7,7 +7,8 @@ import { IconName } from '../../icons/icon-registry';
   standalone: true,
   imports: [IconComponent],
   host: {
-    class: 'flex flex-col items-center justify-center gap-[10px] px-5 py-[60px] text-center',
+    class:
+      'flex flex-col items-center justify-center gap-[10px] px-5 py-[60px] text-center',
     style: 'animation: emptyEnter var(--duration-slow) var(--ease-smooth) both',
   },
   template: `
@@ -16,12 +17,18 @@ import { IconName } from '../../icons/icon-registry';
         <app-icon [name]="icon()!" class="w-[3.2rem] h-[3.2rem]" />
       </div>
     }
-    <p class="font-body text-[clamp(1.375rem,1.2707rem+0.4049vw,1.625rem)] font-semibold uppercase text-bone m-0">
-      {{ title() }}
-    </p>
-    <p class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-display text-bone-600 italic m-0 max-w-[240px]">
-      {{ subtitle() }}
-    </p>
+    <div class="flex flex-col items-center justify-center">
+      <p
+        class="font-body text-[clamp(1.375rem,1.2707rem+0.4049vw,1.625rem)] font-semibold uppercase text-bone m-0"
+      >
+        {{ title() }}
+      </p>
+      <p
+        class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-display text-bone-600 italic m-0 max-w-[240px]"
+      >
+        {{ subtitle() }}
+      </p>
+    </div>
     <ng-content />
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
