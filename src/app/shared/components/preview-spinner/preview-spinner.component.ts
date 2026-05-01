@@ -1,10 +1,8 @@
 import { Component, input } from '@angular/core';
-import { fadeInOut } from '../../animations/animations';
 
 @Component({
   selector: 'app-preview-spinner',
   standalone: true,
-  animations: [fadeInOut()],
   styles: `
     @keyframes spin {
       from {
@@ -28,7 +26,6 @@ import { fadeInOut } from '../../animations/animations';
           class="w-full h-full spinner-loading text-bone-100"
           viewBox="0 0 100 100"
           fill="none"
-          @fadeInOut
         >
           <circle
             cx="50"
@@ -50,7 +47,6 @@ import { fadeInOut } from '../../animations/animations';
         <svg
           viewBox="0 0 100 100"
           class="w-full h-full -rotate-90"
-          @fadeInOut
         >
           <circle cx="50" cy="50" r="40" class="spinner-bg" />
           <circle
