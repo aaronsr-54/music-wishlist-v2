@@ -1,8 +1,20 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import {
+  Firestore,
+  collection,
+  getDocs,
+  query,
+  where,
+  updateDoc,
+  doc,
+  onSnapshot,
+  orderBy,
+} from '@angular/fire/firestore';
 import { AuthService } from '../../../core/auth/auth.service';
 import { WishlistInviteService } from '../../../core/firebase/wishlist-invite.service';
+import { WishlistInvite } from '../../../shared/models/wishlist-invite.model';
 
 @Component({
   selector: 'app-profile-shared',
@@ -341,14 +353,52 @@ import { WishlistInviteService } from '../../../core/firebase/wishlist-invite.se
 export class ProfileSharedComponent {
   private auth = inject(AuthService);
   private inviteService = inject(WishlistInviteService);
+  private firestore = inject(Firestore);
 
   emailInput = '';
   inviteMessage = signal('');
   inviteSuccess = signal(false);
   loading = signal(false);
 
-  sentInvites = signal<any[]>([]);
+  sentInvites = signal<WishlistInvite[]>([]);
   pendingInvites = () => this.inviteService.pending();
+
+  private unsubscribe: (() => void) | null = null;
+
+  constructor() {
+    effect(() => {
+      const user = this.auth.currentUser();
+      if (user) {
+        this.initSentInvitesListener(user.uid);
+      } else {
+        this.stopSentInvitesListener();
+      }
+    });
+  }
+
+  private initSentInvitesListener(uid: string): void {
+    this.stopSentInvitesListener();
+    const col = collection(this.firestore, 'wishlist-invites');
+    const q = query(
+      col,
+      where('wishlistOwnerId', '==', uid),
+      orderBy('createdAt', 'desc')
+    );
+
+    this.unsubscribe = onSnapshot(q, (snap) => {
+      const invites = snap.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as WishlistInvite
+      );
+      this.sentInvites.set(invites);
+    });
+  }
+
+  private stopSentInvitesListener(): void {
+    if (this.unsubscribe) {
+      this.unsubscribe();
+      this.unsubscribe = null;
+    }
+  }
 
   async inviteUser() {
     if (!this.emailInput.trim()) return;
@@ -385,7 +435,24 @@ export class ProfileSharedComponent {
       const user = this.auth.currentUser();
       if (!user) return;
 
+      const pendingInvites = this.inviteService.pending();
+      const invite = pendingInvites.find((i) => i.id === inviteId);
+      if (!invite) return;
+
       await this.inviteService.accept(inviteId, user.uid);
+
+      const wishlistCol = collection(this.firestore, 'wishlist');
+      const q = query(wishlistCol, where('addedByUid', '==', invite.wishlistOwnerId));
+      const snapshot = await getDocs(q);
+
+      for (const doc of snapshot.docs) {
+        const data = doc.data();
+        const sharedWith = (data['sharedWith'] as string[]) || [];
+        if (!sharedWith.includes(user.uid)) {
+          sharedWith.push(user.uid);
+          await updateDoc(doc.ref, { sharedWith });
+        }
+      }
     } finally {
       this.loading.set(false);
     }

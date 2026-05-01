@@ -74,9 +74,12 @@ export class WishlistInviteService {
     } as Omit<WishlistInvite, 'id'>);
   }
 
-  async accept(inviteId: string, wishlistOwnerId: string): Promise<void> {
+  async accept(inviteId: string, userUid: string): Promise<void> {
     const col = collection(this.firestore, 'wishlist-invites');
-    await updateDoc(doc(col, inviteId), { status: 'accepted' });
+    await updateDoc(doc(col, inviteId), {
+      status: 'accepted',
+      invitedUid: userUid,
+    });
   }
 
   async decline(inviteId: string): Promise<void> {
