@@ -24,23 +24,23 @@ import { Component, input } from '@angular/core';
       @if (isLoading()) {
         <svg
           class="w-full h-full spinner-loading text-bone-100"
-          viewBox="0 0 24 24"
+          viewBox="0 0 100 100"
           fill="none"
         >
           <circle
-            cx="12"
-            cy="12"
-            r="10"
+            cx="50"
+            cy="50"
+            r="40"
             stroke="currentColor"
             stroke-width="2"
             opacity="0.15"
           />
           <path
-            d="M12 2a10 10 0 0110 10"
+            d="M50 10a40 40 0 0140 40"
             stroke="currentColor"
             stroke-width="2"
             stroke-linecap="round"
-            stroke-dasharray="15.7 50"
+            stroke-dasharray="62.8 200"
           />
         </svg>
       } @else {
