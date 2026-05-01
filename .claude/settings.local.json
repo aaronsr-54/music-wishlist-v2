@@ -83,7 +83,8 @@
       "Bash(npm uninstall *)",
       "Bash(npm update *)",
       "Bash(awk 'NR>1 {print $2}')",
-      "Bash(pkill -f \"ng serve\")"
+      "Bash(pkill -f \"ng serve\")",
+      "Bash(curl -s http://localhost:4201)"
     ]
   }
 }

@@ -15,8 +15,6 @@ import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
 import { ReleasesComponent } from '../features/releases/releases.component';
 
-import { ProfileModalComponent } from '../features/profile/profile-modal.component';
-
 type Tab = 'releases' | 'search' | 'wishlist';
 
 @Component({
@@ -32,12 +30,11 @@ type Tab = 'releases' | 'search' | 'wishlist';
     ReleasesComponent,
     SearchComponent,
     WishlistComponent,
-    ProfileModalComponent,
   ],
   template: `
     <!-- DESKTOP -->
     <div class="hidden md:flex flex-col h-full">
-      <app-header (openProfile)="showProfileModal.set(true)" />
+      <app-header (openProfile)="goToProfile()" />
 
       <main class="flex flex-1 overflow-hidden gap-16 p-3 w-full mx-auto min-[1400px]:mx-[10%] min-[1400px]:w-[calc(100%-20%)]">
         <aside class="mt-60 w-[300px] flex flex-col items-start">
@@ -98,7 +95,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
 
     <!-- MOBILE -->
     <div class="flex flex-col h-full md:hidden">
-      <app-header (openProfile)="showProfileModal.set(true)" />
+      <app-header (openProfile)="goToProfile()" />
 
       <main class="mobile-content flex-1 overflow-hidden">
         @if (hasChildRoute()) {
@@ -117,21 +114,13 @@ type Tab = 'releases' | 'search' | 'wishlist';
         (tabChange)="activeTab.set($event)"
       />
     </div>
-
-    <app-profile-modal
-      [isOpen]="showProfileModal"
-      (closed)="showProfileModal.set(false)"
-    />
   `,
 })
 export class ShellComponent {
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  activeTab = signal<Tab>('releases');
-
-  showProfileModal = signal(false);
-
+  activeTab = signal<Tab>(this.getDefaultTab());
   hasChildRoute = signal(false);
 
   constructor() {
@@ -145,5 +134,16 @@ export class ShellComponent {
       this.activeTab();
       this.router.navigate(['']);
     });
+  }
+
+  private getDefaultTab(): Tab {
+    const saved = localStorage.getItem('defaultTab') as Tab | null;
+    return saved && ['releases', 'search', 'wishlist'].includes(saved)
+      ? saved
+      : 'releases';
+  }
+
+  goToProfile() {
+    this.router.navigate(['/profile']);
   }
 }
