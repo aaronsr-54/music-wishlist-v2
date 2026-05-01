@@ -22,8 +22,19 @@ import { Component, input } from '@angular/core';
       [style.transform]="source() === 'card' ? 'scale(0.7)' : null"
     >
       @if (isLoading()) {
-        <svg class="w-1/2 h-1/2 spinner-loading text-bone-100" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.15" />
+        <svg
+          class="w-full h-full spinner-loading text-bone-100"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="2"
+            opacity="0.15"
+          />
           <path
             d="M12 2a10 10 0 0110 10"
             stroke="currentColor"
@@ -44,14 +55,24 @@ import { Component, input } from '@angular/core';
             [style.stroke-dashoffset]="strokeDashoffset()"
           />
         </svg>
-        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-bone-100">
+        <div
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-bone-100"
+        >
           @if (isPlaying()) {
-            <svg class="w-[65%] h-[65%] transition-opacity duration-200" viewBox="0 0 24 24" fill="currentColor">
+            <svg
+              class="w-[65%] h-[65%] transition-opacity duration-200"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+            >
               <rect x="5" y="3" width="5" height="18" rx="1.5" />
               <rect x="14" y="3" width="5" height="18" rx="1.5" />
             </svg>
           } @else {
-            <svg class="w-[65%] h-[65%] transition-opacity duration-200 ml-[2px]" viewBox="0 0 24 24" fill="none">
+            <svg
+              class="w-[65%] h-[65%] transition-opacity duration-200 ml-[2px]"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
               <path
                 d="M5 3l14 9-14 9V3z"
                 fill="currentColor"
