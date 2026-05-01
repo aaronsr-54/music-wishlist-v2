@@ -11,6 +11,6 @@ export interface WishlistEntry {
   addedBy: string;
   addedByUid: string;
   downloaded: boolean;
-  previewUrl?: string;
   sharedWith?: string[];
+  artistId?: string;
 }

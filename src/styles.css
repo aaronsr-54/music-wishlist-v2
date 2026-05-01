@@ -576,7 +576,7 @@ app-icon span {
   justify-content: center;
   gap: 4px;
   border: 1px solid var(--bone-600);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-card);
   background: none;
   cursor: pointer;
   color: var(--bone-600);

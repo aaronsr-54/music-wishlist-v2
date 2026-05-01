@@ -8,10 +8,12 @@ import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { PreviewService } from '../../../core/services/preview.service';
+import { SearchService } from '../../../core/api/search.service';
 import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
 import { IconComponent } from '../../icons/icon.component';
 import { ButtonComponent } from '../button/button.component';
 import { formatFans } from '../../utils/format-fans';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-search-result-item',
@@ -113,10 +115,7 @@ import { formatFans } from '../../utils/format-fans';
                 [name]="trackItem().name"
                 [size]="56"
               />
-              @if (
-                previewState().trackId === trackItem().id &&
-                (previewState().isPlaying || previewState().isLoading)
-              ) {
+              @if (previewState().trackId === trackItem().id) {
                 <div
                   class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-sm backdrop-blur-[1.5px]"
                   @fadeInOut
@@ -173,7 +172,7 @@ import { formatFans } from '../../utils/format-fans';
       <div
         class="flex items-center gap-3 py-3 px-2 -mx-2 border-b border-ink-200 transition-[background] duration-fast ease-smooth [animation:rowEnter_var(--dur-base)_var(--ease)_both]"
       >
-        @if (wishlistItem().type === 'track' && wishlistItem().previewUrl) {
+        @if (wishlistItem().type === 'track') {
           <button
             class="relative border-none bg-transparent p-0 cursor-pointer shrink-0 rounded-md transition-opacity duration-fast ease-smooth enabled:hover:opacity-80"
             (click)="onPlayPreviewWishlist(wishlistItem())"
@@ -189,10 +188,7 @@ import { formatFans } from '../../utils/format-fans';
               [name]="wishlistItem().name"
               [size]="64"
             />
-            @if (
-              previewState().trackId === wishlistItem().trackId &&
-              (previewState().isPlaying || previewState().isLoading)
-            ) {
+            @if (previewState().trackId === wishlistItem().trackId) {
               <div
                 class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-sm backdrop-blur-[1.5px]"
                 @fadeInOut
@@ -303,6 +299,7 @@ import { formatFans } from '../../utils/format-fans';
 })
 export class SearchResultItemComponent {
   private preview = inject(PreviewService);
+  private search = inject(SearchService);
 
   item = input.required<Track | WishlistEntry | ReleaseItem>();
   source = input<'search' | 'wishlist' | 'releases'>('search');
@@ -330,9 +327,10 @@ export class SearchResultItemComponent {
     this.preview.play(track.id, track.previewUrl);
   }
 
-  onPlayPreviewWishlist(entry: WishlistEntry): void {
-    if (!entry.previewUrl) return;
-    this.preview.play(entry.trackId, entry.previewUrl);
+  async onPlayPreviewWishlist(entry: WishlistEntry): Promise<void> {
+    const previewUrl = await firstValueFrom(this.search.getTrackPreview(entry.trackId));
+    if (!previewUrl) return;
+    this.preview.play(entry.trackId, previewUrl);
   }
 
   isShared(): boolean {

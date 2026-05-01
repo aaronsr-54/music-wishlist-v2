@@ -131,6 +131,7 @@ export class SearchService {
           type: (a.record_type === 'single' ? 'single' : 'album') as TrackType,
           releaseDate: a.release_date ?? '',
           previewUrl: undefined,
+          artistId: a.artist?.id ? String(a.artist.id) : undefined,
         })),
       ),
       switchMap((releases: ReleaseItem[]) => {
@@ -205,5 +206,17 @@ export class SearchService {
   clearSearchState() {
     this.savedState.set(null);
     sessionStorage.removeItem('searchState');
+  }
+
+  getTrackPreview(trackId: string): Observable<string | undefined> {
+    return from(
+      fetch(`${this.apiUrl}/track?id=${trackId}`).then((r) => r.json()),
+    ).pipe(
+      map((res: any) => {
+        const previewUrl = res.preview;
+        return previewUrl ? `/api/preview?url=${encodeURIComponent(previewUrl)}` : undefined;
+      }),
+      catchError(() => of(undefined)),
+    );
   }
 }

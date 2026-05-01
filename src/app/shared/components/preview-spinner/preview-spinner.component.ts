@@ -57,7 +57,7 @@ import { Component, input } from '@angular/core';
             </svg>
           } @else {
             <svg
-              class="w-[65%] h-[65%] transition-opacity duration-200 ml-[2px]"
+              class="w-[55%] h-[55%] transition-opacity duration-200 ml-[2px]"
               viewBox="0 0 24 24"
               fill="none"
             >

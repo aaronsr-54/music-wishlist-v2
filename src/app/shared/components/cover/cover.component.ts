@@ -1,10 +1,19 @@
 import { Component, Input, computed, signal } from '@angular/core';
+import { NgClass } from '@angular/common';
 
 const VARIANTS = [
   { bg: 'var(--bone-300)', color: 'var(--ink)', border: 'none' },
   { bg: 'var(--ink-200)', color: 'var(--bone)', border: 'none' },
-  { bg: 'transparent', color: 'var(--ink)', border: '1.5px solid var(--ink-100)' },
-  { bg: 'transparent', color: 'var(--bone-400)', border: '1.5px solid var(--ink-200)' },
+  {
+    bg: 'transparent',
+    color: 'var(--ink)',
+    border: '1.5px solid var(--ink-100)',
+  },
+  {
+    bg: 'transparent',
+    color: 'var(--bone-400)',
+    border: '1.5px solid var(--ink-200)',
+  },
 ];
 
 function hashVariant(name: string): number {
@@ -15,18 +24,21 @@ function hashVariant(name: string): number {
 @Component({
   selector: 'app-cover',
   standalone: true,
+  imports: [NgClass],
   template: `
     @if (coverUrl && !imgError()) {
       <img
         [src]="coverUrl"
         [alt]="name"
-        class="max-w-full aspect-square rounded-sm object-cover block"
+        class="max-w-full aspect-square object-cover block"
+        [ngClass]="rounded"
         [style.width]="imgWidth()"
         (error)="imgError.set(true)"
       />
     } @else {
       <div
-        class="max-w-full aspect-square rounded-sm flex items-center justify-center font-display font-bold tracking-[0.02em]"
+        class="max-w-full aspect-square flex items-center justify-center font-display font-bold tracking-[0.02em]"
+        [ngClass]="rounded"
         [style.width]="imgWidth()"
         [style.background]="variant().bg"
         [style.color]="variant().color"
@@ -42,6 +54,7 @@ export class CoverComponent {
   @Input({ required: true }) name = '';
   @Input() coverUrl = '';
   @Input() size?: number;
+  @Input() rounded: string = 'rounded-sm';
 
   imgError = signal(false);
 

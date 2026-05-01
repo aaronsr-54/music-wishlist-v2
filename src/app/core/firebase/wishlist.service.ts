@@ -129,7 +129,7 @@ export class WishlistService {
       addedBy: user.displayName ?? user.email ?? 'Anónimo',
       addedByUid: user.uid,
       downloaded: false,
-      ...(track.previewUrl ? { previewUrl: track.previewUrl } : {}),
+      ...(track.artistId ? { artistId: track.artistId } : {}),
     };
 
     if (this.isDemoMode) {
@@ -160,7 +160,7 @@ export class WishlistService {
       addedBy: user.displayName ?? user.email ?? 'Anónimo',
       addedByUid: user.uid,
       downloaded: false,
-      ...(release.previewUrl ? { previewUrl: release.previewUrl } : {}),
+      ...(release.artistId ? { artistId: release.artistId } : {}),
     };
 
     if (this.isDemoMode) {
