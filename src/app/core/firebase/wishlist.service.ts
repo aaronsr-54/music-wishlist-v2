@@ -10,6 +10,7 @@ import {
   query,
   orderBy,
   where,
+  arrayContains,
 } from '@angular/fire/firestore';
 import { User } from '@angular/fire/auth';
 import { Track } from '../../shared/models/track.model';
@@ -29,11 +30,11 @@ export class WishlistService {
   trackIds = computed(() => new Set(this._entries().map((e) => e.trackId)));
   total = computed(() => this._entries().length);
 
-  private unsubscribe: (() => void) | null = null;
+  private unsubscribe: (() => void)[] = [];
   private isDemoMode = false;
 
   initListener(uid: string): void {
-    if (this.unsubscribe) return;
+    if (this.unsubscribe.length > 0) return;
 
     // Lazy inject to avoid circular dependency
     const auth = inject(AuthService);
@@ -45,18 +46,56 @@ export class WishlistService {
     }
 
     const col = collection(this.firestore, 'wishlist');
-    const q = query(
+
+    // Query 1: Own wishlist
+    const q1 = query(
       col,
       where('addedByUid', '==', uid),
       orderBy('addedAt', 'desc')
     );
 
-    this.unsubscribe = onSnapshot(q, (snap) => {
-      const entries = snap.docs.map(
+    // Query 2: Shared with me
+    const q2 = query(
+      col,
+      where('sharedWith', 'array-contains', uid),
+      orderBy('addedAt', 'desc')
+    );
+
+    const unsubscribe1 = onSnapshot(q1, (snap1) => {
+      const entries1 = snap1.docs.map(
         (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
       );
-      this._entries.set(entries);
+      this.updateEntries(uid, entries1, 'own');
     });
+
+    const unsubscribe2 = onSnapshot(q2, (snap2) => {
+      const entries2 = snap2.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
+      );
+      this.updateEntries(uid, entries2, 'shared');
+    });
+
+    this.unsubscribe = [unsubscribe1, unsubscribe2];
+  }
+
+  private ownEntries: WishlistEntry[] = [];
+  private sharedEntries: WishlistEntry[] = [];
+
+  private updateEntries(
+    uid: string,
+    entries: WishlistEntry[],
+    type: 'own' | 'shared'
+  ): void {
+    if (type === 'own') {
+      this.ownEntries = entries;
+    } else {
+      this.sharedEntries = entries;
+    }
+
+    const combined = [...this.ownEntries, ...this.sharedEntries].sort(
+      (a, b) => (b.addedAt || 0) - (a.addedAt || 0)
+    );
+    this._entries.set(combined);
   }
 
   private initLocalStorage(uid: string): void {
@@ -67,10 +106,8 @@ export class WishlistService {
   }
 
   stopListener(): void {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-      this.unsubscribe = null;
-    }
+    this.unsubscribe.forEach((fn) => fn());
+    this.unsubscribe = [];
   }
 
   async add(track: Track, user: User): Promise<void> {

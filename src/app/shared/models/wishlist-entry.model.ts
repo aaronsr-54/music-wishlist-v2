@@ -12,4 +12,5 @@ export interface WishlistEntry {
   addedByUid: string;
   downloaded: boolean;
   previewUrl?: string;
+  sharedWith?: string[];
 }
