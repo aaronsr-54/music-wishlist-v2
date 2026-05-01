@@ -26,10 +26,12 @@ import { Component, input } from '@angular/core';
       [style.transform]="source() === 'card' ? 'scale(0.7)' : null"
     >
       <svg
-        class="absolute w-full h-full spinner-loading text-bone-100"
+        class="w-full h-full spinner-loading text-bone-100"
         viewBox="0 0 100 100"
         fill="none"
         [style.opacity]="isLoading() ? 1 : 0"
+        [style.position]="'absolute'"
+        [style.inset]="'0'"
       >
         <circle
           cx="50"
@@ -49,8 +51,10 @@ import { Component, input } from '@angular/core';
       </svg>
       <svg
         viewBox="0 0 100 100"
-        class="absolute w-full h-full -rotate-90"
+        class="w-full h-full -rotate-90"
         [style.opacity]="isLoading() ? 0 : 1"
+        [style.position]="'absolute'"
+        [style.inset]="'0'"
       >
         <circle cx="50" cy="50" r="40" class="spinner-bg" />
         <circle
