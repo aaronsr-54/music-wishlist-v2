@@ -1,4 +1,11 @@
-import { Component, output, input, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  output,
+  input,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icons/icon.component';
@@ -15,7 +22,7 @@ import { IconComponent } from '../../icons/icon.component';
       >
         <app-icon
           name="mail"
-          class="text-bone-800 w-5 h-5 shrink-0 group-hover:text-bone-700 transition-colors duration-base"
+          class="text-bone-800 w-8 h-8 shrink-0 group-hover:text-bone-700 transition-colors duration-base"
         />
         <input
           type="email"
@@ -23,14 +30,15 @@ import { IconComponent } from '../../icons/icon.component';
           [(ngModel)]="emailInput"
           (keyup.enter)="selectEmail(emailInput())"
           [disabled]="disabled()"
-          class="flex-1 bg-transparent border-none outline-none text-bone font-body text-base placeholder:text-bone-800 placeholder:italic transition-colors duration-base"
+          class="flex-1 bg-transparent border-none outline-none text-bone font-body text-lg placeholder:text-bone-800 placeholder:italic transition-colors duration-base"
         />
         <button
           (click)="selectEmail(emailInput())"
           [disabled]="!emailValid()"
-          class="text-sm font-semibold text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          class="text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          title="Compartir"
         >
-          Compartir
+          <app-icon name="send" class="w-5 h-5" />
         </button>
       </div>
 
