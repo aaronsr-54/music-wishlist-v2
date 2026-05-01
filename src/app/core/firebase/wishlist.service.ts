@@ -20,6 +20,7 @@ import { AuthService } from '../auth/auth.service';
 @Injectable({ providedIn: 'root' })
 export class WishlistService {
   private firestore = inject(Firestore);
+  private auth = inject(AuthService);
 
   private _entries = signal<(WishlistEntry & { isOwner: boolean })[]>([]);
   entries = this._entries.asReadonly();
@@ -35,9 +36,7 @@ export class WishlistService {
   initListener(uid: string): void {
     if (this.unsubscribe.length > 0) return;
 
-    // Lazy inject to avoid circular dependency
-    const auth = inject(AuthService);
-    this.isDemoMode = auth.demoMode();
+    this.isDemoMode = this.auth.demoMode();
 
     if (this.isDemoMode) {
       this.initLocalStorage(uid);
