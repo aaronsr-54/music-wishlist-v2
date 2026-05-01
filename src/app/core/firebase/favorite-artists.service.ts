@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal, Injector, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -28,6 +28,7 @@ export interface FavoriteArtist {
 export class FavoriteArtistsService {
   private firestore = inject(Firestore);
   private search = inject(SearchService);
+  private injector = inject(Injector);
 
   private _artists = signal<FavoriteArtist[]>([]);
   artists = this._artists.asReadonly();
@@ -40,9 +41,10 @@ export class FavoriteArtistsService {
   initListener(uid: string): void {
     if (this.unsubscribe) return;
 
-    // Lazy inject to avoid circular dependency
-    const auth = inject(AuthService);
-    this.isDemoMode = auth.demoMode();
+    runInInjectionContext(this.injector, () => {
+      const auth = inject(AuthService);
+      this.isDemoMode = auth.demoMode();
+    });
 
     if (this.isDemoMode) {
       this.initLocalStorage(uid);
