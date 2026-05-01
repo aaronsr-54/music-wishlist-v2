@@ -4,55 +4,27 @@ import { Component, Input } from '@angular/core';
   selector: 'app-skeleton-row',
   standalone: true,
   template: `
-    <div class="row" [style.animation-delay]="delay + 'ms'">
-      <div class="cover skeleton skeleton--cover" [style.width.px]="size" [style.height.px]="size"></div>
-      <div class="lines">
-        <div class="skeleton skeleton--text line-title"></div>
-        <div class="skeleton skeleton--line line-sub"></div>
+    <div
+      class="flex items-center gap-3 py-[10px]"
+      [style.animation]="rowAnimation"
+    >
+      <div
+        class="skeleton skeleton--cover shrink-0"
+        [style.width.px]="size"
+        [style.height.px]="size"
+      ></div>
+      <div class="flex-1 flex flex-col gap-2">
+        <div class="skeleton skeleton--text w-[60%]"></div>
+        <div class="skeleton skeleton--line w-[40%]"></div>
       </div>
     </div>
   `,
-  styles: [`
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 0;
-      animation: rowSkeletonEnter 600ms var(--ease) both;
-    }
-
-    .cover {
-      flex-shrink: 0;
-    }
-
-    .lines {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .line-title {
-      width: 60%;
-    }
-
-    .line-sub {
-      width: 40%;
-    }
-
-    @keyframes rowSkeletonEnter {
-      from {
-        opacity: 0;
-        transform: translateY(-4px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-  `]
 })
 export class SkeletonRowComponent {
   @Input() size = 56;
   @Input() delay = 0;
+
+  get rowAnimation() {
+    return `rowSkeletonEnter 600ms var(--ease) ${this.delay}ms both`;
+  }
 }

@@ -1,33 +1,34 @@
+@import "./assets/reset.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --bone: #cdc5b7;
-  --bone-100: #f9f8f6;
-  --bone-200: #f0ede8;
-  --bone-300: #e5e0d8;
-  --bone-400: #d8d0c5;
-  --bone-500: #cdc5b7;
-  --bone-600: #b8ae9e;
-  --bone-700: #a09080;
-  --bone-800: #8b7664;
-  --bone-900: #725c4a;
+  --color-bone: #cdc5b7;
+  --color-bone-100: #f9f8f6;
+  --color-bone-200: #f0ede8;
+  --color-bone-300: #e5e0d8;
+  --color-bone-400: #d8d0c5;
+  --color-bone-500: #cdc5b7;
+  --color-bone-600: #b8ae9e;
+  --color-bone-700: #a09080;
+  --color-bone-800: #8b7664;
+  --color-bone-900: #725c4a;
 
-  --ink: #22201f;
-  --ink-100: #403d32;
-  --ink-200: #35322a;
-  --ink-300: #2d2a22;
-  --ink-400: #28261e;
-  --ink-500: #222019;
-  --ink-600: #1a1912;
-  --ink-700: #14130e;
-  --ink-800: #0d0d09;
-  --ink-900: #070705;
+  --color-ink: #22201f;
+  --color-ink-100: #403d32;
+  --color-ink-200: #35322a;
+  --color-ink-300: #2d2a22;
+  --color-ink-400: #28261e;
+  --color-ink-500: #222019;
+  --color-ink-600: #1a1912;
+  --color-ink-700: #14130e;
+  --color-ink-800: #0d0d09;
+  --color-ink-900: #070705;
 
-  --accent-track: #ffffc7;
-  --accent-album: #3aa7a3;
-  --accent-ep: #a37871;
+  --color-accent-track: #ffffc7;
+  --color-accent-album: #3aa7a3;
+  --color-accent-ep: #a37871;
 
   --font-display: "Satoshi", sans-serif;
   --font-body: "Inter", sans-serif;
@@ -39,10 +40,44 @@
   --radius-pill: 999px;
   --radius-card: 12px;
 
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --dur-fast: 160ms;
-  --dur-base: 240ms;
-  --dur-slow: 480ms;
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
+
+  --bone: var(--color-bone);
+  --bone-100: var(--color-bone-100);
+  --bone-200: var(--color-bone-200);
+  --bone-300: var(--color-bone-300);
+  --bone-400: var(--color-bone-400);
+  --bone-500: var(--color-bone-500);
+  --bone-600: var(--color-bone-600);
+  --bone-700: var(--color-bone-700);
+  --bone-800: var(--color-bone-800);
+  --bone-900: var(--color-bone-900);
+
+  --ink: var(--color-ink);
+  --ink-100: var(--color-ink-100);
+  --ink-200: var(--color-ink-200);
+  --ink-300: var(--color-ink-300);
+  --ink-400: var(--color-ink-400);
+  --ink-500: var(--color-ink-500);
+  --ink-600: var(--color-ink-600);
+  --ink-700: var(--color-ink-700);
+  --ink-800: var(--color-ink-800);
+  --ink-900: var(--color-ink-900);
+
+  --accent-track: var(--color-accent-track);
+  --accent-album: var(--color-accent-album);
+  --accent-ep: var(--color-accent-ep);
+
+  /* --font-display, --font-body, --radius-* defined by @theme above — same var names, no alias needed */
+
+  --ease: var(--ease-smooth);
+  --dur-fast: var(--duration-fast);
+  --dur-base: var(--duration-base);
+  --dur-slow: var(--duration-slow);
 }
 
 *,
@@ -142,7 +177,8 @@ body {
 }
 
 @keyframes spinnerShrink {
-  0%, 100% {
+  0%,
+  100% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
@@ -177,14 +213,54 @@ body {
 }
 
 .spinner {
-  display: inline-block;
-  animation: spinner 1s linear infinite;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  animation: spinner 1.2s linear infinite;
 }
 
 .spinner svg {
   width: 1em;
   height: 1em;
   filter: drop-shadow(0 0 0.5px rgba(255, 255, 255, 0.2));
+}
+
+.spinner-arc {
+  animation: spinnerShrink 1.2s ease-in-out infinite;
+}
+
+.spinner-bg {
+  fill: none;
+  stroke: var(--bone-800);
+  stroke-width: 5;
+}
+
+.spinner-progress {
+  fill: none;
+  stroke: var(--bone-100);
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 100ms linear;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes rowEnter {
@@ -232,6 +308,78 @@ body {
   }
 }
 
+@keyframes rowSkeletonEnter {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.skeleton-item {
+  display: flex;
+  gap: 12px;
+  animation: rowSkeletonEnter 600ms var(--ease) both;
+}
+
+.skeleton-item__cover {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+}
+
+.skeleton-item__lines {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.skeleton-loader__cover {
+  width: 100%;
+  aspect-ratio: 1;
+  animation: rowSkeletonEnter 600ms var(--ease) both;
+}
+
+.login-screen::before {
+  content: "";
+  position: absolute;
+  top: -120px;
+  right: -80px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(200, 149, 107, 0.07) 0%,
+    transparent 70%
+  );
+  pointer-events: none;
+}
+
 /* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 4px;
@@ -245,4 +393,253 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--bone-700);
+}
+
+app-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  line-height: 0;
+}
+
+app-icon span {
+  display: contents;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* === Phase D: Shared component patterns === */
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding: 0.5rem 1rem 0;
+  gap: 1rem;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.scroll-fade {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding-bottom: 2rem;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 16px,
+    black 95%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 16px,
+    black 95%,
+    transparent 100%
+  );
+}
+
+.scroll-fade::-webkit-scrollbar {
+  display: none;
+}
+
+/* Segmented control */
+.seg-control {
+  padding: 4px;
+  background: var(--ink-200);
+  border-radius: var(--radius-pill);
+  margin: 12px 0;
+}
+
+.seg-btns {
+  display: flex;
+  gap: 4px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.seg-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  border: none;
+  background: none;
+  color: var(--bone-600);
+  font-family: var(--font-body);
+  font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease);
+  text-transform: uppercase;
+}
+
+.seg-btn.active {
+  background: var(--bone);
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.seg-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--ink-100);
+  color: var(--bone-600);
+  font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.seg-btn.active .seg-count {
+  background: var(--ink-300);
+}
+
+/* Card item save button */
+.card-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  border: 1px solid var(--bone-600);
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+  color: var(--bone-600);
+  padding: 6px 12px;
+  text-transform: uppercase;
+  transition:
+    background var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    border-color var(--dur-fast) var(--ease);
+}
+
+.card-save-btn:hover {
+  background: var(--ink-200);
+  color: var(--bone-100);
+  border-color: var(--bone-100);
+}
+
+.card-save-btn:active {
+  opacity: 0.8;
+}
+
+.card-save-btn.added {
+  background: var(--bone);
+  color: var(--ink);
+  border-color: var(--bone);
+  animation: popIn 220ms var(--ease) both;
+}
+
+.card-save-btn.added span {
+  font-family: var(--font-display);
+  font-weight: 800;
+}
+
+.card-save-btn span {
+  font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
+  font-weight: 500;
+  flex-grow: 1;
+}
+
+/* Releases responsive grid */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.releases-grid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: max-content;
+  gap: 8px;
+  overflow: auto;
+  scrollbar-width: none;
+  height: 100%;
+  padding-top: 16px;
+  padding-bottom: 2rem;
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 16px,
+    black 95%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    black 16px,
+    black 95%,
+    transparent 100%
+  );
+}
+
+.releases-grid::-webkit-scrollbar {
+  display: none;
+}
+
+@media (min-width: 1100px) and (max-width: 1623px) {
+  .releases-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1624px) and (max-width: 1899px) {
+  .releases-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1900px) {
+  .releases-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* Desktop content scrollbar override */
+.desktop-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.desktop-content::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile panel animation */
+.mobile-content > * {
+  animation: panelEnter var(--dur-base) var(--ease);
+}
+
+.btn-pop-in {
+  animation: popIn 220ms var(--ease) both;
 }

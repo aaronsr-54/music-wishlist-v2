@@ -16,25 +16,8 @@ function hashColor(name: string): number {
   selector: 'app-avatar',
   standalone: true,
   imports: [NgStyle],
-  styles: [
-    `
-      .avatar {
-        width: calc(var(--size) * 1px);
-        height: calc(var(--size) * 1px);
-        font-size: calc(var(--size) * 0.5px);
-      }
-
-      @media (min-width: 1024px) {
-        .avatar {
-          width: calc(var(--size) * 1.2px);
-          height: calc(var(--size) * 1.2px);
-          font-size: calc(var(--size) * 0.6px);
-        }
-      }
-    `,
-  ],
   template: `
-    <div class="avatar" [ngStyle]="style()">
+    <div [ngStyle]="style()">
       {{ initial() }}
     </div>
   `,
@@ -46,10 +29,13 @@ export class AvatarComponent {
   initial = computed(() => (this.name || '?')[0]?.toUpperCase() ?? '?');
 
   style = computed(() => {
+    const s = this.size;
     const c = COLORS[hashColor(this.name || 'A')];
 
     return {
-      '--size': this.size,
+      width: `${s}px`,
+      height: `${s}px`,
+      fontSize: `${s * 0.5}px`,
       borderRadius: '50%',
       background: c.bg,
       color: c.color,

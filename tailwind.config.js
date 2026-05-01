@@ -1,0 +1,63 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: ['./src/**/*.{html,ts}'],
+  theme: {
+    extend: {
+      colors: {
+        bone: {
+          DEFAULT: '#cdc5b7',
+          100: '#f9f8f6',
+          200: '#f0ede8',
+          300: '#e5e0d8',
+          400: '#d8d0c5',
+          500: '#cdc5b7',
+          600: '#b8ae9e',
+          700: '#a09080',
+          800: '#8b7664',
+          900: '#725c4a',
+        },
+        ink: {
+          DEFAULT: '#22201f',
+          100: '#403d32',
+          200: '#35322a',
+          300: '#2d2a22',
+          400: '#28261e',
+          500: '#222019',
+          600: '#1a1912',
+          700: '#14130e',
+          800: '#0d0d09',
+          900: '#070705',
+        },
+        accent: {
+          track: '#ffffc7',
+          album: '#3aa7a3',
+          ep: '#a37871',
+        },
+      },
+      fontFamily: {
+        display: '"Satoshi", sans-serif',
+        body: '"Inter", sans-serif',
+      },
+      borderRadius: {
+        sm: '4px',
+        md: '8px',
+        lg: '16px',
+        xl: '24px',
+        pill: '999px',
+        card: '12px',
+      },
+      transitionTimingFunction: {
+        smooth: 'cubic-bezier(0.4, 0, 0.2, 1)',
+      },
+      transitionDuration: {
+        'fast': '160ms',
+        'base': '240ms',
+        'slow': '480ms',
+      },
+      screens: {
+        'md': '768px',
+      },
+    },
+  },
+  plugins: [],
+};
