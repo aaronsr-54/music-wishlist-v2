@@ -10,6 +10,7 @@ import { AvatarComponent } from '../avatar/avatar.component';
 import { PreviewService } from '../../../core/services/preview.service';
 import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
 import { IconComponent } from '../../icons/icon.component';
+import { ButtonComponent } from '../button/button.component';
 import { formatFans } from '../../utils/format-fans';
 
 @Component({
@@ -23,79 +24,71 @@ import { formatFans } from '../../utils/format-fans';
     AvatarComponent,
     PreviewSpinnerComponent,
     IconComponent,
+    ButtonComponent,
   ],
   template: `
     @if (source() === 'search') {
       @switch (type()) {
         @case ('artist') {
-          <div class="item-row">
+          <div class="flex items-center gap-3 py-2.5 border-b border-ink-200 transition-[background] duration-fast ease-smooth">
             <button
-              class="artist-link"
+              class="bg-transparent border-none cursor-pointer text-left flex-1 flex items-center gap-3 rounded-md transition-[background] duration-fast ease-smooth hover:bg-ink-100 p-0"
               (click)="onArtistClick.emit(trackItem())"
               [title]="trackItem().name"
             >
-              <app-cover
-                [coverUrl]="trackItem().coverUrl"
-                [name]="trackItem().name"
-                [size]="56"
-              />
-              <div class="item-meta">
-                <span class="item-title">{{ trackItem().name }}</span>
-                <div class="item-subtitle">
+              <app-cover [coverUrl]="trackItem().coverUrl" [name]="trackItem().name" [size]="56" />
+              <div class="flex-1 flex flex-col gap-[3px] min-w-0">
+                <span class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]">
+                  {{ trackItem().name }}
+                </span>
+                <div class="flex items-baseline gap-2 text-bone-800">
                   @if (trackItem().fanCount) {
-                    <span class="item-stat item-stat--fans"
-                      ><b>
-                        {{ formatFans(trackItem().fanCount ?? 0) }}
-                      </b>
-                      fan{{ trackItem().fanCount !== 1 ? 's' : '' }}</span
-                    >
-                    <span class="item-sep">·</span>
+                    <span class="text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700">
+                      <b>{{ formatFans(trackItem().fanCount ?? 0) }}</b>
+                      fan{{ trackItem().fanCount !== 1 ? 's' : '' }}
+                    </span>
+                    <span class="text-bone-800">·</span>
                   }
                   @if (trackItem().albumCount) {
-                    <span class="item-stat item-stat--albums">
+                    <span class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700">
                       {{ trackItem().albumCount }}
-                      álbum{{ trackItem().albumCount !== 1 ? 's' : '' }}</span
-                    >
+                      álbum{{ trackItem().albumCount !== 1 ? 's' : '' }}
+                    </span>
                   }
                 </div>
               </div>
             </button>
             @if (showAddButton()) {
               <button
-                class="add-btn"
-                [class.added]="isAdded()"
+                appBtn
+                variant="add"
+                [added]="isAdded()"
                 (click)="onAddClick.emit(trackItem())"
                 [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
               >
                 @if (isAdded()) {
-                  <app-icon name="heart-filled" />
+                  <app-icon name="heart-filled" class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
                 } @else {
-                  <app-icon name="heart" />
+                  <app-icon name="heart" class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
                 }
               </button>
             }
           </div>
         }
         @case ('track') {
-          <div class="item-row">
+          <div class="flex items-center gap-3 py-2.5 border-b border-ink-200 transition-[background] duration-fast ease-smooth">
             <button
-              class="cover-btn"
+              class="relative border-none bg-transparent p-0 cursor-pointer shrink-0 rounded-md transition-opacity duration-fast ease-smooth disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:opacity-80"
               (click)="onPlayPreview(trackItem())"
-              [title]="
-                previewState().trackId === trackItem().id &&
-                previewState().isPlaying
-                  ? 'Pausar'
-                  : 'Reproducir preview'
-              "
+              [title]="previewState().trackId === trackItem().id && previewState().isPlaying ? 'Pausar' : 'Reproducir preview'"
               [disabled]="!trackItem().previewUrl"
             >
-              <app-cover
-                [coverUrl]="trackItem().coverUrl"
-                [name]="trackItem().name"
-                [size]="56"
-              />
+              <app-cover [coverUrl]="trackItem().coverUrl" [name]="trackItem().name" [size]="56" />
               @if (previewState().trackId === trackItem().id) {
-                <div class="preview-overlay" @fadeInOut>
+                <div
+                  class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-sm backdrop-blur-[1.5px]"
+                  @fadeInOut
+                >
                   <app-preview-spinner
                     [progress]="previewState().progress"
                     [isPlaying]="previewState().isPlaying"
@@ -103,25 +96,30 @@ import { formatFans } from '../../utils/format-fans';
                 </div>
               }
             </button>
-            <div class="item-meta">
-              <span class="item-title">{{ trackItem().name }}</span>
-              <div class="item-subtitle">
-                <span class="item-artist">{{ trackItem().artists[0] }}</span>
+            <div class="flex-1 flex flex-col gap-[3px] min-w-0">
+              <span class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]">
+                {{ trackItem().name }}
+              </span>
+              <div class="flex items-baseline gap-2 text-bone-800">
+                <span class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(0.9375rem,0.8072rem+0.5061vw,1.25rem)]">
+                  {{ trackItem().artists[0] }}
+                </span>
                 ·
                 <app-type-chip [type]="trackItem().type" />
               </div>
             </div>
             @if (showAddButton()) {
               <button
-                class="add-btn"
-                [class.added]="isAdded()"
+                appBtn
+                variant="add"
+                [added]="isAdded()"
                 (click)="onAddClick.emit(trackItem())"
                 [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
               >
                 @if (isAdded()) {
-                  <app-icon name="check" />
+                  <app-icon name="check" class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
                 } @else {
-                  <app-icon name="plus" />
+                  <app-icon name="plus" class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
                 }
               </button>
             }
@@ -129,28 +127,19 @@ import { formatFans } from '../../utils/format-fans';
         }
       }
     } @else {
-      <div class="item-row wishlist-row">
+      <div class="flex items-center gap-3 py-3 px-2 -mx-2 border-b border-ink-200 transition-[background] duration-fast ease-smooth [animation:rowEnter_var(--dur-base)_var(--ease)_both]">
         @if (wishlistItem().type === 'track' && wishlistItem().previewUrl) {
           <button
-            class="cover-btn"
+            class="relative border-none bg-transparent p-0 cursor-pointer shrink-0 rounded-md transition-opacity duration-fast ease-smooth enabled:hover:opacity-80"
             (click)="onPlayPreviewWishlist(wishlistItem())"
-            [title]="
-              previewState().trackId === wishlistItem().trackId &&
-              previewState().isPlaying
-                ? 'Pausar'
-                : 'Reproducir preview'
-            "
+            [title]="previewState().trackId === wishlistItem().trackId && previewState().isPlaying ? 'Pausar' : 'Reproducir preview'"
           >
-            <app-cover
-              [coverUrl]="wishlistItem().coverUrl"
-              [name]="wishlistItem().name"
-              [size]="64"
-            />
-            @if (
-              previewState().trackId === wishlistItem().trackId &&
-              (previewState().isPlaying || previewState().isLoading)
-            ) {
-              <div class="preview-overlay" @fadeInOut>
+            <app-cover [coverUrl]="wishlistItem().coverUrl" [name]="wishlistItem().name" [size]="64" />
+            @if (previewState().trackId === wishlistItem().trackId && (previewState().isPlaying || previewState().isLoading)) {
+              <div
+                class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-sm backdrop-blur-[1.5px]"
+                @fadeInOut
+              >
                 <app-preview-spinner
                   [progress]="previewState().progress"
                   [isPlaying]="previewState().isPlaying"
@@ -159,292 +148,69 @@ import { formatFans } from '../../utils/format-fans';
             }
           </button>
         } @else {
-          <app-cover
-            [coverUrl]="wishlistItem().coverUrl"
-            [name]="wishlistItem().name"
-            [size]="64"
-          />
+          <app-cover [coverUrl]="wishlistItem().coverUrl" [name]="wishlistItem().name" [size]="64" />
         }
-        <div class="item-meta">
-          <span class="item-title">{{ wishlistItem().name }}</span>
-          <span class="item-subtitle">
-            <span class="item-artist">{{ wishlistItem().artist }}</span>
+
+        <div class="flex-1 flex flex-col gap-[3px] min-w-0">
+          <span class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]">
+            {{ wishlistItem().name }}
+          </span>
+          <span class="flex items-baseline gap-2 text-bone-800">
+            <span class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(0.9375rem,0.8072rem+0.5061vw,1.25rem)]">
+              {{ wishlistItem().artist }}
+            </span>
             ·
             <app-type-chip [type]="wishlistItem().type" />
           </span>
-          <span class="added-by">
+          <span class="text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] text-bone-800 flex items-center gap-1 flex-wrap font-semibold">
             <app-avatar [name]="wishlistItem().addedBy" [size]="14" />
             {{ wishlistItem().addedBy }} ·
-            <span class="added-date">{{
-              wishlistItem().addedAt | date: 'd MMM'
-            }}</span>
+            <span class="font-display font-normal italic">{{ wishlistItem().addedAt | date: 'd MMM' }}</span>
           </span>
         </div>
-        <div class="actions">
+
+        <div class="flex gap-1 shrink-0">
           @if (wishlistStatus() === 'pending') {
             <button
-              class="action-btn"
+              appBtn
+              variant="action"
               (click)="onMarkDownloaded.emit(wishlistItem())"
               title="Marcar como listo"
             >
-              <app-icon name="check" />
+              <app-icon name="check" class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)]" />
             </button>
             <button
-              class="action-btn action-danger"
+              appBtn
+              variant="action"
+              [danger]="true"
               (click)="onRemove.emit(wishlistItem())"
               title="Eliminar"
             >
-              <app-icon name="close" />
+              <app-icon name="close" class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)]" />
             </button>
           } @else {
             <button
-              class="action-btn"
+              appBtn
+              variant="action"
               (click)="onUnmarkDownloaded.emit(wishlistItem())"
               title="Mover a pendientes"
             >
-              <app-icon name="chevron-left" />
+              <app-icon name="chevron-left" class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)]" />
             </button>
             <button
-              class="action-btn action-danger"
+              appBtn
+              variant="action"
+              [danger]="true"
               (click)="onRemove.emit(wishlistItem())"
               title="Eliminar"
             >
-              <app-icon name="trash" />
+              <app-icon name="trash" class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)]" />
             </button>
           }
         </div>
       </div>
     }
   `,
-  styles: [
-    `
-      .artist-link {
-        background: none;
-        border: none;
-        cursor: pointer;
-        text-align: left;
-        flex: 1;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        border-radius: var(--radius-md);
-        transition: background var(--dur-fast) var(--ease);
-      }
-
-      .artist-link:hover {
-        background: var(--ink-100);
-      }
-
-      .item-row {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--ink-200);
-        transition: background var(--dur-fast) var(--ease);
-      }
-
-      .item-row.wishlist-row {
-        padding: 12px 8px;
-        margin: 0 -8px;
-        animation: rowEnter var(--dur-base) var(--ease) both;
-      }
-
-      .item-meta {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        min-width: 0;
-      }
-
-      .item-title {
-        font-size: clamp(1rem, 0.8957rem + 0.4049vw, 1.25rem);
-        font-weight: 600;
-        color: var(--bone-100);
-        line-height: 1;
-        white-space: nowrap;
-        overflow: hidden;
-        height: clamp(1.125rem, 0.9686rem + 0.6073vw, 1.5rem);
-        text-overflow: ellipsis;
-        font-family: var(--font-display);
-      }
-
-      .item-subtitle {
-        display: flex;
-        align-items: baseline;
-        gap: 0.5rem;
-        color: var(--bone-800);
-      }
-
-      .item-subtitle {
-        display: flex;
-        align-items: baseline;
-        gap: 0.5rem;
-        color: var(--bone-800);
-      }
-
-      .item-artist {
-        font-size: clamp(0.8125rem, 0.6822rem + 0.5061vw, 1.125rem);
-        color: var(--bone-600);
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        height: clamp(0.9375rem, 0.8072rem + 0.5061vw, 1.25rem);
-      }
-
-      .item-stat {
-        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-        color: var(--bone-700);
-      }
-
-      .item-stat--albums {
-        font-family: var(--font-display);
-        font-style: italic;
-      }
-
-      .item-sep {
-        color: var(--bone-800);
-      }
-
-      .added-by {
-        font-size: clamp(0.6875rem, 0.6093rem + 0.3036vw, 0.875rem);
-        color: var(--bone-800);
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        flex-wrap: wrap;
-        font-weight: 600;
-      }
-
-      .added-date {
-        font-family: var(--font-display);
-        font-weight: 400;
-        font-style: italic;
-      }
-
-      .add-btn {
-        width: clamp(2.25rem, 5vw, 2.75rem);
-        height: clamp(2.25rem, 5vw, 2.75rem);
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--bone-600);
-        flex-shrink: 0;
-        transition:
-          background var(--dur-fast) var(--ease),
-          color var(--dur-fast) var(--ease),
-          transform var(--dur-fast) var(--ease);
-        border: none;
-        background: none;
-        padding: 0;
-      }
-
-      .add-btn app-icon {
-        width: clamp(1.25rem, 3vw, 1.5rem);
-        height: clamp(1.25rem, 3vw, 1.5rem);
-      }
-
-      .add-btn:hover {
-        background: var(--ink-200);
-        color: var(--bone-100);
-      }
-
-      .add-btn:active {
-        transform: scale(0.82);
-      }
-
-      .add-btn.added {
-        background: var(--bone);
-        color: var(--ink);
-        animation: popIn 220ms var(--ease) both;
-      }
-
-      .actions {
-        display: flex;
-        gap: 4px;
-        flex-shrink: 0;
-      }
-
-      .action-btn {
-        width: clamp(2rem, 4.5vw, 2.5rem);
-        height: clamp(2rem, 4.5vw, 2.5rem);
-        border-radius: 50%;
-        border: 1.5px solid var(--ink-100);
-        background: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--bone-600);
-        transition:
-          border-color var(--dur-fast) var(--ease),
-          color var(--dur-fast) var(--ease),
-          transform var(--dur-fast) var(--ease);
-      }
-
-      .action-btn app-icon {
-        width: clamp(1rem, 2.5vw, 1.25rem);
-        height: clamp(1rem, 2.5vw, 1.25rem);
-      }
-
-      .action-btn:hover {
-        border-color: var(--bone-400);
-        color: var(--bone);
-        transform: scale(1.1);
-      }
-
-      .action-btn:active {
-        transform: scale(0.88);
-      }
-
-      .action-btn.action-danger:hover {
-        border-color: #e57373;
-        color: #e57373;
-        transform: scale(1.1);
-      }
-
-      .release-date {
-        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-        color: var(--bone-600);
-        font-family: var(--font-display);
-        font-style: italic;
-      }
-
-      .cover-btn {
-        position: relative;
-        border: none;
-        background: none;
-        padding: 0;
-        cursor: pointer;
-        flex-shrink: 0;
-        border-radius: var(--radius-md);
-        transition: opacity var(--dur-fast) var(--ease);
-      }
-
-      .cover-btn:disabled {
-        cursor: not-allowed;
-        opacity: 0.6;
-      }
-
-      .cover-btn:hover:not(:disabled) {
-        opacity: 0.8;
-      }
-
-      .preview-overlay {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: rgba(0, 0, 0, 0.6);
-        border-radius: var(--radius-sm);
-        backdrop-filter: blur(1.5px);
-      }
-    `,
-  ],
 })
 export class SearchResultItemComponent {
   private preview = inject(PreviewService);

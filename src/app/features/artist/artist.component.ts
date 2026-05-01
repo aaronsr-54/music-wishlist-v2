@@ -23,97 +23,102 @@ import { formatFans } from '../../shared/utils/format-fans';
     IconComponent,
   ],
   template: `
-    <div class="panel">
+    <div class="panel pt-2">
       <div class="eyebrow">
-        <button class="back-btn" (click)="goBack()" aria-label="Volver">
+        <button
+          class="bg-transparent border-none text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast ease-smooth hover:text-bone"
+          (click)="goBack()"
+          aria-label="Volver"
+        >
           ← Volver
         </button>
-        <span class="label"
-          ><span class="label--number">02.a/</span> ARTISTA</span
-        >
+        <span class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em]">
+          <span class="text-bone-700 font-normal italic">02.a/</span> ARTISTA
+        </span>
       </div>
 
-      <div class="artist-container">
-        <div class="artist-header">
-          <div class="artist-cover">
+      <div
+        class="flex flex-col h-full px-4 gap-16 overflow-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_10px,black_80%,transparent_100%)] [mask-image:linear-gradient(to_bottom,transparent_0%,black_10px,black_80%,transparent_100%)]"
+      >
+        <div class="flex gap-[30px] max-md:flex-col max-md:items-center max-md:gap-5 max-md:text-center">
+          <div class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-[150px] max-md:h-[150px]">
             @if (artist(); as a) {
-              <app-cover
-                [name]="a.name"
-                [coverUrl]="a.picture_big"
-                [size]="200"
-              />
+              <app-cover [name]="a.name" [coverUrl]="a.picture_big" [size]="200" />
             }
           </div>
 
-          <div class="artist-info">
+          <div class="flex-1 flex flex-col justify-start">
             @if (artist(); as a) {
-              <div class="artist-info artist-info--header">
-                <div class="artist-title-section">
-                  <h1>{{ a.name }}</h1>
+              <div class="flex flex-col">
+                <div class="flex items-center gap-4 mb-5">
+                  <h1 class="m-0 text-[clamp(2rem,1.166rem+3.2389vw,4rem)] font-bold font-display flex-1">
+                    {{ a.name }}
+                  </h1>
                   <button
-                    class="add-artist-btn"
-                    [class.added]="isArtistInWishlist(a.id)"
+                    class="w-9 h-9 md:w-12 md:h-12 rounded-full cursor-pointer flex items-center justify-center text-bone-600 shrink-0 border-[1.5px] border-ink-200 bg-transparent p-0 transition-[background,border-color,color,transform] duration-fast ease-smooth hover:border-bone-600 hover:bg-ink-100 hover:text-bone-100 active:scale-[0.88]"
+                    [class.!bg-bone]="isArtistInWishlist(a.id)"
+                    [class.!border-bone]="isArtistInWishlist(a.id)"
+                    [class.!text-ink]="isArtistInWishlist(a.id)"
+                    [class.btn-pop-in]="isArtistInWishlist(a.id)"
                     (click)="toggleArtist($event)"
-                    [title]="
-                      isArtistInWishlist(a.id)
-                        ? 'Quitar de wishlist'
-                        : 'Añadir a wishlist'
-                    "
+                    [title]="isArtistInWishlist(a.id) ? 'Quitar de wishlist' : 'Añadir a wishlist'"
                   >
                     @if (isArtistInWishlist(a.id)) {
-                      <app-icon name="heart-filled" class="artist-heart-icon" />
+                      <app-icon name="heart-filled" class="w-5 h-5 md:w-8 md:h-8" />
                     } @else {
-                      <app-icon name="heart" class="artist-heart-icon" />
+                      <app-icon name="heart" class="w-5 h-5 md:w-8 md:h-8" />
                     }
                   </button>
                 </div>
 
-                <div class="artist-stats">
+                <div class="flex gap-[30px] mb-5 max-md:justify-center">
                   @if (a.nb_fan !== undefined) {
-                    <div class="stat">
-                      <span class="stat-label">Seguidores</span>
-                      <span class="stat-value">{{ formatFans(a.nb_fan) }}</span>
+                    <div class="flex flex-col gap-1">
+                      <span class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700 uppercase tracking-[0.5px]">Seguidores</span>
+                      <span class="text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-bold">{{ formatFans(a.nb_fan) }}</span>
                     </div>
                   }
-
                   @if (a.nb_album !== undefined) {
-                    <div class="stat">
-                      <span class="stat-label">Álbumes</span>
-                      <span class="stat-value">{{ a.nb_album }}</span>
+                    <div class="flex flex-col gap-1">
+                      <span class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700 uppercase tracking-[0.5px]">Álbumes</span>
+                      <span class="text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-bold">{{ a.nb_album }}</span>
                     </div>
                   }
                 </div>
-              </div>
 
-              @if (a.link) {
-                <a
-                  [href]="a.link"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="deezer-link"
-                >
-                  Ver en Deezer
-                </a>
-              }
+                @if (a.link) {
+                  <a
+                    [href]="a.link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="inline-block py-2.5 px-5 bg-accent-track text-ink rounded-sm no-underline text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold transition-opacity duration-fast ease-smooth hover:opacity-80 md:w-fit"
+                  >
+                    Ver en Deezer
+                  </a>
+                }
+              </div>
             }
           </div>
         </div>
 
-        <div class="tracks-section">
-          <h2 class="section-title">Canciones populares</h2>
+        <div class="flex flex-col gap-4">
+          <h2 class="font-body text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700 font-semibold tracking-[0.05em] uppercase m-0">
+            Canciones populares
+          </h2>
 
           @if (loading()) {
-            <div class="tracks-loading">
+            <div class="flex flex-col items-center gap-4 py-10 px-5 text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]">
               <app-spinner size="md" />
-              <span class="tracks-loading__text">Cargando canciones...</span>
+              <span class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic">Cargando canciones...</span>
             </div>
           } @else if (tracks().length === 0) {
-            <div class="empty">No hay canciones disponibles</div>
+            <div class="text-center py-10 px-5 text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] [animation:fadeIn_300ms_var(--ease)_both]">
+              No hay canciones disponibles
+            </div>
           } @else {
-            <div class="tracks-list">
+            <div class="flex flex-col [&>*]:[animation:rowEnter_var(--dur-base)_var(--ease)_both]">
               @for (track of tracks(); track track.id) {
                 <app-search-result-item
-                  class="result-item"
                   [item]="track"
                   type="track"
                   [isAdded]="isInWishlist(track.id)"
@@ -128,280 +133,6 @@ import { formatFans } from '../../shared/utils/format-fans';
       </div>
     </div>
   `,
-  styles: [
-    `
-      .panel {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-        padding: 0.5rem 1rem;
-        gap: 1rem;
-      }
-
-      .artist-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        padding: 0.5rem 1rem;
-        gap: 4rem;
-        overflow: auto;
-        scrollbar-width: none;
-
-        -webkit-mask-image: linear-gradient(
-          to bottom,
-          transparent 0%,
-          black 10px,
-          black 80%,
-          transparent 100%
-        );
-        mask-image: linear-gradient(
-          to bottom,
-          transparent 0%,
-          black 10px,
-          black 80%,
-          transparent 100%
-        );
-      }
-
-      .eyebrow {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-
-      .label {
-        font-family: var(--font-display);
-        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-        color: var(--bone);
-        font-weight: 700;
-        letter-spacing: 0.06em;
-      }
-
-      .label--number {
-        color: var(--bone-700);
-        font-weight: 400;
-        font-style: italic;
-      }
-
-      .back-btn {
-        background: none;
-        border: none;
-        color: var(--bone-700);
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        cursor: pointer;
-        transition: color var(--dur-fast) var(--ease);
-      }
-
-      .back-btn:hover {
-        color: var(--bone);
-      }
-
-      .artist-header {
-        display: flex;
-        gap: 30px;
-      }
-
-      .artist-cover {
-        flex-shrink: 0;
-        width: 200px;
-        height: 200px;
-        border-radius: var(--radius-md);
-        overflow: hidden;
-      }
-
-      .artist-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-      }
-
-      .artist-title-section {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        margin-bottom: 20px;
-      }
-
-      .artist-info h1 {
-        margin: 0;
-        font-size: clamp(2rem, 1.166rem + 3.2389vw, 4rem);
-        font-weight: bold;
-        font-family: var(--font-display);
-        flex: 1;
-      }
-
-      .add-artist-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--bone-600);
-        flex-shrink: 0;
-        transition:
-          background var(--dur-fast) var(--ease),
-          color var(--dur-fast) var(--ease),
-          transform var(--dur-fast) var(--ease);
-        border: 1.5px solid var(--ink-200);
-        background: transparent;
-        padding: 0;
-
-        @media (min-width: 768px) {
-          width: 48px;
-          height: 48px;
-        }
-      }
-
-      .add-artist-btn:hover {
-        border-color: var(--bone-600);
-        background: var(--ink-100);
-        color: var(--bone-100);
-      }
-
-      .add-artist-btn:active {
-        transform: scale(0.88);
-      }
-
-      .add-artist-btn.added {
-        background: var(--bone);
-        border-color: var(--bone);
-        color: var(--ink);
-        animation: popIn 220ms var(--ease) both;
-      }
-
-      .artist-heart-icon {
-        width: 1.25rem;
-        height: 1.25rem;
-
-        @media (min-width: 768px) {
-          width: 2rem;
-          height: 2rem;
-        }
-      }
-
-      .artist-stats {
-        display: flex;
-        gap: 30px;
-        margin-bottom: 20px;
-      }
-
-      .stat {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-      }
-
-      .stat-label {
-        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-        color: var(--bone-700);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        font-family: var(--font-display);
-        font-style: italic;
-      }
-
-      .stat-value {
-        font-size: clamp(1.125rem, 1.0207rem + 0.4049vw, 1.375rem);
-        font-weight: bold;
-      }
-
-      .deezer-link {
-        display: inline-block;
-        padding: 10px 20px;
-        background: var(--accent-track);
-        color: var(--ink);
-        border-radius: var(--radius-sm);
-        text-decoration: none;
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-weight: 600;
-        transition: opacity var(--dur-fast) var(--ease);
-
-        @media (min-width: 768px) {
-          width: fit-content;
-        }
-      }
-
-      .deezer-link:hover {
-        opacity: 0.8;
-      }
-
-      .tracks-section {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .section-title {
-        font-family: var(--font-body);
-        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-        color: var(--bone-700);
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        text-transform: uppercase;
-        margin: 0;
-      }
-
-      .empty {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--bone-700);
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        animation: fadeIn 300ms var(--ease) both;
-      }
-
-      .tracks-loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-        padding: 40px 20px;
-        color: var(--bone-600);
-        text-align: center;
-        animation: fadeIn 300ms var(--ease) both;
-      }
-
-      .tracks-loading__text {
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-style: italic;
-      }
-
-      .tracks-list {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .result-item {
-        animation: rowEnter var(--dur-base) var(--ease) both;
-      }
-
-      @media (max-width: 768px) {
-        .artist-container {
-          padding: 1rem 0;
-        }
-
-        .artist-header {
-          flex-direction: column;
-          align-items: center;
-          gap: 20px;
-          text-align: center;
-        }
-
-        .artist-cover {
-          width: 150px;
-          height: 150px;
-        }
-
-        .artist-stats {
-          justify-content: center;
-        }
-      }
-    `,
-  ],
 })
 export class ArtistComponent implements OnInit {
   private route = inject(ActivatedRoute);

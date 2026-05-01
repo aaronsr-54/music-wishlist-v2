@@ -6,97 +6,44 @@ import { IconComponent } from '../../shared/icons/icon.component';
   standalone: true,
   imports: [IconComponent],
   template: `
-    <nav class="tab-bar">
+    <nav class="flex p-2 pb-6 bg-gradient-to-t from-ink-200 to-ink-100 border-t border-ink-100 shadow-[0px_-4px_10px_5px_rgb(0_0_0/10%)] shrink-0 rounded-tl-xl rounded-tr-xl w-full">
       <button
-        class="tab"
-        [class.active]="activeTab === 'releases'"
+        class="flex items-center justify-center gap-3 border-none cursor-pointer font-body text-sm font-medium tracking-[0.04em] transition-colors duration-fast ease-smooth py-3 rounded-pill"
+        [class]="activeTab === 'releases' ? 'bg-bone text-ink' : 'bg-transparent text-bone-700'"
+        [style.flex-grow]="activeTab === 'releases' ? 2 : 1"
         (click)="tabChange.emit('releases')"
       >
-        <app-icon name="music-note" class="tab-icon" />
+        <app-icon name="music-note" class="w-[clamp(1.5rem,3.5vw,2rem)] h-[clamp(1.5rem,3.5vw,2rem)]" />
         @if (activeTab === 'releases') {
-          <span>LANZAMIENTOS</span>
+          <span class="font-display font-bold">LANZAMIENTOS</span>
         }
       </button>
       <button
-        class="tab"
-        [class.active]="activeTab === 'search'"
+        class="flex items-center justify-center gap-3 border-none cursor-pointer font-body text-sm font-medium tracking-[0.04em] transition-colors duration-fast ease-smooth py-3 rounded-pill"
+        [class]="activeTab === 'search' ? 'bg-bone text-ink' : 'bg-transparent text-bone-700'"
+        [style.flex-grow]="activeTab === 'search' ? 2 : 1"
         (click)="tabChange.emit('search')"
       >
-        <app-icon name="search" class="tab-icon" />
+        <app-icon name="search" class="w-[clamp(1.5rem,3.5vw,2rem)] h-[clamp(1.5rem,3.5vw,2rem)]" />
         @if (activeTab === 'search') {
-          <span>BUSCADOR</span>
+          <span class="font-display font-bold">BUSCADOR</span>
         }
       </button>
       <button
-        class="tab"
-        [class.active]="activeTab === 'wishlist'"
+        class="flex items-center justify-center gap-3 border-none cursor-pointer font-body text-sm font-medium tracking-[0.04em] transition-colors duration-fast ease-smooth py-3 rounded-pill"
+        [class]="activeTab === 'wishlist' ? 'bg-bone text-ink' : 'bg-transparent text-bone-700'"
+        [style.flex-grow]="activeTab === 'wishlist' ? 2 : 1"
         (click)="tabChange.emit('wishlist')"
       >
-        <app-icon name="heart" class="tab-icon" />
+        <app-icon name="heart" class="w-[clamp(1.5rem,3.5vw,2rem)] h-[clamp(1.5rem,3.5vw,2rem)]" />
         @if (activeTab === 'wishlist') {
-          <span>WHISLIST</span>
+          <span class="font-display font-bold">WHISLIST</span>
         }
       </button>
     </nav>
   `,
-  styles: [
-    `
-      .tab-bar {
-        display: flex;
-        padding: 8px;
-        padding-bottom: 24px;
-        background: linear-gradient(
-          0deg,
-          var(--ink-200) 0%,
-          var(--ink-100) 100%
-        );
-        border-top: 1px solid var(--ink-100);
-        box-shadow: 0px -4px 10px 5px rgb(0 0 0 / 10%);
-        flex-shrink: 0;
-        border-top-left-radius: var(--radius-xl);
-        border-top-right-radius: var(--radius-xl);
-        width: 100%;
-      }
-
-      .tab {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--bone-700);
-        font-family: var(--font-body);
-        font-size: 14px;
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        transition: color var(--dur-fast) var(--ease);
-        padding: 12px 0;
-        border-radius: var(--radius-pill);
-      }
-
-      .tab span {
-        font-family: var(--font-display);
-        font-weight: 700;
-      }
-
-      .tab-icon {
-        width: clamp(1.5rem, 3.5vw, 2rem);
-        height: clamp(1.5rem, 3.5vw, 2rem);
-      }
-
-      .tab.active {
-        color: var(--ink);
-        background-color: var(--bone);
-        flex-grow: 2;
-      }
-    `,
-  ],
 })
 export class TabBarComponent {
-  @Input({ required: true }) activeTab: 'search' | 'wishlist' | 'releases' =
-    'search';
+  @Input({ required: true }) activeTab: 'search' | 'wishlist' | 'releases' = 'search';
   @Output() tabChange = new EventEmitter<'search' | 'wishlist' | 'releases'>();
 }

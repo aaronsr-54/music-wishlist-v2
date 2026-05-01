@@ -15,8 +15,8 @@ import {
   switchMap,
   catchError,
   of,
+  Subscription,
 } from 'rxjs';
-import { Subscription } from 'rxjs';
 import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { FavoriteArtistsService } from '../../core/firebase/favorite-artists.service';
@@ -47,57 +47,75 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
   template: `
     <div class="panel">
       <div class="eyebrow">
-        <span class="label"
-          ><span class="label--number">02/</span> BUSCADOR</span
-        >
+        <span class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em] uppercase md:hidden">
+          <span class="text-bone-700 font-normal italic">02/</span> BUSCADOR
+        </span>
       </div>
 
-      <div class="search-field" [class.has-value]="query()">
-        <app-icon name="search" class="search-icon" />
+      <div
+        class="flex items-center gap-2.5 py-4 border-b-[1.5px] border-ink-100 transition-[border-color] duration-fast ease-smooth"
+        [class.border-bone-600]="query()"
+      >
+        <app-icon
+          name="search"
+          class="text-bone-800 w-[1em] h-[1em] shrink-0 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)]"
+        />
         <input
           id="search-input"
           type="text"
           placeholder="Buscar canciones, álbumes..."
           [ngModel]="query()"
           (ngModelChange)="onQuery($event)"
-          class="search-input"
+          class="flex-1 bg-transparent border-none outline-none text-bone font-display text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] font-normal placeholder:text-bone-800 placeholder:italic"
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
         />
         @if (query()) {
-          <button class="clear-btn" (click)="clearQuery()" aria-label="Limpiar">
-            <app-icon name="close" />
+          <button
+            class="bg-transparent border-none cursor-pointer text-bone-600 p-[0.25em] flex items-center rounded-full transition-colors duration-fast ease-smooth text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] hover:text-bone"
+            (click)="clearQuery()"
+            aria-label="Limpiar"
+          >
+            <app-icon name="close" class="w-[1em] h-[1em]" />
           </button>
         }
       </div>
 
       @if (query()) {
-        <div class="filter-pills">
+        <div class="flex gap-2 overflow-x-auto [animation:slideDown_200ms_var(--ease)_both] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <button
-            class="filter-pill"
-            [class.active]="selectedTypes().has('artist')"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
+            [class.!bg-bone]="selectedTypes().has('artist')"
+            [class.!border-bone]="selectedTypes().has('artist')"
+            [class.!text-ink]="selectedTypes().has('artist')"
             (click)="toggleType('artist')"
           >
             Artistas
           </button>
           <button
-            class="filter-pill"
-            [class.active]="selectedTypes().has('track')"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
+            [class.!bg-bone]="selectedTypes().has('track')"
+            [class.!border-bone]="selectedTypes().has('track')"
+            [class.!text-ink]="selectedTypes().has('track')"
             (click)="toggleType('track')"
           >
             Canciones
           </button>
           <button
-            class="filter-pill"
-            [class.active]="selectedTypes().has('album')"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
+            [class.!bg-bone]="selectedTypes().has('album')"
+            [class.!border-bone]="selectedTypes().has('album')"
+            [class.!text-ink]="selectedTypes().has('album')"
             (click)="toggleType('album')"
           >
             Álbums
           </button>
           <button
-            class="filter-pill"
-            [class.active]="selectedTypes().has('ep')"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
+            [class.!bg-bone]="selectedTypes().has('ep')"
+            [class.!border-bone]="selectedTypes().has('ep')"
+            [class.!text-ink]="selectedTypes().has('ep')"
             (click)="toggleType('ep')"
           >
             EPs
@@ -107,7 +125,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       @switch (state()) {
         @case ('idle') {
-          <div class="results">
+          <div class="scroll-fade">
             <app-empty-state
               icon="search"
               title="Empieza a escribir"
@@ -116,19 +134,19 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           </div>
         }
         @case ('loading') {
-          <div class="results results-loading">
-            <div class="loading-header">
+          <div class="scroll-fade flex items-center justify-center min-h-[300px]">
+            <div class="flex flex-col items-center gap-4 py-10 px-5 text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]">
               <app-spinner size="md" />
-              <span class="loading-text">Buscando...</span>
+              <span class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic">Buscando...</span>
             </div>
           </div>
         }
         @case ('results') {
           @if (filteredArtists().length > 0) {
-            <div class="results">
+            <div class="scroll-fade">
               @for (artist of filteredArtists(); track artist.id) {
                 <app-search-result-item
-                  class="result-item"
+                  class="[animation:rowEnter_var(--dur-base)_var(--ease)_both]"
                   [item]="artist"
                   type="artist"
                   [isAdded]="isAdded(artist.id, 'artist')"
@@ -140,10 +158,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             </div>
           }
           @if (filteredTracks().length > 0) {
-            <div class="results">
+            <div class="scroll-fade">
               @for (track of filteredTracks(); track track.id) {
                 <app-search-result-item
-                  class="result-item"
+                  class="[animation:rowEnter_var(--dur-base)_var(--ease)_both]"
                   [item]="track"
                   type="track"
                   [isAdded]="isAdded(track.id)"
@@ -154,7 +172,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           }
         }
         @case ('empty') {
-          <div class="results">
+          <div class="scroll-fade">
             <app-empty-state
               title="Sin resultados"
               subtitle="Prueba con otro término de búsqueda"
@@ -164,11 +182,16 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
 
       @if (!query() && favoriteArtists().length > 0) {
-        <div class="favorites-slider-container">
-          <h3 class="section-title">Artistas favoritos</h3>
-          <div class="artists-slider">
+        <div class="py-3 pb-6 border-t border-ink-100 [animation:fadeIn_200ms_var(--ease)_both]">
+          <h3 class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2">
+            Artistas favoritos
+          </h3>
+          <div
+            class="flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-2 [-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_10px,black_calc(100%-10px),transparent_100%)] [mask-image:linear-gradient(to_right,transparent_0%,black_10px,black_calc(100%-10px),transparent_100%)]"
+          >
             @for (artist of favoriteArtists(); track artist.id) {
               <app-artist-card
+                class="flex-[0_0_80px] min-w-[80px]"
                 [artist]="artist"
                 (onArtistClick)="navigateToArtist($event)"
                 (onRemoveFavorite)="removeFavorite($event)"
@@ -179,238 +202,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       }
     </div>
   `,
-  styles: [
-    `
-      .panel {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        height: 100%;
-        overflow: hidden;
-        padding: 0.5rem 1rem 0 1rem;
-      }
-
-      .eyebrow {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        justify-content: space-between;
-      }
-
-      .label {
-        font-family: var(--font-display);
-        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-        color: var(--bone);
-        font-weight: 700;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-
-        @media (min-width: 768px) {
-          display: none;
-        }
-      }
-
-      .label--number {
-        color: var(--bone-700);
-        font-weight: 400;
-        font-style: italic;
-      }
-
-      .search-field {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 1rem 0;
-        border-bottom: 1.5px solid var(--ink-100);
-        transition: border-color var(--dur-fast) var(--ease);
-      }
-
-      .search-icon {
-        color: var(--bone-800);
-        width: 1em;
-        height: 1em;
-        flex-shrink: 0;
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-      }
-
-      .search-input {
-        flex: 1;
-        background: none;
-        border: none;
-        outline: none;
-        color: var(--bone);
-        font-family: var(--font-display);
-        font-size: clamp(1.5rem, 1.3957rem + 0.4049vw, 1.75rem);
-        font-weight: 400;
-      }
-
-      .search-input::placeholder {
-        color: var(--bone-800);
-        font-style: italic;
-      }
-
-      .clear-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--bone-600);
-        padding: 0.25em;
-        display: flex;
-        align-items: center;
-        border-radius: 50%;
-        transition: color var(--dur-fast) var(--ease);
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-      }
-
-      .clear-btn app-icon {
-        width: 1em;
-        height: 1em;
-      }
-
-      .clear-btn:hover {
-        color: var(--bone);
-      }
-
-      .filter-pills {
-        display: flex;
-        gap: 8px;
-        overflow-x: auto;
-        animation: slideDown 200ms var(--ease) both;
-      }
-
-      .filter-pill {
-        padding: 6px 12px;
-        border-radius: 20px;
-        border: 1.5px solid var(--ink-200);
-        background: transparent;
-        color: var(--bone-600);
-        font-family: var(--font-display);
-        font-size: clamp(0.8125rem, 0.7082rem + 0.4049vw, 1.0625rem);
-        font-weight: 500;
-        white-space: nowrap;
-        cursor: pointer;
-        transition:
-          background var(--dur-fast) var(--ease),
-          color var(--dur-fast) var(--ease),
-          border-color var(--dur-fast) var(--ease);
-      }
-
-      .filter-pill:hover {
-        border-color: var(--bone-600);
-        color: var(--bone);
-      }
-
-      .filter-pill.active {
-        background: var(--bone);
-        border-color: var(--bone);
-        color: var(--ink);
-      }
-
-      .results {
-        flex: 1;
-        overflow-y: auto;
-        min-height: 0;
-        scrollbar-width: none;
-        padding-top: 1rem;
-        padding-bottom: 2rem;
-        -webkit-mask-image: linear-gradient(
-          to bottom,
-          transparent 0%,
-          black 16px,
-          black 95%,
-          transparent 100%
-        );
-        mask-image: linear-gradient(
-          to bottom,
-          transparent 0%,
-          black 16px,
-          black 95%,
-          transparent 100%
-        );
-      }
-
-      .results::-webkit-scrollbar {
-        display: none;
-      }
-
-      .results-loading {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 300px;
-      }
-
-      .loading-header {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 16px;
-        padding: 40px 20px;
-        color: var(--bone-600);
-        text-align: center;
-        animation: fadeIn 300ms var(--ease) both;
-      }
-
-      .loading-text {
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-style: italic;
-      }
-
-      .result-item {
-        animation: rowEnter var(--dur-base) var(--ease) both;
-      }
-
-      .favorites-slider-container {
-        padding: 0.75rem 0 1.5rem 0;
-        border-top: 1px solid var(--ink-100);
-        animation: fadeIn 200ms var(--ease) both;
-      }
-
-      .section-title {
-        font-family: var(--font-display);
-        font-size: clamp(0.6875rem, 0.6093rem + 0.3036vw, 0.875rem);
-        font-weight: 700;
-        color: var(--bone-700);
-        margin: 0 0 0.75rem 0;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        padding-inline: 8px;
-      }
-
-      .artists-slider {
-        display: flex;
-        gap: 12px;
-        overflow-x: auto;
-        scrollbar-width: none;
-        padding-inline: 8px;
-
-        -webkit-mask-image: linear-gradient(
-          to right,
-          transparent 0%,
-          black 10px,
-          black calc(100% - 10px),
-          transparent 100%
-        );
-
-        mask-image: linear-gradient(
-          to right,
-          transparent 0%,
-          black 10px,
-          black calc(100% - 10px),
-          transparent 100%
-        );
-      }
-
-      .artists-slider::-webkit-scrollbar {
-        display: none;
-      }
-
-      .artists-slider app-artist-card {
-        flex: 0 0 80px;
-        min-width: 80px;
-      }
-    `,
-  ],
 })
 export class SearchComponent implements OnInit, OnDestroy {
   private search = inject(SearchService);

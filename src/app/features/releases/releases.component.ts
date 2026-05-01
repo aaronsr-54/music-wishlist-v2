@@ -19,18 +19,8 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 const MONTHS = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre',
+  'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+  'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
 ];
 
 @Component({
@@ -38,39 +28,42 @@ const MONTHS = [
   standalone: true,
   imports: [CommonModule, CardItemComponent, SpinnerComponent, EmptyStateComponent],
   template: `
-    <div class="panel">
+    <div class="panel w-full [animation:fadeIn_300ms_ease_both]">
       <div class="eyebrow">
-        <span class="label">
-          <span class="label--number">01/</span> LANZAMIENTOS
+        <span class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em] md:hidden">
+          <span class="text-bone-700 font-normal italic">01/</span> LANZAMIENTOS
         </span>
       </div>
 
-      <div class="releases-container">
-        <div class="month-selector-container">
-          <div class="month-selector">
-            <button class="nav-btn" (click)="prevMonth()" title="Mes anterior">
-              <
+      <div class="flex flex-col h-full pb-8">
+        <div class="flex items-center justify-center border-b-[1.5px] border-ink-100 [animation:slideDown_300ms_ease_both]">
+          <div class="flex items-center justify-between gap-8 py-1 w-full md:w-80 md:mx-auto">
+            <button
+              class="w-8 h-8 border-none bg-transparent text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+              (click)="prevMonth()"
+              title="Mes anterior"
+            >
+              &lt;
             </button>
-            <span class="date-label">
-              <span class="month-label">{{ monthLabel() }}</span>
-              <span class="year-label">{{ yearLabel() }}</span>
+            <span class="flex items-center justify-center gap-2 text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] text-bone min-w-[150px] text-center uppercase py-4 transition-opacity duration-[200ms] ease-[ease]">
+              <span class="font-semibold tracking-[0.04em]">{{ monthLabel() }}</span>
+              <span class="font-display text-bone-700 font-light italic -mt-[3px]">{{ yearLabel() }}</span>
             </span>
             <button
-              class="nav-btn"
-              [class.disabled]="!canGoToNextMonth()"
+              class="w-8 h-8 border-none bg-transparent text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               [disabled]="!canGoToNextMonth()"
               (click)="nextMonth()"
               title="Mes siguiente"
             >
-              >
+              &gt;
             </button>
           </div>
         </div>
 
         @if (loading()) {
-          <div class="releases-loading">
+          <div class="flex flex-col items-center justify-center gap-4 min-h-[300px] py-10 px-5 text-bone-600 text-center [animation:fadeIn_300ms_ease_both]">
             <app-spinner size="md" />
-            <span class="releases-loading__text">Cargando lanzamientos...</span>
+            <span class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic">Cargando lanzamientos...</span>
           </div>
         } @else if (filteredReleases().length === 0) {
           <app-empty-state
@@ -79,10 +72,11 @@ const MONTHS = [
             [subtitle]="favorites().length === 0 ? 'Busca tus artistas favoritos y añádelos aquí.' : 'Ninguno de tus artistas favoritos ha lanzado algo este mes. Añade más artistas a tu lista de favoritos.'"
           />
         } @else {
-          <div class="releases-list">
-            @for (item of filteredReleases(); track item.id + ':' + item.type) {
+          <div class="releases-grid">
+            @for (item of filteredReleases(); track item.id + ':' + item.type; let i = $index) {
               <app-card-item
-                class="result-item"
+                class="[animation:scaleIn_300ms_ease_both]"
+                [style.animation-delay]="i * 30 + 'ms'"
                 [item]="item"
                 [isAdded]="isInWishlist(item.id)"
                 (toggleWishlist)="toggleWishlist($event)"
@@ -93,289 +87,6 @@ const MONTHS = [
       </div>
     </div>
   `,
-  styles: [
-    `
-      @keyframes scaleIn {
-        from {
-          opacity: 0;
-          transform: scale(0.95);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.6;
-        }
-      }
-
-      .panel {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-        padding: 0.5rem 1rem 0 1rem;
-        gap: 1rem;
-        width: 100%;
-        animation: fadeIn 300ms ease both;
-      }
-
-      .eyebrow {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-
-      .label {
-        font-family: var(--font-display);
-        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-        color: var(--bone);
-        font-weight: 700;
-        letter-spacing: 0.06em;
-
-        @media (min-width: 768px) {
-          display: none;
-        }
-      }
-
-      .label--number {
-        color: var(--bone-700);
-        font-weight: 400;
-        font-style: italic;
-      }
-
-      .releases-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        padding-bottom: 2rem;
-      }
-
-      .month-selector-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-bottom: 1.5px solid var(--ink-100);
-        animation: slideDown 300ms ease both;
-      }
-
-      .month-selector {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        padding: 4px 0;
-        width: 100%;
-
-        @media (min-width: 768px) {
-          width: 20rem;
-          margin-inline: auto;
-        }
-      }
-
-      .nav-btn {
-        width: 32px;
-        height: 32px;
-        border: none;
-        background: none;
-        color: var(--bone);
-        cursor: pointer;
-        font-size: clamp(1.125rem, 1.0207rem + 0.4049vw, 1.375rem);
-        font-weight: 600;
-        transition:
-          color var(--dur-fast) var(--ease),
-          transform var(--dur-fast) var(--ease);
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .nav-btn:hover {
-        color: var(--bone-100);
-        transform: scale(1.15);
-      }
-
-      .nav-btn:active {
-        transform: scale(0.9);
-      }
-
-      .nav-btn:disabled,
-      .nav-btn.disabled {
-        opacity: 0.2;
-        cursor: not-allowed;
-        pointer-events: none;
-      }
-
-      .date-label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        font-size: clamp(1.5rem, 1.3957rem + 0.4049vw, 1.75rem);
-        color: var(--bone);
-        min-width: 150px;
-        text-align: center;
-        text-transform: uppercase;
-        padding: 16px 0;
-        transition: opacity 200ms ease;
-      }
-
-      .month-label {
-        font-weight: 600;
-        letter-spacing: 0.04em;
-      }
-
-      .year-label {
-        font-family: var(--font-display);
-        color: var(--bone-700);
-        font-weight: 300;
-        font-style: italic;
-        margin-top: -3px;
-      }
-
-      .releases-loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        min-height: 300px;
-        padding: 40px 20px;
-        color: var(--bone-600);
-        text-align: center;
-        animation: fadeIn 300ms ease both;
-      }
-
-      .releases-loading__text {
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-style: italic;
-      }
-
-      .empty {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--bone-700);
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        animation: fadeIn 400ms ease both;
-      }
-
-      .releases-list {
-        min-width: 0;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: max-content;
-        gap: 8px;
-        overflow: auto;
-        scrollbar-width: none;
-        height: 100%;
-        padding-top: 16px;
-        animation: fadeIn 300ms ease both;
-
-        padding-bottom: 2rem;
-        -webkit-mask-image: linear-gradient(
-          to bottom,
-          transparent 0%,
-          black 16px,
-          black 95%,
-          transparent 100%
-        );
-        mask-image: linear-gradient(
-          to bottom,
-          transparent 0%,
-          black 16px,
-          black 95%,
-          transparent 100%
-        );
-
-        @media (min-width: 1100px) and (max-width: 1623px) {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        @media (min-width: 1624px) and (max-width: 1899px) {
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        @media (min-width: 1900px) {
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-        }
-      }
-
-      .result-item {
-        animation: scaleIn 300ms ease both;
-      }
-
-      .result-item:nth-child(1) {
-        animation-delay: 0ms;
-      }
-      .result-item:nth-child(2) {
-        animation-delay: 30ms;
-      }
-      .result-item:nth-child(3) {
-        animation-delay: 60ms;
-      }
-      .result-item:nth-child(4) {
-        animation-delay: 90ms;
-      }
-      .result-item:nth-child(5) {
-        animation-delay: 120ms;
-      }
-      .result-item:nth-child(6) {
-        animation-delay: 150ms;
-      }
-      .result-item:nth-child(7) {
-        animation-delay: 180ms;
-      }
-      .result-item:nth-child(8) {
-        animation-delay: 210ms;
-      }
-      .result-item:nth-child(9) {
-        animation-delay: 240ms;
-      }
-      .result-item:nth-child(10) {
-        animation-delay: 270ms;
-      }
-      .result-item:nth-child(11) {
-        animation-delay: 300ms;
-      }
-      .result-item:nth-child(12) {
-        animation-delay: 330ms;
-      }
-      .result-item:nth-child(13) {
-        animation-delay: 360ms;
-      }
-      .result-item:nth-child(14) {
-        animation-delay: 390ms;
-      }
-      .result-item:nth-child(15) {
-        animation-delay: 420ms;
-      }
-      .result-item:nth-child(16) {
-        animation-delay: 450ms;
-      }
-      .result-item:nth-child(17) {
-        animation-delay: 480ms;
-      }
-      .result-item:nth-child(18) {
-        animation-delay: 510ms;
-      }
-      .result-item:nth-child(19) {
-        animation-delay: 540ms;
-      }
-      .result-item:nth-child(20) {
-        animation-delay: 570ms;
-      }
-
-    `,
-  ],
 })
 export class ReleasesComponent implements OnInit {
   private searchSvc = inject(SearchService);
@@ -391,14 +102,8 @@ export class ReleasesComponent implements OnInit {
 
   favorites = this.favoritesSvc.favorites;
 
-  monthLabel = computed(() => {
-    const month = this.selectedMonth();
-    return `${MONTHS[month]}`;
-  });
-
-  yearLabel = computed(() => {
-    return this.selectedYear().toString();
-  });
+  monthLabel = computed(() => MONTHS[this.selectedMonth()]);
+  yearLabel = computed(() => this.selectedYear().toString());
 
   canGoToNextMonth = computed(() => {
     const now = new Date();
@@ -406,7 +111,6 @@ export class ReleasesComponent implements OnInit {
     const currentMonth = now.getMonth();
     const selectedYear = this.selectedYear();
     const selectedMonth = this.selectedMonth();
-
     return !(selectedYear === currentYear && selectedMonth === currentMonth);
   });
 

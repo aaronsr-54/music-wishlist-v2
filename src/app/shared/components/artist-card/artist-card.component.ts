@@ -1,14 +1,13 @@
 import { Component, input, output } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { FavoriteArtist } from '../../../core/firebase/favorite-artists.service';
 import { IconComponent } from '../../icons/icon.component';
 
 @Component({
   selector: 'app-artist-card',
   standalone: true,
-  imports: [CommonModule, IconComponent],
+  imports: [IconComponent],
   templateUrl: './artist-card.component.html',
-  styleUrl: './artist-card.component.scss'
+  host: { class: 'flex flex-col' },
 })
 export class ArtistCardComponent {
   artist = input.required<FavoriteArtist>();

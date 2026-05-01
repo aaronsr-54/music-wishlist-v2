@@ -9,240 +9,61 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
   imports: [AvatarComponent],
   template: `
     @if (isOpen()) {
-      <div class="modal-backdrop" (click)="closeModal()"></div>
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Mi Perfil</h2>
-          <button class="close-btn" (click)="closeModal()">✕</button>
+      <div
+        class="fixed inset-0 bg-black/50 z-[999]"
+        (click)="closeModal()"
+      ></div>
+      <div
+        class="fixed bottom-0 left-0 right-0 bg-ink border-t border-ink-200 rounded-t-[20px] z-[1000] max-h-[90vh] overflow-y-auto md:bottom-auto md:top-1/2 md:left-1/2 md:right-auto md:max-w-[500px] md:w-full md:rounded-[16px] md:-translate-x-1/2 md:-translate-y-1/2"
+        [style.animation]="modalAnimation"
+      >
+        <div class="flex items-center justify-between p-5 border-b border-ink-200">
+          <h2 class="m-0 font-display text-base font-semibold text-bone">Mi Perfil</h2>
+          <button
+            class="bg-transparent border-none text-[20px] text-bone-600 cursor-pointer p-0 w-8 h-8 flex items-center justify-center transition-colors duration-fast ease-smooth hover:text-bone"
+            (click)="closeModal()"
+          >✕</button>
         </div>
 
         @if (auth.currentUser(); as user) {
-          <div class="profile-body">
-            <div class="profile-header">
+          <div class="p-6 flex flex-col gap-6">
+            <div class="flex gap-5 pb-6 border-b border-ink-200">
               <app-avatar
                 [name]="user.displayName ?? user.email ?? 'Usuario'"
                 [size]="80"
               />
-              <div class="profile-info">
-                <h1 class="profile-name">
+              <div class="flex-1 flex flex-col justify-center gap-1">
+                <h1 class="font-display text-[20px] font-bold text-bone m-0 leading-[1.2]">
                   {{ user.displayName ?? user.email }}
                 </h1>
-                <p class="profile-email">{{ user.email }}</p>
+                <p class="text-[13px] text-bone-600 m-0">{{ user.email }}</p>
               </div>
             </div>
 
-            <div class="stats">
-              <div class="stat-card">
-                <span class="stat-label">Wishlist Total</span>
-                <span class="stat-value">{{ wishlistSvc.total() }}</span>
+            <div class="grid gap-3 grid-cols-[repeat(auto-fit,minmax(120px,1fr))]">
+              <div class="flex flex-col gap-[6px] p-4 bg-ink-200 rounded-card text-center">
+                <span class="text-[11px] text-bone-600 tracking-[0.02em] uppercase">Wishlist Total</span>
+                <span class="font-display text-[24px] font-bold text-bone">{{ wishlistSvc.total() }}</span>
               </div>
-              <div class="stat-card">
-                <span class="stat-label">Pendientes</span>
-                <span class="stat-value">{{
-                  wishlistSvc.pending().length
-                }}</span>
+              <div class="flex flex-col gap-[6px] p-4 bg-ink-200 rounded-card text-center">
+                <span class="text-[11px] text-bone-600 tracking-[0.02em] uppercase">Pendientes</span>
+                <span class="font-display text-[24px] font-bold text-bone">{{ wishlistSvc.pending().length }}</span>
               </div>
-              <div class="stat-card">
-                <span class="stat-label">Listos</span>
-                <span class="stat-value">{{
-                  wishlistSvc.downloaded().length
-                }}</span>
+              <div class="flex flex-col gap-[6px] p-4 bg-ink-200 rounded-card text-center">
+                <span class="text-[11px] text-bone-600 tracking-[0.02em] uppercase">Listos</span>
+                <span class="font-display text-[24px] font-bold text-bone">{{ wishlistSvc.downloaded().length }}</span>
               </div>
             </div>
 
-            <button class="logout" (click)="logout()">Cerrar sesión</button>
+            <button
+              class="flex items-center justify-center text-[#e57373] font-display text-[15px] font-semibold cursor-pointer transition-[opacity,transform] duration-fast ease-smooth bg-transparent border-none hover:opacity-[0.88] hover:-translate-y-px active:translate-y-0"
+              (click)="logout()"
+            >Cerrar sesión</button>
           </div>
         }
       </div>
     }
   `,
-  styles: [
-    `
-      .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-      }
-
-      .modal-content {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--ink);
-        border-top: 1px solid var(--ink-200);
-        border-radius: 20px 20px 0 0;
-        z-index: 1000;
-        max-height: 90vh;
-        overflow-y: auto;
-        animation: slideUp 240ms var(--ease);
-      }
-
-      @keyframes slideUp {
-        from {
-          transform: translateY(100%);
-        }
-        to {
-          transform: translateY(0);
-        }
-      }
-
-      @media (min-width: 768px) {
-        .modal-content {
-          position: fixed;
-          bottom: auto;
-          top: 50%;
-          left: 50%;
-          right: auto;
-          transform: translate(-50%, -50%);
-          max-height: 90vh;
-          max-width: 500px;
-          border-radius: 16px;
-          animation: slideIn 240ms var(--ease);
-        }
-
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translate(-50%, -45%);
-          }
-          to {
-            opacity: 1;
-            transform: translate(-50%, -50%);
-          }
-        }
-      }
-
-      .modal-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 20px;
-        border-bottom: 1px solid var(--ink-200);
-      }
-
-      .modal-header h2 {
-        margin: 0;
-        font-family: var(--font-display);
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--bone);
-      }
-
-      .close-btn {
-        background: none;
-        border: none;
-        font-size: 20px;
-        color: var(--bone-600);
-        cursor: pointer;
-        padding: 0;
-        width: 32px;
-        height: 32px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: color var(--dur-fast) var(--ease);
-      }
-
-      .close-btn:hover {
-        color: var(--bone);
-      }
-
-      .profile-body {
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-      }
-
-      .profile-header {
-        display: flex;
-        gap: 20px;
-        padding-bottom: 24px;
-        border-bottom: 1px solid var(--ink-200);
-      }
-
-      .profile-info {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 4px;
-      }
-
-      .profile-name {
-        font-family: var(--font-display);
-        font-size: 20px;
-        font-weight: 700;
-        color: var(--bone);
-        margin: 0;
-        line-height: 1.2;
-      }
-
-      .profile-email {
-        font-size: 13px;
-        color: var(--bone-600);
-        margin: 0;
-      }
-
-      .stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 12px;
-      }
-
-      .stat-card {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-        padding: 16px;
-        background: var(--ink-200);
-        border-radius: var(--radius-card);
-        text-align: center;
-      }
-
-      .stat-label {
-        font-size: 11px;
-        color: var(--bone-600);
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-      }
-
-      .stat-value {
-        font-family: var(--font-display);
-        font-size: 24px;
-        font-weight: 700;
-        color: var(--bone);
-      }
-
-      .logout {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #e57373;
-        font-family: var(--font-display);
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition:
-          opacity var(--dur-fast) var(--ease),
-          transform var(--dur-fast) var(--ease);
-      }
-
-      .logout-btn:hover {
-        opacity: 0.88;
-        transform: translateY(-1px);
-      }
-
-      .logout-btn:active {
-        transform: translateY(0);
-      }
-    `,
-  ],
 })
 export class ProfileModalComponent {
   auth = inject(AuthService);
@@ -250,6 +71,11 @@ export class ProfileModalComponent {
 
   @Input({ required: true }) isOpen = () => false;
   @Output() closed = new EventEmitter<void>();
+
+  get modalAnimation() {
+    if (window.innerWidth >= 768) return 'slideIn 240ms var(--ease)';
+    return 'slideUp 240ms var(--ease)';
+  }
 
   closeModal() {
     this.closed.emit();
