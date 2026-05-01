@@ -26,11 +26,15 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-profile-section title="Social">
-      <section class="flex flex-col gap-8">
+      <section
+        class="flex flex-col gap-8 border border-solid border-ink-200 rounded-lg p-4 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
+      >
         <!-- SECCIÓN: Compartida con -->
         <div class="flex flex-col gap-4">
-          <h3 class="text-sm font-semibold text-bone-700 uppercase tracking-wider">
-            Compartida con
+          <h3
+            class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-bone-700 italic"
+          >
+            Compartir wishlist con
           </h3>
 
           <!-- Input de email autocomplete -->
@@ -41,9 +45,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
           />
 
           <!-- Listado de shares enviados -->
-          <div
-            class="border border-solid border-ink-200 rounded-lg p-4 flex flex-col gap-3 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
-          >
+          <div class="p-4 flex flex-col gap-3">
             @for (share of shareService.sharesGiven(); track share.id) {
               <div
                 class="flex items-center justify-between py-3 px-2 group hover:bg-ink-100/20 rounded transition-colors duration-base"
@@ -54,9 +56,10 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
                 <button
                   (click)="unshare(share)"
                   [disabled]="loading()"
-                  class="text-xs text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer opacity-0 group-hover:opacity-100"
+                  class="text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer opacity-0 group-hover:opacity-100"
+                  title="Quitar"
                 >
-                  Quitar
+                  <app-icon name="close" class="w-5 h-5" />
                 </button>
               </div>
             } @empty {
@@ -73,14 +76,12 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
         @if (shareService.sharesReceived().length > 0) {
           <div class="flex flex-col gap-4">
             <h3
-              class="text-sm font-semibold text-bone-700 uppercase tracking-wider"
+              class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-bone-700 italic "
             >
-              De otros usuarios
+              Wishlists de otros usuarios
             </h3>
 
-            <div
-              class="border border-solid border-ink-200 rounded-lg p-4 flex flex-col gap-3 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
-            >
+            <div class="flex flex-col gap-3">
               @for (share of shareService.sharesReceived(); track share.id) {
                 <div
                   class="flex items-center justify-between py-3 px-2 group transition-all duration-base"
@@ -98,12 +99,12 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
                     <button
                       (click)="toggleHidden(share)"
                       [disabled]="loading()"
-                      class="text-xs text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer opacity-0 group-hover:opacity-100"
+                      class="text-xs text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer"
                       [title]="share.hidden ? 'Mostrar' : 'Ocultar'"
                     >
                       <app-icon
                         [name]="share.hidden ? 'eye-off' : 'eye'"
-                        class="w-5 h-5"
+                        class="w-6 h-6 fill-bone"
                       />
                     </button>
                   </div>
@@ -134,7 +135,7 @@ export class ProfileSharedComponent {
         email,
         user.uid,
         user.displayName || user.email || 'Usuario',
-        user.photoURL || null
+        user.photoURL || null,
       );
     } finally {
       this.loading.set(false);
