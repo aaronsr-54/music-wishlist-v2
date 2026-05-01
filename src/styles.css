@@ -177,7 +177,8 @@ body {
 }
 
 @keyframes spinnerShrink {
-  0%, 100% {
+  0%,
+  100% {
     stroke-dashoffset: 0;
     opacity: 1;
   }
@@ -243,13 +244,23 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes rowEnter {
@@ -309,13 +320,23 @@ body {
 }
 
 @keyframes slideUp {
-  from { transform: translateY(100%); }
-  to { transform: translateY(0); }
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 }
 
 @keyframes slideIn {
-  from { opacity: 0; transform: translate(-50%, -45%); }
-  to { opacity: 1; transform: translate(-50%, -50%); }
+  from {
+    opacity: 0;
+    transform: translate(-50%, -45%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 .skeleton-item {
@@ -344,14 +365,18 @@ body {
 }
 
 .login-screen::before {
-  content: '';
+  content: "";
   position: absolute;
   top: -120px;
   right: -80px;
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(200, 149, 107, 0.07) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    rgba(200, 149, 107, 0.07) 0%,
+    transparent 70%
+  );
   pointer-events: none;
 }
 
@@ -537,13 +562,18 @@ app-icon span {
   font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
   font-weight: 500;
   flex-grow: 1;
-  height: 12px;
 }
 
 /* Releases responsive grid */
 @keyframes scaleIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .releases-grid {
@@ -578,15 +608,21 @@ app-icon span {
 }
 
 @media (min-width: 1100px) and (max-width: 1623px) {
-  .releases-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .releases-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1624px) and (max-width: 1899px) {
-  .releases-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .releases-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 }
 
 @media (min-width: 1900px) {
-  .releases-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .releases-grid {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
 }
 
 /* Desktop content scrollbar override */
