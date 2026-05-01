@@ -26,10 +26,12 @@ service cloud.firestore {
       allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerUid;
       allow delete: if request.auth != null && request.auth.uid == resource.data.ownerUid;
       allow update: if request.auth != null && (
-        request.auth.uid == resource.data.recipientEmail &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hidden'])
-      ) || (
-        request.auth.uid == resource.data.ownerUid
+        (
+          request.auth.token.email == resource.data.recipientEmail &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(['hidden'])
+        ) || (
+          request.auth.uid == resource.data.ownerUid
+        )
       );
     }
     match /{document=**} {
