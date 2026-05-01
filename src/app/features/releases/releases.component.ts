@@ -35,7 +35,7 @@ const MONTHS = [
         </span>
       </div>
 
-      <div class="flex flex-col h-full pb-8">
+      <div class="flex flex-col h-full pb-8" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
         <div class="flex items-center justify-center border-b-[1.5px] border-ink-100 [animation:slideDown_300ms_ease_both]">
           <div class="flex items-center justify-between gap-8 py-1 w-full md:w-80 md:mx-auto">
             <button
@@ -72,7 +72,7 @@ const MONTHS = [
             [subtitle]="favorites().length === 0 ? 'Busca tus artistas favoritos y añádelos aquí.' : 'Ninguno de tus artistas favoritos ha lanzado algo este mes. Añade más artistas a tu lista de favoritos.'"
           />
         } @else {
-          <div class="releases-grid">
+          <div class="releases-grid transition-opacity duration-300" [class.opacity-0]="animatingMonth()">
             @for (item of filteredReleases(); track item.id + ':' + item.type; let i = $index) {
               <app-card-item
                 class="[animation:scaleIn_300ms_ease_both]"
@@ -99,8 +99,12 @@ export class ReleasesComponent implements OnInit {
 
   allReleases = signal<ReleaseItem[]>([]);
   loading = signal(false);
+  animatingMonth = signal(false);
 
   favorites = this.favoritesSvc.favorites;
+
+  private touchStartX = 0;
+  private readonly SWIPE_THRESHOLD = 50;
 
   monthLabel = computed(() => MONTHS[this.selectedMonth()]);
   yearLabel = computed(() => this.selectedYear().toString());
@@ -233,5 +237,30 @@ export class ReleasesComponent implements OnInit {
       if (!user) return;
       await this.wishlistSvc.addRelease(item, user);
     }
+  }
+
+  onTouchStart(e: TouchEvent) {
+    if (e.touches.length > 0) {
+      this.touchStartX = e.touches[0].clientX;
+    }
+  }
+
+  onTouchEnd(e: TouchEvent) {
+    if (e.changedTouches.length === 0) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = this.touchStartX - touchEndX;
+
+    if (Math.abs(diff) < this.SWIPE_THRESHOLD) return;
+
+    this.animatingMonth.set(true);
+    setTimeout(() => {
+      if (diff > 0) {
+        this.nextMonth();
+      } else {
+        this.prevMonth();
+      }
+      this.animatingMonth.set(false);
+    }, 150);
   }
 }
