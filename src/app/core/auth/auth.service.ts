@@ -36,8 +36,8 @@ export class AuthService {
     effect(() => {
       const firebaseUser = this.firebaseUser();
       if (firebaseUser) {
-        this.wishlistService.initListener();
-        this.favoriteArtistsService.initListener();
+        this.wishlistService.initListener(firebaseUser.uid);
+        this.favoriteArtistsService.initListener(firebaseUser.uid);
       } else if (!this.demoMode()) {
         this.wishlistService.stopListener();
         this.favoriteArtistsService.stopListener();
@@ -96,8 +96,8 @@ export class AuthService {
   setDemoMode(enabled: boolean): void {
     this.demoMode.set(enabled);
     if (enabled) {
-      this.wishlistService.initListener();
-      this.favoriteArtistsService.initListener();
+      this.wishlistService.initListener('demo-user');
+      this.favoriteArtistsService.initListener('demo-user');
     }
   }
 }
