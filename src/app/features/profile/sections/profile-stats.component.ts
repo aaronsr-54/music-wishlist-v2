@@ -1,49 +1,27 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { WishlistService } from '../../../core/firebase/wishlist.service';
+import { ProfileSectionComponent } from '../../../shared/components/profile-section/profile-section.component';
+import { StatCardComponent } from '../../../shared/components/stat-card/stat-card.component';
 
 @Component({
   selector: 'app-profile-stats',
   standalone: true,
+  imports: [ProfileSectionComponent, StatCardComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="px-2 mb-6">
-      <h3
-        class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em]"
-      >
-        Estadísticas
-      </h3>
-      <div class="grid grid-cols-[repeat(auto-fit,_minmax(100px,_1fr))] gap-3">
-        <div
-          class="flex flex-col gap-2 p-3 rounded-lg text-center border border-ink-200"
-        >
-          <span class="italic text-xs uppercase font-light text-bone-700"
-            >Pendientes</span
-          >
-          <span class="text-xl font-bold font-display text-bone">{{
-            wishlistSvc.pending().length
-          }}</span>
-        </div>
-        <div
-          class="flex flex-col gap-2 p-3 rounded-lg text-center border border-ink-200"
-        >
-          <span class="italic text-xs uppercase font-light text-bone-700"
-            >Guardadas</span
-          >
-          <span class="text-xl font-bold font-display text-bone">{{
-            wishlistSvc.downloaded().length
-          }}</span>
-        </div>
-        <div
-          class="flex flex-col gap-2 p-3 rounded-lg text-center border border-ink-200"
-        >
-          <span class="italic text-xs uppercase font-light text-bone-700"
-            >Total</span
-          >
-          <span class="text-xl font-bold font-display text-bone">{{
-            wishlistSvc.total()
-          }}</span>
-        </div>
+    <app-profile-section title="Estadísticas">
+      <div class="grid grid-cols-[repeat(auto-fit,_minmax(80px,_1fr))] gap-3">
+        <app-stat-card
+          label="Pendientes"
+          [value]="wishlistSvc.pending().length"
+        />
+        <app-stat-card
+          label="Guardadas"
+          [value]="wishlistSvc.downloaded().length"
+        />
+        <app-stat-card label="Total" [value]="wishlistSvc.total()" />
       </div>
-    </section>
+    </app-profile-section>
   `,
 })
 export class ProfileStatsComponent {

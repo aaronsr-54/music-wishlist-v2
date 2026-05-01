@@ -45,7 +45,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
           />
 
           <!-- Listado de shares enviados -->
-          <div class="p-4 flex flex-col gap-3">
+          <div class="flex flex-col gap-3">
             @for (share of shareService.sharesGiven(); track share.id) {
               <div
                 class="flex items-center justify-between py-3 px-2 group hover:bg-ink-100/20 rounded transition-colors duration-base"

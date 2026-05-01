@@ -23,7 +23,7 @@ import { AvatarComponent } from '../../shared/components/avatar/avatar.component
             (click)="openProfile.emit()"
             title="Abrir perfil"
           >
-            <app-avatar [name]="u.displayName ?? u.email ?? 'U'" [size]="32" />
+            <app-avatar [name]="u.displayName ?? u.email ?? 'U'" [size]="34" />
           </button>
         }
       </div>

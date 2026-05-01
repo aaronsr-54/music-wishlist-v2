@@ -1,34 +1,56 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ProfileSectionComponent } from '../../../shared/components/profile-section/profile-section.component';
 
 type TabType = 'releases' | 'search' | 'wishlist';
 
 @Component({
   selector: 'app-profile-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ProfileSectionComponent],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <section class="px-2 mb-6">
-      <h3
-        class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em]"
+    <app-profile-section title="Configuración">
+      <section
+        class="border border-solid border-ink-200 rounded-lg p-4 flex flex-col gap-8 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
       >
-        Configuración
-      </h3>
+        <div class="flex flex-col md:flex-row gap-2 md:gap-10 md:items-center">
+          <span
+            class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-bone-700 italic"
+          >
+            Página principal:
+          </span>
 
-      <label class="flex items-center gap-3 py-4 border-b border-ink-100 cursor-pointer">
-        <span class="flex-1 text-sm font-semibold text-bone">Tab inicial al abrir</span>
-        <select
-          [(ngModel)]="defaultTab"
-          (change)="saveDefaultTab()"
-          class="bg-transparent border-none outline-none text-bone font-body text-sm cursor-pointer transition-colors duration-fast hover:opacity-80"
-        >
-          <option value="releases">01/ Lanzamientos</option>
-          <option value="search">02/ Buscador</option>
-          <option value="wishlist">03/ Wishlist</option>
-        </select>
-      </label>
-    </section>
+          <div class="p-1 bg-ink-200 rounded-2xl md:rounded-pill md:flex-1">
+            <div class="flex flex-col md:flex-row gap-1 overflow-hidden">
+              <button
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-xl [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                [class.active]="defaultTab() === 'releases'"
+                (click)="setDefaultTab('releases')"
+              >
+                Lanzamientos
+              </button>
+
+              <button
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-xl [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                [class.active]="defaultTab() === 'search'"
+                (click)="setDefaultTab('search')"
+              >
+                Buscador
+              </button>
+
+              <button
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-xl [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                [class.active]="defaultTab() === 'wishlist'"
+                (click)="setDefaultTab('wishlist')"
+              >
+                Wishlist
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </app-profile-section>
   `,
 })
 export class ProfileSettingsComponent {
@@ -36,12 +58,14 @@ export class ProfileSettingsComponent {
 
   constructor() {
     const saved = localStorage.getItem('defaultTab') as TabType | null;
+
     if (saved) {
       this.defaultTab.set(saved);
     }
   }
 
-  saveDefaultTab() {
-    localStorage.setItem('defaultTab', this.defaultTab());
+  setDefaultTab(tab: TabType) {
+    this.defaultTab.set(tab);
+    localStorage.setItem('defaultTab', tab);
   }
 }

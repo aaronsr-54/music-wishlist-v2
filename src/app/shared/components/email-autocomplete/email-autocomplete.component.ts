@@ -18,11 +18,11 @@ import { IconComponent } from '../../icons/icon.component';
   template: `
     <div class="relative w-full">
       <div
-        class="flex items-center gap-2.5 py-4 border-b border-solid border-ink-100 group hover:border-bone-600 transition-colors duration-base"
+        class="w-100 flex items-centergap-2.5 py-4 border-b border-solid border-ink-100 group hover:border-bone-600 transition-colors duration-base"
       >
         <app-icon
           name="mail"
-          class="text-bone-800 w-8 h-8 shrink-0 group-hover:text-bone-700 transition-colors duration-base"
+          class="text-bone-800 w-8 h-8 group-hover:text-bone-700 transition-colors duration-base"
         />
         <input
           type="email"
@@ -30,15 +30,15 @@ import { IconComponent } from '../../icons/icon.component';
           [(ngModel)]="emailInput"
           (keyup.enter)="selectEmail(emailInput())"
           [disabled]="disabled()"
-          class="flex-1 bg-transparent border-none outline-none text-bone font-body text-lg placeholder:text-bone-800 placeholder:italic transition-colors duration-base"
+          class="flex-1 bg-transparent text-bone font-body text-lg placeholder:text-bone-800 placeholder:italic transition-colors duration-base border-none outline-none"
         />
         <button
           (click)="selectEmail(emailInput())"
           [disabled]="!emailValid()"
-          class="text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+          class="text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           title="Compartir"
         >
-          <app-icon name="send" class="w-5 h-5" />
+          <app-icon name="send" class="w-6 h-6 fill-bone" />
         </button>
       </div>
 

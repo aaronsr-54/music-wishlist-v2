@@ -26,7 +26,7 @@ import { formatFans } from '../../shared/utils/format-fans';
     <div class="panel pt-2">
       <div class="eyebrow">
         <button
-          class="bg-transparent border-none text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast ease-smooth hover:text-bone"
+          class="bg-transparent border-none text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast ease-smooth hover:text-bone lowercase"
           (click)="goBack()"
           aria-label="Volver"
         >
