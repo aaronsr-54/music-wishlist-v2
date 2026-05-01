@@ -98,7 +98,10 @@
       "mcp__plugin_chrome-devtools-mcp_chrome-devtools__get_network_request",
       "Bash(npm i *)",
       "Bash(timeout 60 bash *)",
-      "Bash(timeout 120 bash *)"
+      "Bash(timeout 120 bash *)",
+      "Bash(cat)",
+      "Bash(chmod +x /tmp/swap_colors_v2.sh)",
+      "Bash(bash /tmp/swap_colors_v2.sh)"
     ]
   }
 }

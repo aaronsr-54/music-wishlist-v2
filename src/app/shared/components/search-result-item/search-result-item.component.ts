@@ -33,10 +33,10 @@ import { firstValueFrom } from 'rxjs';
       @switch (type()) {
         @case ('artist') {
           <div
-            class="flex items-center gap-3 py-2.5 border-b border-ink-200 transition-[background] duration-fast ease-smooth"
+            class="flex items-center gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200 transition-[background] duration-fast ease-smooth"
           >
             <button
-              class="bg-transparent border-none cursor-pointer text-left flex-1 flex items-center gap-3 rounded-md transition-[background] duration-fast ease-smooth hover:bg-ink-100 p-0"
+              class="bg-transparent border-none cursor-pointer text-left flex-1 flex items-center gap-3 rounded-md transition-[background] duration-fast ease-smooth hover:bg-bone-100 dark:hover:bg-ink-100 p-0"
               (click)="onArtistClick.emit(trackItem())"
               [title]="trackItem().name"
             >
@@ -47,23 +47,23 @@ import { firstValueFrom } from 'rxjs';
               />
               <div class="flex-1 flex flex-col gap-[3px] min-w-0">
                 <span
-                  class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
+                  class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
                 >
                   {{ trackItem().name }}
                 </span>
-                <div class="flex items-baseline gap-2 text-bone-800">
+                <div class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800">
                   @if (trackItem().fanCount) {
                     <span
-                      class="text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700"
+                      class="text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700"
                     >
                       <b>{{ formatFans(trackItem().fanCount ?? 0) }}</b>
                       fan{{ trackItem().fanCount !== 1 ? 's' : '' }}
                     </span>
-                    <span class="text-bone-800">·</span>
+                    <span class="text-ink-800 dark:text-bone-800">·</span>
                   }
                   @if (trackItem().albumCount) {
                     <span
-                      class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700"
+                      class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700"
                     >
                       {{ trackItem().albumCount }}
                       álbum{{ trackItem().albumCount !== 1 ? 's' : '' }}
@@ -97,7 +97,7 @@ import { firstValueFrom } from 'rxjs';
         }
         @case ('track') {
           <div
-            class="flex items-center gap-3 py-2.5 border-b border-ink-200 transition-[background] duration-fast ease-smooth"
+            class="flex items-center gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200 transition-[background] duration-fast ease-smooth"
           >
             <button
               class="relative border-none bg-transparent p-0 cursor-pointer shrink-0 rounded-md transition-opacity duration-fast ease-smooth disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:opacity-80"
@@ -130,13 +130,13 @@ import { firstValueFrom } from 'rxjs';
             </button>
             <div class="flex-1 flex flex-col gap-[3px] min-w-0">
               <span
-                class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
+                class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
               >
                 {{ trackItem().name }}
               </span>
-              <div class="flex items-baseline gap-2 text-bone-800">
+              <div class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800">
                 <span
-                  class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis"
+                  class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis"
                 >
                   {{ trackItem().artists[0] }}
                 </span>
@@ -170,7 +170,7 @@ import { firstValueFrom } from 'rxjs';
       }
     } @else {
       <div
-        class="flex items-center gap-3 py-3 px-2 -mx-2 border-b border-ink-200 transition-[background] duration-fast ease-smooth [animation:rowEnter_var(--dur-base)_var(--ease)_both]"
+        class="flex items-center gap-3 py-3 px-2 -mx-2 border-b border-bone-200 dark:border-ink-200 transition-[background] duration-fast ease-smooth [animation:rowEnter_var(--dur-base)_var(--ease)_both]"
       >
         @if (wishlistItem().type === 'track') {
           <button
@@ -211,13 +211,13 @@ import { firstValueFrom } from 'rxjs';
 
         <div class="flex-1 flex flex-col gap-[3px] min-w-0">
           <span
-            class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
+            class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
           >
             {{ wishlistItem().name }}
           </span>
-          <span class="flex items-baseline gap-2 text-bone-800">
+          <span class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800">
             <span
-              class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(0.9375rem,0.8072rem+0.5061vw,1.25rem)]"
+              class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(0.9375rem,0.8072rem+0.5061vw,1.25rem)]"
             >
               {{ wishlistItem().artist }}
             </span>
@@ -225,13 +225,13 @@ import { firstValueFrom } from 'rxjs';
             <app-type-chip [type]="wishlistItem().type" />
           </span>
           <span
-            class="text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] text-bone-800 flex items-center gap-1 flex-wrap font-semibold"
+            class="text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] text-ink-800 dark:text-bone-800 flex items-center gap-1 flex-wrap font-semibold"
           >
             <app-avatar [name]="wishlistItem().addedBy" [size]="14" />
             {{ wishlistItem().addedBy }}
             @if (isShared()) {
               <span
-                class="text-[clamp(0.6rem,0.5rem+0.3vw,0.75rem)] px-1.5 py-0.5 bg-ink-200 rounded text-bone-700 font-normal"
+                class="text-[clamp(0.6rem,0.5rem+0.3vw,0.75rem)] px-1.5 py-0.5 bg-bone-200 dark:bg-ink-200 rounded text-ink-700 dark:text-bone-700 font-normal"
                 >Compartida</span
               >
             }

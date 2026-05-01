@@ -5,15 +5,23 @@ import { Component, input } from '@angular/core';
   standalone: true,
   styles: `
     @keyframes spin {
-      from {
-        transform: rotate(0deg);
-      }
-      to {
-        transform: rotate(360deg);
-      }
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
     .spinner-loading {
       animation: spin 1s linear infinite;
+    }
+    .spinner-bg {
+      fill: none;
+      stroke: var(--bone-800);
+      stroke-width: 5;
+    }
+    .spinner-progress {
+      fill: none;
+      stroke: var(--bone-100);
+      stroke-width: 5;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 100ms linear;
     }
   `,
   template: `
@@ -44,7 +52,7 @@ import { Component, input } from '@angular/core';
           />
         </svg>
         <div
-          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-bone-100"
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-ink-100 dark:text-bone-100"
         >
           @if (isPlaying()) {
             <svg

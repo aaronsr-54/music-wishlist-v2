@@ -44,23 +44,37 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
     IconComponent,
     EmptyStateComponent,
   ],
+  styles: `
+    .scroll-fade {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding-bottom: 2rem;
+      padding-top: 4px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
+    }
+    .scroll-fade::-webkit-scrollbar {
+      display: none;
+    }
+  `,
   template: `
-    <div class="panel">
-      <div class="eyebrow">
+    <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
+      <div class="flex items-center justify-between gap-2">
         <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em] uppercase md:hidden"
+          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
         >
-          <span class="text-bone-700 font-normal italic">02/</span> BUSCADOR
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic">02/</span> BUSCADOR
         </span>
       </div>
 
       <div
-        class="flex items-center gap-2.5 py-4 border-b-[1.5px] border-ink-100 transition-[border-color] duration-fast ease-smooth"
+        class="flex items-center gap-2.5 py-4 border-b-[1.5px] border-bone-100 dark:border-ink-100 transition-[border-color] duration-fast ease-smooth"
         [class.border-bone-600]="query()"
       >
         <app-icon
           name="search"
-          class="text-bone-800 w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] shrink-0 "
+          class="text-ink-800 dark:text-bone-800 w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] shrink-0 "
         />
         <input
           id="search-input"
@@ -68,14 +82,14 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           placeholder="Buscar canciones, álbumes..."
           [ngModel]="query()"
           (ngModelChange)="onQuery($event)"
-          class="flex-1 bg-transparent border-none outline-none text-bone font-display text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] font-normal placeholder:text-bone-800 placeholder:italic"
+          class="flex-1 bg-transparent border-none outline-none text-ink dark:text-bone font-display text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] font-normal placeholder:text-bone-800 placeholder:italic"
           autocomplete="off"
           autocorrect="off"
           spellcheck="false"
         />
         @if (query()) {
           <button
-            class="bg-transparent border-none cursor-pointer text-bone-600 p-[0.25em] flex items-center rounded-full transition-colors duration-fast ease-smooth text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] hover:text-bone"
+            class="bg-transparent border-none cursor-pointer text-ink-600 dark:text-bone-600 p-[0.25em] flex items-center rounded-full transition-colors duration-fast ease-smooth text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] hover:text-ink dark:hover:text-bone"
             (click)="clearQuery()"
             aria-label="Limpiar"
           >
@@ -92,7 +106,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           class="flex gap-2 overflow-x-auto [animation:slideDown_200ms_var(--ease)_both] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent text-ink-600 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:text-bone"
             [class.!bg-bone]="selectedTypes().has('artist')"
             [class.!border-bone]="selectedTypes().has('artist')"
             [class.!text-ink]="selectedTypes().has('artist')"
@@ -101,7 +115,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             Artistas
           </button>
           <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent text-ink-600 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:text-bone"
             [class.!bg-bone]="selectedTypes().has('track')"
             [class.!border-bone]="selectedTypes().has('track')"
             [class.!text-ink]="selectedTypes().has('track')"
@@ -110,7 +124,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             Canciones
           </button>
           <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent text-ink-600 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:text-bone"
             [class.!bg-bone]="selectedTypes().has('album')"
             [class.!border-bone]="selectedTypes().has('album')"
             [class.!text-ink]="selectedTypes().has('album')"
@@ -119,7 +133,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             Álbums
           </button>
           <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-bone-600 hover:text-bone"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent text-ink-600 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:text-bone"
             [class.!bg-bone]="selectedTypes().has('ep')"
             [class.!border-bone]="selectedTypes().has('ep')"
             [class.!text-ink]="selectedTypes().has('ep')"
@@ -145,7 +159,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             class="scroll-fade flex items-center justify-center min-h-[300px]"
           >
             <div
-              class="flex flex-col items-center gap-4 py-10 px-5 text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]"
+              class="flex flex-col items-center gap-4 py-10 px-5 text-ink-600 dark:text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]"
             >
               <app-spinner size="md" />
               <span
@@ -197,10 +211,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
       @if (!query() && favoriteArtists().length > 0) {
         <div
-          class="py-3 pb-6 border-t border-ink-100 [animation:fadeIn_200ms_var(--ease)_both]"
+          class="py-3 pb-6 border-t border-bone-100 dark:border-ink-100 [animation:fadeIn_200ms_var(--ease)_both]"
         >
           <h3
-            class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2"
+            class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-ink-700 dark:text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2"
           >
             Artistas favoritos
           </h3>

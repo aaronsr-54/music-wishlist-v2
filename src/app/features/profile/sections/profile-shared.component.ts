@@ -27,12 +27,12 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
   template: `
     <app-profile-section title="Social">
       <section
-        class="flex flex-col gap-8 border border-solid border-ink-200 rounded-lg p-4 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
+        class="flex flex-col gap-8 border border-solid border-bone-200 dark:border-ink-200 rounded-lg p-4 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
       >
         <!-- SECCIÓN: Compartida con -->
         <div class="flex flex-col gap-4">
           <h3
-            class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-bone-700 italic"
+            class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-700 dark:text-bone-700 italic"
           >
             Compartir wishlist con
           </h3>
@@ -50,13 +50,13 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
               <div
                 class="flex items-center justify-between py-3 px-2 group hover:bg-ink-100/20 rounded transition-colors duration-base"
               >
-                <span class="text-bone text-sm font-medium">
+                <span class="text-ink dark:text-bone text-sm font-medium">
                   {{ share.recipientEmail }}
                 </span>
                 <button
                   (click)="unshare(share)"
                   [disabled]="loading()"
-                  class="text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer opacity-0 group-hover:opacity-100"
+                  class="text-ink-600 dark:text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer opacity-0 group-hover:opacity-100"
                   title="Quitar"
                 >
                   <app-icon name="close" class="w-5 h-5" />
@@ -76,7 +76,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
         @if (shareService.sharesReceived().length > 0) {
           <div class="flex flex-col gap-4">
             <h3
-              class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-bone-700 italic "
+              class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-700 dark:text-bone-700 italic "
             >
               Wishlists de otros usuarios
             </h3>
@@ -88,10 +88,10 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
                   [class.opacity-50]="share.hidden"
                 >
                   <div class="flex flex-col gap-1 min-w-0">
-                    <span class="text-bone text-sm font-semibold truncate">
+                    <span class="text-ink dark:text-bone text-sm font-semibold truncate">
                       {{ share.ownerName }}
                     </span>
-                    <span class="text-bone-600 text-xs">
+                    <span class="text-ink-600 dark:text-bone-600 text-xs">
                       {{ share.ownerUid }}
                     </span>
                   </div>
@@ -99,7 +99,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
                     <button
                       (click)="toggleHidden(share)"
                       [disabled]="loading()"
-                      class="text-xs text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer"
+                      class="text-xs text-ink-600 dark:text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer"
                       [title]="share.hidden ? 'Mostrar' : 'Ocultar'"
                     >
                       <app-icon

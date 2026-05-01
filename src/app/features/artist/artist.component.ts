@@ -22,25 +22,47 @@ import { formatFans } from '../../shared/utils/format-fans';
     SpinnerComponent,
     IconComponent,
   ],
+  styles: `
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      50% { opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .btn-pop-in {
+      animation: popIn 220ms var(--ease-smooth) both;
+    }
+    .scroll-fade {
+      flex: 1;
+      overflow-y: auto;
+      scrollbar-width: none;
+      padding-bottom: 2rem;
+      padding-top: 4px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
+    }
+    .scroll-fade::-webkit-scrollbar {
+      display: none;
+    }
+  `,
   template: `
-    <div class="panel pt-2">
-      <div class="eyebrow">
+    <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
+      <div class="flex items-center justify-between gap-2">
         <button
-          class="bg-transparent border-none text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast ease-smooth hover:text-bone lowercase"
+          class="bg-transparent border-none text-ink-700 dark:text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast ease-smooth hover:text-ink dark:hover:text-bone lowercase"
           (click)="goBack()"
           aria-label="Volver"
         >
           ← Volver
         </button>
         <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em]"
+          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em]"
         >
-          <span class="text-bone-700 font-normal italic">02.a/</span> ARTISTA
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic">02.a/</span> ARTISTA
         </span>
       </div>
 
       <div
-        class="flex flex-col h-full p-4 py-2 gap-16 overflow-auto scroll-fade"
+        class="scroll-fade flex flex-col p-4 py-2 gap-16"
       >
         <div
           class="flex gap-[30px] max-md:flex-col max-md:items-center max-md:gap-5 max-md:text-center mt-4"
@@ -67,7 +89,7 @@ import { formatFans } from '../../shared/utils/format-fans';
                     {{ a.name }}
                   </h1>
                   <button
-                    class="w-9 h-9 md:w-12 md:h-12 rounded-full cursor-pointer flex items-center justify-center text-bone-600 shrink-0 border-[1.5px] border-ink-200 bg-transparent p-0 transition-[background,border-color,color,transform] duration-fast ease-smooth hover:border-bone-600 hover:bg-ink-100 hover:text-bone-100 active:scale-[0.88]"
+                    class="w-9 h-9 md:w-12 md:h-12 rounded-full cursor-pointer flex items-center justify-center text-ink-600 dark:text-bone-600 shrink-0 border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent p-0 transition-[background,border-color,color,transform] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:bg-ink-100 hover:text-ink-100 dark:hover:text-bone-100 active:scale-[0.88]"
                     [class.!bg-bone]="isArtistInWishlist(a.id)"
                     [class.!border-bone]="isArtistInWishlist(a.id)"
                     [class.!text-ink]="isArtistInWishlist(a.id)"
@@ -94,7 +116,7 @@ import { formatFans } from '../../shared/utils/format-fans';
                   @if (a.nb_fan !== undefined) {
                     <div class="flex flex-col gap-1">
                       <span
-                        class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700 uppercase tracking-[0.5px]"
+                        class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 uppercase tracking-[0.5px]"
                         >Seguidores</span
                       >
                       <span
@@ -106,7 +128,7 @@ import { formatFans } from '../../shared/utils/format-fans';
                   @if (a.nb_album !== undefined) {
                     <div class="flex flex-col gap-1">
                       <span
-                        class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700 uppercase tracking-[0.5px]"
+                        class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 uppercase tracking-[0.5px]"
                         >Álbumes</span
                       >
                       <span
@@ -122,7 +144,7 @@ import { formatFans } from '../../shared/utils/format-fans';
                     [href]="a.link"
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="inline-block py-2.5 px-5 bg-accent-track text-ink rounded-sm no-underline text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold transition-opacity duration-fast ease-smooth hover:opacity-80 md:w-fit"
+                    class="inline-block py-2.5 px-5 bg-accent-track text-bone dark:text-ink rounded-sm no-underline text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold transition-opacity duration-fast ease-smooth hover:opacity-80 md:w-fit"
                   >
                     Ver en Deezer
                   </a>
@@ -134,14 +156,14 @@ import { formatFans } from '../../shared/utils/format-fans';
 
         <div class="flex flex-col gap-4">
           <h2
-            class="font-body text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
+            class="font-body text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
           >
             Canciones populares
           </h2>
 
           @if (loading()) {
             <div
-              class="flex flex-col items-center gap-4 py-10 px-5 text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]"
+              class="flex flex-col items-center gap-4 py-10 px-5 text-ink-600 dark:text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]"
             >
               <app-spinner size="md" />
               <span
@@ -151,7 +173,7 @@ import { formatFans } from '../../shared/utils/format-fans';
             </div>
           } @else if (tracks().length === 0) {
             <div
-              class="text-center py-10 px-5 text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] [animation:fadeIn_300ms_var(--ease)_both]"
+              class="text-center py-10 px-5 text-ink-700 dark:text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] [animation:fadeIn_300ms_var(--ease)_both]"
             >
               No hay canciones disponibles
             </div>

@@ -39,7 +39,9 @@ export class ThemeService {
 
   private getSavedTheme(): Theme {
     const saved = localStorage.getItem('app-theme') as Theme | null;
-    return saved && ['light', 'dark', 'system'].includes(saved) ? saved : 'system';
+    return saved && ['light', 'dark', 'system'].includes(saved)
+      ? saved
+      : 'system';
   }
 
   private updateTheme() {

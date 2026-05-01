@@ -25,9 +25,9 @@ export class ActionButtonComponent {
   buttonClass() {
     const base = 'px-3 py-1.5 text-sm font-semibold rounded-md transition-all duration-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed';
     const variants = {
-      primary: 'bg-bone-600 text-ink hover:bg-bone transition-colors',
+      primary: 'bg-ink-600 dark:bg-bone-600 text-ink hover:bg-ink dark:hover:bg-bone transition-colors',
       danger: 'bg-red-600 text-white hover:bg-red-500 transition-colors',
-      secondary: 'bg-transparent border border-bone-600 text-bone-600 hover:border-bone hover:text-bone transition-colors',
+      secondary: 'bg-transparent border border-ink-600 dark:border-bone-600 text-bone-600 hover:border-ink dark:hover:border-bone hover:text-bone transition-colors',
     };
     return base + ' ' + variants[this.variant()];
   }

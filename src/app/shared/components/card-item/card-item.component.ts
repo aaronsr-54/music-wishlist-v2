@@ -19,9 +19,53 @@ import { IconComponent } from '../../icons/icon.component';
     PreviewSpinnerComponent,
     IconComponent,
   ],
+  styles: `
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.8); }
+      50% { opacity: 1; }
+      100% { transform: scale(1); }
+    }
+    .card-save-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      border: 1px solid var(--bone-600);
+      border-radius: 0.5rem;
+      background: none;
+      cursor: pointer;
+      color: var(--bone-600);
+      padding: 6px 12px;
+      text-transform: uppercase;
+      transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+    }
+    .card-save-btn:hover {
+      background: var(--ink-200);
+      color: var(--bone-100);
+      border-color: var(--bone-100);
+    }
+    .card-save-btn:active {
+      opacity: 0.8;
+    }
+    .card-save-btn.added {
+      background: var(--bone);
+      color: var(--ink);
+      border-color: var(--bone);
+      animation: popIn 220ms var(--ease-smooth) both;
+    }
+    .card-save-btn.added span {
+      font-family: var(--font-display);
+      font-weight: 800;
+    }
+    .card-save-btn span {
+      font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
+      font-weight: 500;
+      flex-grow: 1;
+    }
+  `,
   template: `
     <div
-      class="flex flex-col p-2 rounded-lg bg-ink-200 gap-1 w-full overflow-hidden"
+      class="flex flex-col p-2 rounded-lg bg-bone-200 dark:bg-ink-200 gap-1 w-full overflow-hidden"
     >
       <button
         class="relative w-full border-none bg-transparent p-0 cursor-pointer shrink-0 rounded-md transition-opacity duration-fast ease-smooth disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:opacity-80"
@@ -56,14 +100,14 @@ import { IconComponent } from '../../icons/icon.component';
       </button>
 
       <div class="flex flex-col gap-2 min-w-0">
-        <div class="flex items-center justify-between text-bone-800">
+        <div class="flex items-center justify-between text-ink-800 dark:text-bone-800">
           <span
-            class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-600 flex gap-0.5 items-center"
+            class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-600 dark:text-bone-600 flex gap-0.5 items-center"
           >
-            <b class="font-bold not-italic text-bone-700">{{
+            <b class="font-bold not-italic text-ink-700 dark:text-bone-700">{{
               releaseItem().releaseDate | date: 'dd'
             }}</b>
-            <em class="italic font-normal text-bone-600 lowercase">{{
+            <em class="italic font-normal text-ink-600 dark:text-bone-600 lowercase">{{
               releaseItem().releaseDate | date: 'LLL'
             }}</em>
           </span>
@@ -72,12 +116,12 @@ import { IconComponent } from '../../icons/icon.component';
 
         <div class="flex flex-col gap-1">
           <span
-            class="font-display text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold text-bone-100 leading-none truncate max-w-full"
+            class="font-display text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none truncate max-w-full"
           >
             {{ releaseItem().name }}
           </span>
           <span
-            class="text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone-600 truncate max-w-full"
+            class="text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-600 dark:text-bone-600 truncate max-w-full"
           >
             {{ releaseItem().artist }}
           </span>

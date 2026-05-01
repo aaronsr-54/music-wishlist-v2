@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
     <section>
       @if (title()) {
         <h3
-          class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-bone-700 mt-0 mb-4 uppercase tracking-[0.06em]"
+          class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-ink-700 dark:text-bone-700 mt-0 mb-4 uppercase tracking-[0.06em]"
         >
           {{ title() }}
         </h3>

@@ -7,16 +7,28 @@ type LoaderType = 'rows' | 'text' | 'cover';
   selector: 'app-skeleton-loader',
   standalone: true,
   imports: [CommonModule],
+  styles: `
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      50% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgb(68, 65, 63) 0%, rgb(99, 95, 92) 50%, rgb(68, 65, 63) 100%);
+      background-size: 200% 100%;
+      animation: shimmer 2s ease-in-out infinite;
+    }
+  `,
   template: `
     <div [class]="containerClass">
       @switch (type) {
         @case ('rows') {
           @for (i of Array(count); track i) {
-            <div class="skeleton-item" [style.animation-delay]="i * 30 + 'ms'">
-              <div class="skeleton skeleton--cover skeleton-item__cover"></div>
-              <div class="skeleton-item__lines">
-                <div class="skeleton skeleton--text skeleton-item__line--title"></div>
-                <div class="skeleton skeleton--line skeleton-item__line--sub"></div>
+            <div class="flex gap-3" [style.animation-delay]="i * 30 + 'ms'">
+              <div class="skeleton w-14 h-14 rounded-md flex-shrink-0"></div>
+              <div class="flex flex-col gap-2 flex-1">
+                <div class="skeleton h-[14px] rounded-sm"></div>
+                <div class="skeleton h-3 rounded-sm w-[40%]"></div>
               </div>
             </div>
           }
@@ -24,7 +36,7 @@ type LoaderType = 'rows' | 'text' | 'cover';
         @case ('text') {
           @for (i of Array(count); track i) {
             <div
-              class="skeleton skeleton--text"
+              class="skeleton h-[14px] rounded-sm"
               [style.animation-delay]="i * 50 + 'ms'"
               [style.width.%]="85 - i * 5"
             ></div>
@@ -33,7 +45,7 @@ type LoaderType = 'rows' | 'text' | 'cover';
         @case ('cover') {
           @for (i of Array(count); track i) {
             <div
-              class="skeleton skeleton--cover skeleton-loader__cover"
+              class="skeleton aspect-square rounded-md"
               [style.animation-delay]="i * 40 + 'ms'"
             ></div>
           }

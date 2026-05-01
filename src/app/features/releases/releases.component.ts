@@ -27,30 +27,68 @@ const MONTHS = [
   selector: 'app-releases',
   standalone: true,
   imports: [CommonModule, CardItemComponent, SpinnerComponent, EmptyStateComponent],
+  styles: `
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .releases-grid {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: max-content;
+      gap: 8px;
+      overflow: auto;
+      scrollbar-width: none;
+      height: 100%;
+      padding-top: 16px;
+      padding-bottom: 2rem;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
+    }
+    .releases-grid::-webkit-scrollbar {
+      display: none;
+    }
+    @media (min-width: 1100px) and (max-width: 1623px) {
+      .releases-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    @media (min-width: 1624px) and (max-width: 1899px) {
+      .releases-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+    @media (min-width: 1900px) {
+      .releases-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+  `,
   template: `
-    <div class="panel w-full [animation:fadeIn_300ms_ease_both]">
-      <div class="eyebrow">
-        <span class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em] md:hidden">
-          <span class="text-bone-700 font-normal italic">01/</span> LANZAMIENTOS
+    <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4 w-full [animation:fadeIn_300ms_ease_both]">
+      <div class="flex items-center justify-between gap-2">
+        <span class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] md:hidden">
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic">01/</span> LANZAMIENTOS
         </span>
       </div>
 
       <div class="flex flex-col h-full pb-8" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
-        <div class="flex items-center justify-center border-b-[1.5px] border-ink-100 [animation:slideDown_300ms_ease_both]">
+        <div class="flex items-center justify-center border-b-[1.5px] border-bone-100 dark:border-ink-100 [animation:slideDown_300ms_ease_both]">
           <div class="flex items-center justify-between gap-8 py-1 w-full md:w-80 md:mx-auto">
             <button
-              class="w-8 h-8 border-none bg-transparent text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               (click)="prevMonth()"
               title="Mes anterior"
             >
               &lt;
             </button>
-            <span class="flex items-center justify-center gap-2 text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] text-bone min-w-[150px] text-center uppercase py-4 transition-opacity duration-[200ms] ease-[ease]">
+            <span class="flex items-center justify-center gap-2 text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] text-ink dark:text-bone min-w-[150px] text-center uppercase py-4 transition-opacity duration-[200ms] ease-[ease]">
               <span class="font-semibold tracking-[0.04em]">{{ monthLabel() }}</span>
-              <span class="font-display text-bone-700 font-light italic -mt-[3px]">{{ yearLabel() }}</span>
+              <span class="font-display text-ink-700 dark:text-bone-700 font-light italic -mt-[3px]">{{ yearLabel() }}</span>
             </span>
             <button
-              class="w-8 h-8 border-none bg-transparent text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               [disabled]="!canGoToNextMonth()"
               (click)="nextMonth()"
               title="Mes siguiente"
@@ -61,7 +99,7 @@ const MONTHS = [
         </div>
 
         @if (loading()) {
-          <div class="flex flex-col items-center justify-center gap-4 min-h-[300px] py-10 px-5 text-bone-600 text-center [animation:fadeIn_300ms_ease_both]">
+          <div class="flex flex-col items-center justify-center gap-4 min-h-[300px] py-10 px-5 text-ink-600 dark:text-bone-600 text-center [animation:fadeIn_300ms_ease_both]">
             <app-spinner size="md" />
             <span class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic">Cargando lanzamientos...</span>
           </div>

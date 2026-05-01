@@ -21,12 +21,14 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex flex-col h-full overflow-hidden px-2 gap-4">
+    <div
+      class="flex flex-col h-full overflow-hidden px-2 gap-4 bg-bone-300 dark:bg-ink"
+    >
       <div
         class="flex items-center justify-between h-16 px-6 shrink-0 gap-4 max-md:h-14 max-md:px-4"
       >
         <button
-          class="bg-transparent text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast hover:text-bone lowercase"
+          class="bg-transparent text-ink-700 dark:text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast hover:text-ink dark:hover:text-bone lowercase"
           (click)="goBack()"
           aria-label="Volver"
         >
@@ -34,9 +36,12 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
         </button>
 
         <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-bone font-bold tracking-[0.06em] uppercase"
+          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase"
         >
-          <span class="text-bone-700 font-normal italic">04/</span> PERFIL
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
+            >04/</span
+          >
+          PERFIL
         </span>
       </div>
 
@@ -54,16 +59,16 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
 
               <div class="flex flex-col justify-center gap-2">
                 <h1
-                  class="font-display text-xl font-bold text-bone leading-tight m-0"
+                  class="font-display text-xl font-bold text-ink dark:text-bone leading-tight m-0"
                 >
                   {{ user.displayName ?? user.email }}
                 </h1>
 
-                <p class="text-sm text-bone-600 m-0">
+                <p class="text-sm text-ink-600 dark:text-bone-600 m-0">
                   {{ user.email }}
                 </p>
 
-                <p class="text-sm text-bone-600 m-0">
+                <p class="text-sm text-ink-600 dark:text-bone-600 m-0">
                   {{ user.id }}
                 </p>
               </div>

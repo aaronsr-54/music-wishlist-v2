@@ -18,11 +18,11 @@ import { IconComponent } from '../../icons/icon.component';
   template: `
     <div class="relative w-full">
       <div
-        class="w-100 flex items-center gap-2.5 py-4 border-b border-solid border-ink-100 group hover:border-bone-600 transition-colors duration-base"
+        class="w-100 flex items-center gap-2.5 py-4 border-b border-solid border-bone-100 dark:border-ink-100 group hover:border-ink-600 dark:hover:border-bone-600 transition-colors duration-base"
       >
         <app-icon
           name="mail"
-          class="text-bone-800 w-8 h-8 group-hover:text-bone-700 transition-colors duration-base"
+          class="text-ink-800 dark:text-bone-800 w-8 h-8 group-hover:text-ink-700 dark:hover:text-bone-700 transition-colors duration-base"
         />
         <input
           type="email"
@@ -30,12 +30,12 @@ import { IconComponent } from '../../icons/icon.component';
           [(ngModel)]="emailInput"
           (keyup.enter)="selectEmail(emailInput())"
           [disabled]="disabled()"
-          class="flex-1 bg-transparent text-bone font-body text-lg placeholder:text-bone-800 placeholder:italic transition-colors duration-base border-none outline-none"
+          class="flex-1 bg-transparent text-ink dark:text-bone font-body text-lg placeholder:text-bone-800 placeholder:italic transition-colors duration-base border-none outline-none"
         />
         <button
           (click)="selectEmail(emailInput())"
           [disabled]="!emailValid()"
-          class="text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          class="text-ink-600 dark:text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           title="Compartir"
         >
           <app-icon name="send" class="w-6 h-6 fill-bone" />
@@ -45,12 +45,12 @@ import { IconComponent } from '../../icons/icon.component';
       <!-- Dropdown de sugerencias -->
       @if (showSuggestions() && filteredSuggestions().length > 0) {
         <div
-          class="absolute top-full left-0 right-0 mt-1 bg-ink-100 rounded-lg shadow-lg z-10 border border-solid border-ink-200"
+          class="absolute top-full left-0 right-0 mt-1 bg-bone-100 dark:bg-ink-100 rounded-lg shadow-lg z-10 border border-solid border-bone-200 dark:border-ink-200"
         >
           @for (email of filteredSuggestions(); track email) {
             <button
               (click)="selectEmail(email)"
-              class="w-full text-left px-4 py-2 text-sm text-bone hover:bg-ink-200 transition-colors duration-base first:rounded-t-lg last:rounded-b-lg"
+              class="w-full text-left px-4 py-2 text-sm text-ink dark:text-bone hover:bg-ink-200 transition-colors duration-base first:rounded-t-lg last:rounded-b-lg"
             >
               {{ email }}
             </button>

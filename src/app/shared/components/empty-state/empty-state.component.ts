@@ -13,18 +13,18 @@ import { IconName } from '../../icons/icon-registry';
   },
   template: `
     @if (icon()) {
-      <div class="text-bone-800 mb-1">
+      <div class="text-ink-800 dark:text-bone-800 mb-1">
         <app-icon [name]="icon()!" class="w-[3.2rem] h-[3.2rem]" />
       </div>
     }
     <div class="flex flex-col items-center justify-center">
       <p
-        class="font-body text-[clamp(1.375rem,1.2707rem+0.4049vw,1.625rem)] font-semibold uppercase text-bone m-0"
+        class="font-body text-[clamp(1.375rem,1.2707rem+0.4049vw,1.625rem)] font-semibold uppercase text-ink dark:text-bone m-0"
       >
         {{ title() }}
       </p>
       <p
-        class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-display text-bone-600 italic m-0 max-w-[240px]"
+        class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-display text-ink-600 dark:text-bone-600 italic m-0 max-w-[240px]"
       >
         {{ subtitle() }}
       </p>
