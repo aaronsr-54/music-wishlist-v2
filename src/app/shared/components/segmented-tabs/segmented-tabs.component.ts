@@ -50,7 +50,23 @@ export interface SegmentedTabOption<T extends string = string> {
         <div class="flex flex-row gap-1 rounded-pill overflow-hidden">
           @for (option of options(); track option.value) {
             <button
-              class="flex-1 py-1 font-body uppercase text-ink-200 dark:text-bone-600 rounded-md [&.active]:bg-ink-200 [&.active]:dark:bg-bone-200 [&.active]:text-bone  [&.active]:dark:text-ink [&.active]:font-bold"
+              class="flex-1 py-1 font-body uppercase text-ink-200 dark:text-bone-600 rounded-md [&.active]:bg-ink-200 [&.active]:dark:bg-bone-200 [&.active]:text-bone  [&.active]:dark:text-ink [&.active]:font-bold italic [&.active]:not-italic"
+              [class.active]="value() === option.value"
+              (click)="valueChange.emit(option.value)"
+            >
+              {{ option.label }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    @if (variant() === 'list') {
+      <div class="rounded-lg p-1 bg-bone dark:bg-ink-200">
+        <div class="flex flex-col gap-1 rounded-lg overflow-hidden">
+          @for (option of options(); track option.value) {
+            <button
+              class="flex-1 py-3 font-body uppercase italic text-ink-200 dark:text-bone-600 rounded-md [&.active]:bg-ink-200 [&.active]:dark:bg-bone-200 [&.active]:text-bone  [&.active]:dark:text-ink [&.active]:font-bold [&.active]:not-italic"
               [class.active]="value() === option.value"
               (click)="valueChange.emit(option.value)"
             >
@@ -65,7 +81,7 @@ export interface SegmentedTabOption<T extends string = string> {
 export class SegmentedTabsComponent<T extends string = string> {
   options = input.required<SegmentedTabOption<T>[]>();
   value = input.required<T>();
-  variant = input<'nav' | 'toggle'>('toggle');
+  variant = input<'nav' | 'toggle' | 'list'>('toggle');
 
   valueChange = output<T>();
 }

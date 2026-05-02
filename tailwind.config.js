@@ -17,6 +17,8 @@ export default {
   theme: {
     extend: {
       colors: {
+        light: '#f9f9f9',
+        dark: '#0e0e0e',
         bone: {
           DEFAULT: '#cdc5b7',
           100: '#f9f8f6',

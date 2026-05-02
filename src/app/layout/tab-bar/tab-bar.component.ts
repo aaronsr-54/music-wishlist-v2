@@ -6,9 +6,8 @@ import { IconComponent } from '../../shared/icons/icon.component';
   standalone: true,
   imports: [IconComponent],
   template: `
-    <!-- <nav class="flex p-2 pb-6 bg-gradient-to-t from-ink-200 to-ink-100 border-t border-bone-100 dark:border-ink-100 shadow-[0px_-4px_10px_5px_rgb(0_0_0/10%)] shrink-0 rounded-tl-xl rounded-tr-xl w-full"> -->
     <nav
-      class="flex p-2 pb-6 bg-[#f9f9f9] dark:bg-[#0e0e0e] shadow-[0px_-4px_10px_5px_rgb(0_0_0/10%)] shrink-0 rounded-tl-xl rounded-tr-xl w-full"
+      class="flex p-2 pb-6 bg-light dark:bg-dark shadow-[0px_-4px_10px_5px_rgb(0_0_0/10%)] shrink-0 rounded-tl-xl rounded-tr-xl w-full"
     >
       <button
         class="flex items-center justify-center gap-3 border-none cursor-pointer font-body text-sm font-medium tracking-[0.04em] transition-colors duration-fast ease-smooth py-3 rounded-pill"

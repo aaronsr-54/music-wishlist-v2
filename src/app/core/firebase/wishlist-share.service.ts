@@ -1,4 +1,11 @@
-import { Injectable, computed, inject, signal, Injector, runInInjectionContext } from '@angular/core';
+import {
+  Injectable,
+  computed,
+  inject,
+  signal,
+  Injector,
+  runInInjectionContext,
+} from '@angular/core';
 import {
   Firestore,
   collection,
@@ -30,9 +37,9 @@ export class WishlistShareService {
   sharesGiven = this._sharesGiven.asReadonly();
   sharesReceived = this._sharesReceived.asReadonly();
 
-  suggestedEmails = computed(() =>
-    [...new Set(this._sharesGiven().map((s) => s.recipientEmail))]
-  );
+  suggestedEmails = computed(() => [
+    ...new Set(this._sharesGiven().map((s) => s.recipientEmail)),
+  ]);
 
   private unsubscribe: (() => void)[] = [];
   private isDemoMode = false;
@@ -55,26 +62,26 @@ export class WishlistShareService {
     const q1 = query(
       col,
       where('ownerUid', '==', uid),
-      orderBy('sharedAt', 'desc')
+      orderBy('sharedAt', 'desc'),
     );
 
     // Query 2: shares que me han hecho a mí
     const q2 = query(
       col,
       where('recipientEmail', '==', email),
-      orderBy('sharedAt', 'desc')
+      orderBy('sharedAt', 'desc'),
     );
 
     const unsubscribe1 = onSnapshot(q1, (snap1) => {
       const shares = snap1.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistShare
+        (d) => ({ id: d.id, ...d.data() }) as WishlistShare,
       );
       this._sharesGiven.set(shares);
     });
 
     const unsubscribe2 = onSnapshot(q2, (snap2) => {
       const shares = snap2.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistShare
+        (d) => ({ id: d.id, ...d.data() }) as WishlistShare,
       );
       this._sharesReceived.set(shares);
     });
@@ -91,7 +98,7 @@ export class WishlistShareService {
     recipientEmail: string,
     ownerUid: string,
     ownerName: string,
-    ownerPhotoURL: string | null
+    ownerPhotoURL: string | null,
   ): Promise<void> {
     if (this.isDemoMode) {
       const share: WishlistShare = {
@@ -173,7 +180,7 @@ export class WishlistShareService {
     if (this.isDemoMode) {
       const current = this._sharesReceived();
       const updated = current.map((s) =>
-        s.id === share.id ? { ...s, hidden: !s.hidden } : s
+        s.id === share.id ? { ...s, hidden: !s.hidden } : s,
       );
       this._sharesReceived.set(updated);
       return;
@@ -197,13 +204,9 @@ export class WishlistShareService {
       if (data.invitedUid) {
         const shareId = this.generateShareId(
           data.wishlistOwnerId,
-          data.invitedEmail
+          data.invitedEmail,
         );
-        const shareDoc = doc(
-          this.firestore,
-          'wishlist-shares',
-          shareId
-        );
+        const shareDoc = doc(this.firestore, 'wishlist-shares', shareId);
         const share: WishlistShare = {
           id: shareId,
           ownerUid: data.wishlistOwnerId,
@@ -222,9 +225,7 @@ export class WishlistShareService {
   }
 
   private generateShareId(ownerUid: string, email: string): string {
-    const encodedEmail = email
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '_');
+    const encodedEmail = email.toLowerCase().replace(/[^a-z0-9]/g, '_');
     return `${ownerUid}_${encodedEmail}`;
   }
 }

@@ -20,7 +20,6 @@ type WishlistTab = 'pending' | 'downloaded';
   ],
   styles: `
     .scroll-fade {
-      flex: 1;
       overflow-y: auto;
       scrollbar-width: none;
       padding-bottom: 2rem;

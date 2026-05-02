@@ -41,14 +41,13 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
           <app-email-autocomplete
             (emailSelected)="shareWith($event)"
             [disabled]="loading()"
-            [suggestedEmails]="shareService.suggestedEmails()"
           />
 
           <!-- Listado de shares enviados -->
           <div class="flex flex-col gap-3">
             @for (share of shareService.sharesGiven(); track share.id) {
               <div
-                class="flex items-center justify-between py-3 px-2 group hover:bg-ink-100/20 rounded transition-colors duration-base"
+                class="flex items-center justify-between py-3 px-2 group hover:bg-bone-100/50 hover:dark:bg-ink-100/20 rounded transition-colors duration-base"
               >
                 <span class="text-ink dark:text-bone text-sm font-medium">
                   {{ share.recipientEmail }}
@@ -56,7 +55,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
                 <button
                   (click)="unshare(share)"
                   [disabled]="loading()"
-                  class="text-ink-600 dark:text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer opacity-0 group-hover:opacity-100"
+                  class="text-ink-400 dark:text-bone-600 hover:text-ink hover:dark:text-bone transition-colors duration-base cursor-pointer md:opacity-0 md:group-hover:opacity-100"
                   title="Quitar"
                 >
                   <app-icon name="close" class="w-5 h-5" />
@@ -101,12 +100,12 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
                     <button
                       (click)="toggleHidden(share)"
                       [disabled]="loading()"
-                      class="text-xs text-ink-600 dark:text-bone-600 hover:text-bone transition-colors duration-base cursor-pointer"
+                      class="text-xs fill-ink-600 dark:fill-bone-600 transition-colors duration-base cursor-pointer"
                       [title]="share.hidden ? 'Mostrar' : 'Ocultar'"
                     >
                       <app-icon
                         [name]="share.hidden ? 'eye-off' : 'eye'"
-                        class="w-6 h-6 fill-bone"
+                        class="w-6 h-6"
                       />
                     </button>
                   </div>

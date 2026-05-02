@@ -1,4 +1,11 @@
-import { Injectable, computed, inject, signal, Injector, runInInjectionContext } from '@angular/core';
+import {
+  Injectable,
+  computed,
+  inject,
+  signal,
+  Injector,
+  runInInjectionContext,
+} from '@angular/core';
 import {
   Firestore,
   collection,
@@ -52,14 +59,14 @@ export class WishlistService {
     const q1 = query(
       col,
       where('addedByUid', '==', uid),
-      orderBy('addedAt', 'desc')
+      orderBy('addedAt', 'desc'),
     );
 
     // Query 2: Shared with me
     const q2 = query(
       col,
       where('sharedWith', 'array-contains', uid),
-      orderBy('addedAt', 'desc')
+      orderBy('addedAt', 'desc'),
     );
 
     const unsubscribe1 = onSnapshot(q1, (snap1) => {
@@ -85,7 +92,7 @@ export class WishlistService {
   private updateEntries(
     uid: string,
     entries: WishlistEntry[],
-    type: 'own' | 'shared'
+    type: 'own' | 'shared',
   ): void {
     const marked = entries.map((e) => ({
       ...e,
@@ -99,7 +106,7 @@ export class WishlistService {
     }
 
     const combined = [...this.ownEntries, ...this.sharedEntries].sort(
-      (a, b) => (b.addedAt || 0) - (a.addedAt || 0)
+      (a, b) => (b.addedAt || 0) - (a.addedAt || 0),
     );
     this._entries.set(combined);
   }

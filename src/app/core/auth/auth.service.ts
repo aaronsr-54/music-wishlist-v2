@@ -42,7 +42,7 @@ export class AuthService {
         this.favoriteArtistsService.initListener(firebaseUser.uid);
         this.wishlistShareService.initListeners(
           firebaseUser.uid,
-          firebaseUser.email || ''
+          firebaseUser.email || '',
         );
       } else if (!this.demoMode()) {
         this.wishlistService.stopListener();
@@ -105,10 +105,7 @@ export class AuthService {
     if (enabled) {
       this.wishlistService.initListener('demo-user');
       this.favoriteArtistsService.initListener('demo-user');
-      this.wishlistShareService.initListeners(
-        'demo-user',
-        'demo@example.com'
-      );
+      this.wishlistShareService.initListeners('demo-user', 'demo@example.com');
     }
   }
 }

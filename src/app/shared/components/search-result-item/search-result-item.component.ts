@@ -174,7 +174,7 @@ import { firstValueFrom } from 'rxjs';
       }
     } @else {
       <div
-        class="flex items-center gap-3 py-3 px-2 -mx-2 border-b border-bone-200 dark:border-ink-200 transition-[background] duration-fast ease-smooth [animation:rowEnter_var(--dur-base)_var(--ease)_both]"
+        class="flex items-center gap-3 py-3 px-2 border-b border-bone-200 dark:border-ink-200 transition-[background] duration-fast ease-smooth [animation:rowEnter_var(--dur-base)_var(--ease)_both]"
       >
         @if (wishlistItem().type === 'track') {
           <button
@@ -223,7 +223,7 @@ import { firstValueFrom } from 'rxjs';
             class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800"
           >
             <span
-              class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(0.9375rem,0.8072rem+0.5061vw,1.25rem)]"
+              class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis"
             >
               {{ wishlistItem().artist }}
             </span>
