@@ -3,16 +3,23 @@ import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import {
+  SegmentedTabsComponent,
+  SegmentedTabOption,
+} from '../../shared/components/segmented-tabs/segmented-tabs.component';
 
 type WishlistTab = 'pending' | 'downloaded';
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
-  imports: [SearchResultItemComponent, EmptyStateComponent],
+  imports: [
+    SearchResultItemComponent,
+    EmptyStateComponent,
+    SegmentedTabsComponent,
+  ],
   styles: `
     .scroll-fade {
-      flex: 1;
       overflow-y: auto;
       scrollbar-width: none;
       padding-bottom: 2rem;
@@ -32,6 +39,7 @@ type WishlistTab = 'pending' | 'downloaded';
         transparent 100%
       );
     }
+
     .scroll-fade::-webkit-scrollbar {
       display: none;
     }
@@ -42,11 +50,12 @@ type WishlistTab = 'pending' | 'downloaded';
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
         >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
-            >03/</span
-          >
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic">
+            03/
+          </span>
           WISHLIST
         </span>
+
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 tracking-[0.06em] italic"
         >
@@ -54,36 +63,12 @@ type WishlistTab = 'pending' | 'downloaded';
         </span>
       </div>
 
-      <div class="p-1 bg-ink-200 rounded-pill my-3">
-        <div class="flex gap-1 rounded-pill overflow-hidden">
-          <button
-            class="flex-1 py-2 font-body uppercase text-bone-600 rounded-md transition-all duration-fast ease-smooth flex items-center justify-center gap-2 [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
-            [class.active]="activeTab() === 'pending'"
-            (click)="activeTab.set('pending')"
-          >
-            Pendientes
-            @if (wishlistSvc.pending().length > 0) {
-              <span
-                class="inline-flex items-center justify-center  px-1.5 rounded-full bg-ink-100 text-bone-600 text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] font-bold [.active>&]:bg-ink-300 [.active>&]:text-bone-600"
-                >{{ wishlistSvc.pending().length }}</span
-              >
-            }
-          </button>
-          <button
-            class="flex-1 py-2 font-body uppercase text-bone-600 rounded-md transition-all duration-fast ease-smooth flex items-center justify-center gap-2 [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
-            [class.active]="activeTab() === 'downloaded'"
-            (click)="activeTab.set('downloaded')"
-          >
-            Listos
-            @if (wishlistSvc.downloaded().length > 0) {
-              <span
-                class="inline-flex items-center justify-center  px-1.5 rounded-full bg-ink-100 text-bone-600 text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] font-bold [.active>&]:bg-ink-300 [.active>&]:text-bone-600"
-                >{{ wishlistSvc.downloaded().length }}</span
-              >
-            }
-          </button>
-        </div>
-      </div>
+      <app-segmented-tabs
+        variant="toggle"
+        [options]="tabs"
+        [value]="activeTab()"
+        (valueChange)="activeTab.set($event)"
+      />
 
       <div class="scroll-fade">
         @for (entry of activeEntries(); track entry.id) {
@@ -116,7 +101,19 @@ type WishlistTab = 'pending' | 'downloaded';
 })
 export class WishlistComponent {
   wishlistSvc = inject(WishlistService);
+
   activeTab = signal<WishlistTab>('pending');
+
+  tabs: SegmentedTabOption<WishlistTab>[] = [
+    {
+      value: 'pending',
+      label: 'Pendientes',
+    },
+    {
+      value: 'downloaded',
+      label: 'Listos',
+    },
+  ];
 
   activeEntries = computed(() =>
     this.activeTab() === 'pending'

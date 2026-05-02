@@ -10,6 +10,7 @@ import { filter } from 'rxjs';
 
 import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
+import { SegmentedTabsComponent } from '../shared/components/segmented-tabs/segmented-tabs.component';
 
 import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
@@ -27,6 +28,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
     RouterOutlet,
     HeaderComponent,
     TabBarComponent,
+    SegmentedTabsComponent,
     ReleasesComponent,
     SearchComponent,
     WishlistComponent,
@@ -74,54 +76,12 @@ type Tab = 'releases' | 'search' | 'wishlist';
         class="z-10 flex flex-1 overflow-hidden gap-16 p-3 w-full mx-auto min-[1400px]:mx-[10%] min-[1400px]:w-[calc(100%-20%)]"
       >
         <aside class="mt-60 w-[300px] flex flex-col items-start">
-          <button
-            class="inline-flex gap-2 text-ink-700 dark:text-bone-700 text-[28px] font-light italic font-display cursor-pointer uppercase transition-[transform,color] duration-fast ease-smooth border-none bg-transparent p-0 hover:scale-[1.01]"
-            [class.active]="activeTab() === 'releases'"
-            (click)="activeTab.set('releases')"
-          >
-            <span
-              class="w-14 text-right"
-              [class.opacity-0]="activeTab() !== 'releases'"
-              >01/</span
-            >
-            <span
-              class="shrink [&.active]:text-ink [&.active]:dark:text-bone [&.active]:font-bold [&.active]:not-italic"
-              [class.active]="activeTab() === 'releases'"
-              >LANZAMIENTOS</span
-            >
-          </button>
-
-          <button
-            class="inline-flex gap-2 text-ink-700 dark:text-bone-700 text-[28px] font-light italic font-display cursor-pointer uppercase transition-[transform,color] duration-fast ease-smooth border-none bg-transparent p-0 hover:scale-[1.01]"
-            (click)="activeTab.set('search')"
-          >
-            <span
-              class="w-14 text-right"
-              [class.opacity-0]="activeTab() !== 'search'"
-              >02/</span
-            >
-            <span
-              class="shrink [&.active]:text-ink [&.active]:dark:text-bone [&.active]:font-bold [&.active]:not-italic"
-              [class.active]="activeTab() === 'search'"
-              >BUSCADOR</span
-            >
-          </button>
-
-          <button
-            class="inline-flex gap-2 text-ink-700 dark:text-bone-700 text-[28px] font-light italic font-display cursor-pointer uppercase transition-[transform,color] duration-fast ease-smooth border-none bg-transparent p-0 hover:scale-[1.01]"
-            (click)="activeTab.set('wishlist')"
-          >
-            <span
-              class="w-14 text-right"
-              [class.opacity-0]="activeTab() !== 'wishlist'"
-              >03/</span
-            >
-            <span
-              class="shrink [&.active]:text-ink [&.active]:dark:text-bone [&.active]:font-bold [&.active]:not-italic"
-              [class.active]="activeTab() === 'wishlist'"
-              >WHISLIST</span
-            >
-          </button>
+          <app-segmented-tabs
+            [options]="navTabs()"
+            [value]="activeTab()"
+            variant="nav"
+            (valueChange)="onNavTabChange($event)"
+          />
         </aside>
 
         <section
@@ -195,6 +155,12 @@ export class ShellComponent {
   activeTab = signal<Tab>(this.getDefaultTab());
   hasChildRoute = signal(false);
 
+  navTabs = signal([
+    { value: 'releases' as const, label: 'LANZAMIENTOS', prefix: '01/' },
+    { value: 'search' as const, label: 'BUSCADOR', prefix: '02/' },
+    { value: 'wishlist' as const, label: 'WHISLIST', prefix: '03/' },
+  ]);
+
   constructor() {
     this.router.events
       .pipe(filter((e) => e instanceof NavigationEnd))
@@ -217,5 +183,9 @@ export class ShellComponent {
 
   goToProfile() {
     this.router.navigate(['/profile']);
+  }
+
+  onNavTabChange(value: string) {
+    this.activeTab.set(value as Tab);
   }
 }
