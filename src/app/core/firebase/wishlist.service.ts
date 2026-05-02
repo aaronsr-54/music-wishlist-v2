@@ -1,4 +1,4 @@
-import { Injectable, computed, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal, Injector, runInInjectionContext } from '@angular/core';
 import {
   Firestore,
   collection,
@@ -20,8 +20,9 @@ import { AuthService } from '../auth/auth.service';
 @Injectable({ providedIn: 'root' })
 export class WishlistService {
   private firestore = inject(Firestore);
+  private injector = inject(Injector);
 
-  private _entries = signal<WishlistEntry[]>([]);
+  private _entries = signal<(WishlistEntry & { isOwner: boolean })[]>([]);
   entries = this._entries.asReadonly();
 
   pending = computed(() => this._entries().filter((e) => !e.downloaded));
@@ -29,15 +30,16 @@ export class WishlistService {
   trackIds = computed(() => new Set(this._entries().map((e) => e.trackId)));
   total = computed(() => this._entries().length);
 
-  private unsubscribe: (() => void) | null = null;
+  private unsubscribe: (() => void)[] = [];
   private isDemoMode = false;
 
   initListener(uid: string): void {
-    if (this.unsubscribe) return;
+    if (this.unsubscribe.length > 0) return;
 
-    // Lazy inject to avoid circular dependency
-    const auth = inject(AuthService);
-    this.isDemoMode = auth.demoMode();
+    runInInjectionContext(this.injector, () => {
+      const auth = inject(AuthService);
+      this.isDemoMode = auth.demoMode();
+    });
 
     if (this.isDemoMode) {
       this.initLocalStorage(uid);
@@ -45,32 +47,75 @@ export class WishlistService {
     }
 
     const col = collection(this.firestore, 'wishlist');
-    const q = query(
+
+    // Query 1: Own wishlist
+    const q1 = query(
       col,
       where('addedByUid', '==', uid),
       orderBy('addedAt', 'desc')
     );
 
-    this.unsubscribe = onSnapshot(q, (snap) => {
-      const entries = snap.docs.map(
+    // Query 2: Shared with me
+    const q2 = query(
+      col,
+      where('sharedWith', 'array-contains', uid),
+      orderBy('addedAt', 'desc')
+    );
+
+    const unsubscribe1 = onSnapshot(q1, (snap1) => {
+      const entries1 = snap1.docs.map(
         (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
       );
-      this._entries.set(entries);
+      this.updateEntries(uid, entries1, 'own');
     });
+
+    const unsubscribe2 = onSnapshot(q2, (snap2) => {
+      const entries2 = snap2.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
+      );
+      this.updateEntries(uid, entries2, 'shared');
+    });
+
+    this.unsubscribe = [unsubscribe1, unsubscribe2];
+  }
+
+  private ownEntries: (WishlistEntry & { isOwner: boolean })[] = [];
+  private sharedEntries: (WishlistEntry & { isOwner: boolean })[] = [];
+
+  private updateEntries(
+    uid: string,
+    entries: WishlistEntry[],
+    type: 'own' | 'shared'
+  ): void {
+    const marked = entries.map((e) => ({
+      ...e,
+      isOwner: type === 'own',
+    }));
+
+    if (type === 'own') {
+      this.ownEntries = marked as any;
+    } else {
+      this.sharedEntries = marked as any;
+    }
+
+    const combined = [...this.ownEntries, ...this.sharedEntries].sort(
+      (a, b) => (b.addedAt || 0) - (a.addedAt || 0)
+    );
+    this._entries.set(combined);
   }
 
   private initLocalStorage(uid: string): void {
     const key = `wishlist-${uid}`;
     const stored = localStorage.getItem(key);
     const entries: WishlistEntry[] = stored ? JSON.parse(stored) : [];
-    this._entries.set(entries);
+    const marked = entries.map((e) => ({ ...e, isOwner: true }));
+    this._entries.set(marked as any);
+    this.ownEntries = marked as any;
   }
 
   stopListener(): void {
-    if (this.unsubscribe) {
-      this.unsubscribe();
-      this.unsubscribe = null;
-    }
+    this.unsubscribe.forEach((fn) => fn());
+    this.unsubscribe = [];
   }
 
   async add(track: Track, user: User): Promise<void> {
@@ -84,7 +129,7 @@ export class WishlistService {
       addedBy: user.displayName ?? user.email ?? 'Anónimo',
       addedByUid: user.uid,
       downloaded: false,
-      ...(track.previewUrl ? { previewUrl: track.previewUrl } : {}),
+      ...(track.artistId ? { artistId: track.artistId } : {}),
     };
 
     if (this.isDemoMode) {
@@ -94,7 +139,9 @@ export class WishlistService {
       const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
       entries.unshift(newEntry);
       localStorage.setItem(key, JSON.stringify(entries));
-      this._entries.set(entries);
+      const marked = entries.map((e) => ({ ...e, isOwner: true }));
+      this._entries.set(marked as any);
+      this.ownEntries = marked as any;
       return;
     }
 
@@ -113,7 +160,7 @@ export class WishlistService {
       addedBy: user.displayName ?? user.email ?? 'Anónimo',
       addedByUid: user.uid,
       downloaded: false,
-      ...(release.previewUrl ? { previewUrl: release.previewUrl } : {}),
+      ...(release.artistId ? { artistId: release.artistId } : {}),
     };
 
     if (this.isDemoMode) {
@@ -123,7 +170,9 @@ export class WishlistService {
       const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
       entries.unshift(newEntry);
       localStorage.setItem(key, JSON.stringify(entries));
-      this._entries.set(entries);
+      const marked = entries.map((e) => ({ ...e, isOwner: true }));
+      this._entries.set(marked as any);
+      this.ownEntries = marked as any;
       return;
     }
 

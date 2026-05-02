@@ -1,38 +1,26 @@
-<button class="artist-card" (click)="onArtistClick.emit(artist())">
-  <div class="cover-container">
+<button
+  class="cursor-pointer transition-transform duration-fast ease-smooth border-none bg-transparent p-0 text-left font-body hover:scale-[1.02] active:scale-[0.98]"
+  (click)="onArtistClick.emit(artist())"
+>
+  <div class="relative w-full aspect-square mb-1 rounded-md overflow-hidden bg-bone-200">
     @if (artist().image?.trim()) {
-      <img [src]="artist().image" [alt]="artist().name" loading="lazy" />
+      <img [src]="artist().image" [alt]="artist().name" loading="lazy" class="w-full h-full object-cover" />
     }
     <button
-      class="favorite-btn"
-      [class.filled]="isFavorite()"
+      class="absolute top-1 right-1 w-6 h-6 rounded-full border-none cursor-pointer flex items-center justify-center transition-all duration-fast ease-smooth p-0 text-sm"
+      [class]="isFavorite() ? 'bg-bone text-ink' : 'bg-black/40 text-white hover:bg-black/60'"
+      [style.animation]="isFavorite() ? 'popIn var(--dur-fast) var(--ease)' : null"
       (click)="toggleFavorite($event)"
       [title]="isFavorite() ? 'Quitar de favoritos' : 'Añadir a favoritos'"
     >
       @if (isFavorite()) {
-        <svg
-          viewBox="0 0 16 18"
-          fill="currentColor"
-          stroke="currentColor"
-          stroke-width="1"
-        >
-          <path
-            d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
-          />
-        </svg>
+        <app-icon name="heart-filled" class="w-4 h-4" />
       } @else {
-        <svg viewBox="0 0 16 18" fill="none">
-          <path
-            d="M8 14.5c-3.5-2-6-4-6-6.5C2 6 3.5 4.5 5 4.5c1 0 2 .5 3 1.5 1-1 2-1.5 3-1.5 1.5 0 3 1.5 3 3.5 0 2.5-2.5 4.5-6 6.5z"
-            stroke="currentColor"
-            stroke-width="1"
-            stroke-linejoin="round"
-          />
-        </svg>
+        <app-icon name="heart" class="w-4 h-4" />
       }
     </button>
   </div>
-  <div class="artist-info">
-    <span class="artist-name">{{ artist().name }}</span>
+  <div class="flex-1 flex flex-col">
+    <span class="font-display text-sm font-semibold text-bone-900 whitespace-nowrap overflow-hidden text-ellipsis leading-[1.2]">{{ artist().name }}</span>
   </div>
 </button>

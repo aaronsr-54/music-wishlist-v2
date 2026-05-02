@@ -1,40 +1,15 @@
 import { Component, Input, computed } from '@angular/core';
 import { NgStyle } from '@angular/common';
 
-const COLORS = [
-  { bg: 'var(--bone-400)', color: 'var(--ink)' },
-  { bg: 'var(--ink-100)', color: 'var(--bone)' },
-  { bg: 'var(--bone-300)', color: 'var(--ink-200)' },
-  { bg: 'var(--ink-200)', color: 'var(--bone-300)' },
-];
-
-function hashColor(name: string): number {
-  return name.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 4;
-}
-
 @Component({
   selector: 'app-avatar',
   standalone: true,
   imports: [NgStyle],
-  styles: [
-    `
-      .avatar {
-        width: calc(var(--size) * 1px);
-        height: calc(var(--size) * 1px);
-        font-size: calc(var(--size) * 0.5px);
-      }
-
-      @media (min-width: 1024px) {
-        .avatar {
-          width: calc(var(--size) * 1.2px);
-          height: calc(var(--size) * 1.2px);
-          font-size: calc(var(--size) * 0.6px);
-        }
-      }
-    `,
-  ],
   template: `
-    <div class="avatar" [ngStyle]="style()">
+    <div
+      [ngStyle]="style()"
+      class="bg-ink-400 text-bone dark:bg-bone-600 dark:text-ink"
+    >
       {{ initial() }}
     </div>
   `,
@@ -46,13 +21,13 @@ export class AvatarComponent {
   initial = computed(() => (this.name || '?')[0]?.toUpperCase() ?? '?');
 
   style = computed(() => {
-    const c = COLORS[hashColor(this.name || 'A')];
+    const s = this.size;
 
     return {
-      '--size': this.size,
+      width: `${s}px`,
+      height: `${s}px`,
+      fontSize: `${s * 0.5}px`,
       borderRadius: '50%',
-      background: c.bg,
-      color: c.color,
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',

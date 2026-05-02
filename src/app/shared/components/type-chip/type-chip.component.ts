@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
-import { NgStyle } from '@angular/common';
 import { TrackType } from '../../models/track.model';
+// @ts-ignore
+import tailwindConfig from '../../../../../tailwind.config';
 
 const LABELS: Partial<Record<TrackType, string>> = {
   track: 'Canción',
@@ -9,44 +10,50 @@ const LABELS: Partial<Record<TrackType, string>> = {
   single: 'Single',
 };
 
-const COLORS: Partial<Record<TrackType, string>> = {
-  track: 'var(--accent-track)',
-  album: 'var(--accent-album)',
-  ep: 'var(--accent-ep)',
-  single: 'var(--accent-track)',
+const createColorMap = (palette: Record<string, string>) => ({
+  track: palette['track'],
+  album: palette['album'],
+  ep: palette['ep'],
+  single: palette['track'],
+  artist: palette['track'],
+});
+
+const COLORS_LIGHT = createColorMap(tailwindConfig.accentLight);
+const COLORS_DARK = createColorMap(tailwindConfig.accentDark);
+
+const hexToRgba = (hex: string, alpha: number): string => {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 };
 
 @Component({
   selector: 'app-type-chip',
   standalone: true,
-  imports: [NgStyle],
-  template: `<span class="chip" [ngStyle]="style">{{ label }}</span>`,
-  styles: [
-    `
-      .chip {
-        display: inline-block;
-        padding: 2px 4px;
-        border-radius: var(--radius-sm);
-        color: var(--bone);
-        border: 1px solid;
-        font-family: var(--font-body);
-        font-size: clamp(0.625rem, 0.5207rem + 0.4049vw, 0.875rem);
-        font-weight: 500;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        white-space: nowrap;
-      }
-    `,
-  ],
+  template: `
+    <span
+      class="inline-block py-[2px] px-[4px] rounded-sm text-ink border dark:text-bone-100 font-body text-[clamp(0.625rem,0.5207rem+0.4049vw,0.875rem)] font-medium tracking-[0.04em] uppercase whitespace-nowrap"
+      [style.borderColor]="color"
+      [style.backgroundColor]="bgColorWithOpacity"
+      >{{ label }}</span
+    >
+  `,
 })
 export class TypeChipComponent {
   @Input({ required: true }) type: TrackType = 'track';
+
   get label() {
     return LABELS[this.type];
   }
-  get style() {
-    return {
-      borderColor: COLORS[this.type],
-    };
+
+  get color() {
+    const isDark = document.documentElement.classList.contains('dark');
+    const colors = isDark ? COLORS_DARK : COLORS_LIGHT;
+    return colors[this.type];
+  }
+
+  get bgColorWithOpacity() {
+    return hexToRgba(this.color, 0.1);
   }
 }

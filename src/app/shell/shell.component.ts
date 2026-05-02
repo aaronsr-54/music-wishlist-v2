@@ -15,60 +15,112 @@ import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
 import { ReleasesComponent } from '../features/releases/releases.component';
 
-import { ProfileModalComponent } from '../features/profile/profile-modal.component';
-
 type Tab = 'releases' | 'search' | 'wishlist';
 
 @Component({
   selector: 'app-shell',
   standalone: true,
+  host: {
+    class: 'block h-full overflow-hidden',
+  },
   imports: [
     RouterOutlet,
-
     HeaderComponent,
     TabBarComponent,
-
     ReleasesComponent,
     SearchComponent,
     WishlistComponent,
-
-    ProfileModalComponent,
   ],
+  styles: `
+    @keyframes panelEnter {
+      from {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    .mobile-content > * {
+      animation: panelEnter var(--dur-base) var(--ease);
+    }
+    .desktop-content::-webkit-scrollbar {
+      width: 8px;
+    }
+    .desktop-content::-webkit-scrollbar-thumb {
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+  `,
   template: `
     <!-- DESKTOP -->
-    <div class="desktop-shell">
-      <app-header (openProfile)="showProfileModal.set(true)" />
+    <div class="hidden bg-bone-300 dark:bg-ink md:flex flex-col h-full">
+      <app-header (openProfile)="goToProfile()" />
 
-      <main class="desktop-layout">
-        <aside class="desktop-tabs">
+      <main
+        class="flex flex-1 overflow-hidden gap-16 p-3 w-full mx-auto min-[1400px]:mx-[10%] min-[1400px]:w-[calc(100%-20%)]"
+      >
+        <aside class="mt-60 w-[300px] flex flex-col items-start">
           <button
-            class="tab-button"
-            [class.active]="activeTab() === 'releases'"
+            class="inline-flex gap-2 text-ink-700 dark:text-bone-700 text-[28px] font-light italic font-display cursor-pointer uppercase transition-[transform,color] duration-fast ease-smooth border-none bg-transparent p-0 hover:scale-[1.01]"
+            [class.!font-bold]="activeTab() === 'releases'"
             (click)="activeTab.set('releases')"
           >
-            <span class="tab-button-number">01/</span>
-            <span class="tab-button-title">LANZAMIENTOS</span>
+            <span
+              class="w-14 text-right"
+              [class.opacity-0]="activeTab() !== 'releases'"
+              >01/</span
+            >
+            <span
+              class="shrink"
+              [class.text-bone]="activeTab() === 'releases'"
+              [class.not-italic]="activeTab() === 'releases'"
+              [class.font-bold]="activeTab() === 'releases'"
+              >LANZAMIENTOS</span
+            >
           </button>
 
           <button
-            class="tab-button"
-            [class.active]="activeTab() === 'search'"
+            class="inline-flex gap-2 text-ink-700 dark:text-bone-700 text-[28px] font-light italic font-display cursor-pointer uppercase transition-[transform,color] duration-fast ease-smooth border-none bg-transparent p-0 hover:scale-[1.01]"
             (click)="activeTab.set('search')"
           >
-            <span class="tab-button-number">02/</span>
-            <span class="tab-button-title">BUSCADOR</span>
+            <span
+              class="w-14 text-right"
+              [class.opacity-0]="activeTab() !== 'search'"
+              >02/</span
+            >
+            <span
+              class="shrink"
+              [class.text-bone]="activeTab() === 'search'"
+              [class.not-italic]="activeTab() === 'search'"
+              [class.font-bold]="activeTab() === 'search'"
+              >BUSCADOR</span
+            >
           </button>
 
           <button
-            class="tab-button"
-            [class.active]="activeTab() === 'wishlist'"
+            class="inline-flex gap-2 text-ink-700 dark:text-bone-700 text-[28px] font-light italic font-display cursor-pointer uppercase transition-[transform,color] duration-fast ease-smooth border-none bg-transparent p-0 hover:scale-[1.01]"
             (click)="activeTab.set('wishlist')"
           >
-            <span class="tab-button-number">03/</span>
-            <span class="tab-button-title">WHISLIST</span>
+            <span
+              class="w-14 text-right"
+              [class.opacity-0]="activeTab() !== 'wishlist'"
+              >03/</span
+            >
+            <span
+              class="shrink"
+              [class.text-bone]="activeTab() === 'wishlist'"
+              [class.not-italic]="activeTab() === 'wishlist'"
+              [class.font-bold]="activeTab() === 'wishlist'"
+              >WHISLIST</span
+            >
           </button>
         </aside>
-        <section class="desktop-content">
+
+        <section
+          class="desktop-content flex-1 overflow-y-auto p-4 rounded-xl border border-bone-200 dark:border-ink-200 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)] h-full [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10"
+        >
           @if (hasChildRoute()) {
             <router-outlet />
           } @else {
@@ -76,11 +128,9 @@ type Tab = 'releases' | 'search' | 'wishlist';
               @case ('releases') {
                 <app-releases />
               }
-
               @case ('search') {
                 <app-search />
               }
-
               @case ('wishlist') {
                 <app-wishlist />
               }
@@ -91,25 +141,23 @@ type Tab = 'releases' | 'search' | 'wishlist';
     </div>
 
     <!-- MOBILE -->
-    <div class="mobile-shell">
-      <app-header (openProfile)="showProfileModal.set(true)" />
+    <div class="bg-bone-300 dark:bg-ink flex flex-col h-full md:hidden">
+      <app-header (openProfile)="goToProfile()" />
 
-      <main class="mobile-content">
-        @if (hasChildRoute()) {
-          <router-outlet />
-        } @else {
-          @switch (activeTab()) {
-            @case ('releases') {
-              <app-releases />
-            }
-
-            @case ('search') {
+      <main class="mobile-content flex-1 overflow-hidden px-4">
+        @switch (activeTab()) {
+          @case ('releases') {
+            <app-releases />
+          }
+          @case ('search') {
+            @if (hasChildRoute()) {
+              <router-outlet />
+            } @else {
               <app-search />
             }
-
-            @case ('wishlist') {
-              <app-wishlist />
-            }
+          }
+          @case ('wishlist') {
+            <app-wishlist />
           }
         }
       </main>
@@ -119,159 +167,13 @@ type Tab = 'releases' | 'search' | 'wishlist';
         (tabChange)="activeTab.set($event)"
       />
     </div>
-
-    <app-profile-modal
-      [isOpen]="showProfileModal"
-      (closed)="showProfileModal.set(false)"
-    />
   `,
-  styles: [
-    `
-      :host {
-        display: block;
-        height: 100%;
-        overflow: hidden;
-      }
-
-      /* -------------------- */
-      /* DESKTOP */
-      /* -------------------- */
-
-      .desktop-shell {
-        display: none;
-        flex-direction: column;
-        height: 100%;
-      }
-
-      .desktop-layout {
-        display: flex;
-        flex: 1;
-        overflow: hidden;
-        gap: 4rem;
-        padding: 12px;
-        width: 100%;
-        margin-inline: auto;
-
-        @media (min-width: 1400px) {
-          margin-inline: 10%;
-          width: calc(100% - (10% * 2));
-        }
-      }
-
-      .desktop-content {
-        flex: 1;
-        overflow-y: auto;
-        padding: 16px;
-        border-radius: var(--radius-xl);
-        border: 1px solid var(--ink-200);
-        box-shadow: 0 2px 12px 4px rgba(0, 0, 0, 0.15);
-        height: 100%;
-      }
-
-      .desktop-tabs {
-        margin-top: 15rem;
-        width: 300px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .tab-button {
-        display: inline-flex;
-        gap: 8px;
-        color: var(--bone-700);
-        font-size: 28px;
-        font-weight: 300;
-        font-style: italic;
-        font-family: var(--font-display);
-        cursor: pointer;
-        text-transform: uppercase;
-        transition:
-          transform var(--dur-fast) var(--ease),
-          color var(--dur-base) var(--ease);
-      }
-
-      .tab-button:hover {
-        transform: scale(1.01);
-      }
-
-      .tab-button-title {
-        flex-shrink: 1;
-      }
-
-      .tab-button-number {
-        width: 3.5rem;
-        text-align: right;
-        opacity: 0;
-        cursor: auto;
-      }
-
-      .tab-button.active .tab-button-title {
-        color: var(--bone);
-        font-style: normal;
-        font-weight: 700;
-      }
-
-      .tab-button.active .tab-button-number {
-        opacity: 1;
-      }
-
-      /* -------------------- */
-      /* MOBILE */
-      /* -------------------- */
-
-      .mobile-shell {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-      }
-
-      .mobile-content {
-        flex: 1;
-        overflow: hidden;
-      }
-
-      .mobile-content > * {
-        animation: panelEnter var(--dur-base) var(--ease);
-      }
-
-      /* -------------------- */
-      /* RESPONSIVE */
-      /* -------------------- */
-
-      @media (min-width: 768px) {
-        .desktop-shell {
-          display: flex;
-        }
-
-        .mobile-shell {
-          display: none;
-        }
-      }
-
-      /* -------------------- */
-      /* SCROLLBAR */
-      /* -------------------- */
-
-      .desktop-content::-webkit-scrollbar {
-        width: 8px;
-      }
-
-      .desktop-content::-webkit-scrollbar-thumb {
-        border-radius: 999px;
-        background: rgba(255, 255, 255, 0.1);
-      }
-    `,
-  ],
 })
 export class ShellComponent {
-  private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
-  activeTab = signal<Tab>('releases');
-
-  showProfileModal = signal(false);
-
+  activeTab = signal<Tab>(this.getDefaultTab());
   hasChildRoute = signal(false);
 
   constructor() {
@@ -285,5 +187,16 @@ export class ShellComponent {
       this.activeTab();
       this.router.navigate(['']);
     });
+  }
+
+  private getDefaultTab(): Tab {
+    const saved = localStorage.getItem('defaultTab') as Tab | null;
+    return saved && ['releases', 'search', 'wishlist'].includes(saved)
+      ? saved
+      : 'releases';
+  }
+
+  goToProfile() {
+    this.router.navigate(['/profile']);
   }
 }

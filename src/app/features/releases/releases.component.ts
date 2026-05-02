@@ -16,6 +16,7 @@ import { AuthService } from '../../core/auth/auth.service';
 import { ReleaseItem } from '../../shared/models/release-item.model';
 import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
+import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 
 const MONTHS = [
   'Enero',
@@ -35,97 +36,158 @@ const MONTHS = [
 @Component({
   selector: 'app-releases',
   standalone: true,
-  imports: [CommonModule, CardItemComponent, SpinnerComponent],
+  imports: [
+    CommonModule,
+    CardItemComponent,
+    SpinnerComponent,
+    EmptyStateComponent,
+  ],
+  styles: `
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    .releases-grid {
+      min-width: 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: max-content;
+      gap: 8px;
+      overflow: auto;
+      scrollbar-width: none;
+      height: 100%;
+      padding-top: 16px;
+      padding-bottom: 2rem;
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 16px,
+        black 95%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 16px,
+        black 95%,
+        transparent 100%
+      );
+    }
+    .releases-grid::-webkit-scrollbar {
+      display: none;
+    }
+    @media (min-width: 1100px) and (max-width: 1623px) {
+      .releases-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+    }
+    @media (min-width: 1624px) and (max-width: 1899px) {
+      .releases-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+    }
+    @media (min-width: 1900px) {
+      .releases-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+  `,
   template: `
-    <div class="panel">
-      <div class="eyebrow">
-        <span class="label">
-          <span class="label--number">01/</span> LANZAMIENTOS
+    <div
+      class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4 w-full [animation:fadeIn_300ms_ease_both]"
+    >
+      <div class="flex items-center justify-between gap-2">
+        <span
+          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] md:hidden"
+        >
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
+            >01/</span
+          >
+          LANZAMIENTOS
         </span>
       </div>
 
-      <div class="releases-container">
-        <div class="month-selector-container">
-          <div class="month-selector">
-            <button class="nav-btn" (click)="prevMonth()" title="Mes anterior">
-              <
+      <div
+        class="flex flex-col h-full pb-8"
+        (touchstart)="onTouchStart($event)"
+        (touchend)="onTouchEnd($event)"
+      >
+        <div
+          class="flex items-center justify-center border-b-[1.5px] border-bone-100 dark:border-ink-100 [animation:slideDown_300ms_ease_both]"
+        >
+          <div
+            class="flex items-center justify-between gap-8 py-1 w-full md:w-80 md:mx-auto"
+          >
+            <button
+              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+              (click)="prevMonth()"
+              title="Mes anterior"
+            >
+              &lt;
             </button>
-            <span class="date-label">
-              <span class="month-label">{{ monthLabel() }}</span>
-              <span class="year-label">{{ yearLabel() }}</span>
+            <span
+              class="flex items-center justify-center gap-2 text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] text-ink dark:text-bone min-w-[150px] text-center uppercase py-4 transition-opacity duration-[200ms] ease-[ease]"
+            >
+              <span class="font-semibold tracking-[0.04em]">{{
+                monthLabel()
+              }}</span>
+              <span
+                class="font-display text-ink-700 dark:text-bone-700 font-light italic mt-[2.5px]"
+                >{{ yearLabel() }}</span
+              >
             </span>
             <button
-              class="nav-btn"
-              [class.disabled]="!canGoToNextMonth()"
+              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               [disabled]="!canGoToNextMonth()"
               (click)="nextMonth()"
               title="Mes siguiente"
             >
-              >
+              &gt;
             </button>
           </div>
         </div>
 
         @if (loading()) {
-          <div class="releases-loading">
+          <div
+            class="flex flex-col items-center justify-center gap-4 min-h-[300px] py-10 px-5 text-ink-600 dark:text-bone-600 text-center [animation:fadeIn_300ms_ease_both]"
+          >
             <app-spinner size="md" />
-            <span class="releases-loading__text">Cargando lanzamientos...</span>
+            <span
+              class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
+              >Cargando lanzamientos...</span
+            >
           </div>
         } @else if (filteredReleases().length === 0) {
-          <div class="empty-state">
-            <div class="empty-icon">
-              @if (favorites().length === 0) {
-                <svg viewBox="0 0 22 22" fill="none" class="tab-icon">
-                  <path
-                    d="M11 19S3 13.5 3 8a5 5 0 018-4A5 5 0 0119 8c0 5.5-8 11-8 11z"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              } @else {
-                <svg
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                  xml:space="preserve"
-                  class="tab-icon"
-                >
-                  <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                  <g
-                    id="SVGRepo_tracerCarrier"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  ></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <g id="new">
-                      <g>
-                        <polygon
-                          points="13,23 11,23 11,13.7 3,18.4 2,16.6 10,12 2,7.4 3,5.6 11,10.3 11,1 13,1 13,10.3 21,5.6 22,7.4 14,12 22,16.6 21,18.4 13,13.7 "
-                        ></polygon>
-                      </g>
-                    </g>
-                  </g>
-                </svg>
-              }
-            </div>
-            @if (favorites().length === 0) {
-              <p class="empty-title">Sin artistas</p>
-              <p class="empty-sub">
-                Busca tus artistas favoritos y añádelos aquí.
-              </p>
-            } @else {
-              <p class="empty-title">Sin lanzamientos</p>
-              <p class="empty-sub">
-                Ninguno de tus artistas favoritos ha lanzado algo este mes.
-                Añade más artistas a tu lista de favoritos.
-              </p>
-            }
-          </div>
+          <app-empty-state
+            [icon]="favorites().length === 0 ? 'heart' : 'music-note'"
+            [title]="
+              favorites().length === 0 ? 'Sin artistas' : 'Sin lanzamientos'
+            "
+            [subtitle]="
+              favorites().length === 0
+                ? 'Busca tus artistas favoritos y añádelos aquí.'
+                : 'Ninguno de tus artistas favoritos ha lanzado algo este mes. Añade más artistas a tu lista de favoritos.'
+            "
+          />
         } @else {
-          <div class="releases-list">
-            @for (item of filteredReleases(); track item.id + ':' + item.type) {
+          <div
+            class="releases-grid transition-opacity duration-300"
+            [class.opacity-0]="animatingMonth()"
+          >
+            @for (
+              item of filteredReleases();
+              track item.id + ':' + item.type;
+              let i = $index
+            ) {
               <app-card-item
-                class="result-item"
+                class="[animation:scaleIn_300ms_ease_both]"
+                [style.animation-delay]="i * 30 + 'ms'"
                 [item]="item"
                 [isAdded]="isInWishlist(item.id)"
                 (toggleWishlist)="toggleWishlist($event)"
@@ -136,347 +198,6 @@ const MONTHS = [
       </div>
     </div>
   `,
-  styles: [
-    `
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-
-      @keyframes slideDown {
-        from {
-          opacity: 0;
-          transform: translateY(-8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      @keyframes scaleIn {
-        from {
-          opacity: 0;
-          transform: scale(0.95);
-        }
-        to {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          opacity: 1;
-        }
-        50% {
-          opacity: 0.6;
-        }
-      }
-
-      .panel {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow: hidden;
-        padding: 0.5rem 1rem 0 1rem;
-        gap: 1rem;
-        width: 100%;
-        animation: fadeIn 300ms ease both;
-      }
-
-      .eyebrow {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-      }
-
-      .label {
-        font-family: var(--font-display);
-        font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-        color: var(--bone);
-        font-weight: 700;
-        letter-spacing: 0.06em;
-
-        @media (min-width: 768px) {
-          display: none;
-        }
-      }
-
-      .label--number {
-        color: var(--bone-700);
-        font-weight: 400;
-        font-style: italic;
-      }
-
-      .releases-container {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        padding-bottom: 2rem;
-      }
-
-      .month-selector-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-bottom: 1.5px solid var(--ink-100);
-        animation: slideDown 300ms ease both;
-      }
-
-      .month-selector {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 2rem;
-        padding: 4px 0;
-        width: 100%;
-
-        @media (min-width: 768px) {
-          width: 20rem;
-          margin-inline: auto;
-        }
-      }
-
-      .nav-btn {
-        width: 32px;
-        height: 32px;
-        border: none;
-        background: none;
-        color: var(--bone);
-        cursor: pointer;
-        font-size: clamp(1.125rem, 1.0207rem + 0.4049vw, 1.375rem);
-        font-weight: 600;
-        transition:
-          color var(--dur-fast) var(--ease),
-          transform var(--dur-fast) var(--ease);
-        padding: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-
-      .nav-btn:hover {
-        color: var(--bone-100);
-        transform: scale(1.15);
-      }
-
-      .nav-btn:active {
-        transform: scale(0.9);
-      }
-
-      .nav-btn:disabled,
-      .nav-btn.disabled {
-        opacity: 0.2;
-        cursor: not-allowed;
-        pointer-events: none;
-      }
-
-      .date-label {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        font-size: clamp(1.5rem, 1.3957rem + 0.4049vw, 1.75rem);
-        color: var(--bone);
-        min-width: 150px;
-        text-align: center;
-        text-transform: uppercase;
-        padding: 16px 0;
-        transition: opacity 200ms ease;
-      }
-
-      .month-label {
-        font-weight: 600;
-        letter-spacing: 0.04em;
-      }
-
-      .year-label {
-        font-family: var(--font-display);
-        color: var(--bone-700);
-        font-weight: 300;
-        font-style: italic;
-        margin-top: -3px;
-      }
-
-      .releases-loading {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        min-height: 300px;
-        padding: 40px 20px;
-        color: var(--bone-600);
-        text-align: center;
-        animation: fadeIn 300ms ease both;
-      }
-
-      .releases-loading__text {
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-style: italic;
-      }
-
-      .empty {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--bone-700);
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        animation: fadeIn 400ms ease both;
-      }
-
-      .releases-list {
-        min-width: 0;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        grid-template-rows: max-content;
-        gap: 8px;
-        overflow: auto;
-        scrollbar-width: none;
-        height: 100%;
-        padding-top: 16px;
-        animation: fadeIn 300ms ease both;
-
-        padding-bottom: 2rem;
-        -webkit-mask-image: linear-gradient(
-          to bottom,
-          transparent 0%,
-          black 16px,
-          black 95%,
-          transparent 100%
-        );
-        mask-image: linear-gradient(
-          to bottom,
-          transparent 0%,
-          black 16px,
-          black 95%,
-          transparent 100%
-        );
-
-        @media (min-width: 1100px) and (max-width: 1623px) {
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        @media (min-width: 1624px) and (max-width: 1899px) {
-          grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        @media (min-width: 1900px) {
-          grid-template-columns: repeat(5, minmax(0, 1fr));
-        }
-      }
-
-      .result-item {
-        animation: scaleIn 300ms ease both;
-      }
-
-      .result-item:nth-child(1) {
-        animation-delay: 0ms;
-      }
-      .result-item:nth-child(2) {
-        animation-delay: 30ms;
-      }
-      .result-item:nth-child(3) {
-        animation-delay: 60ms;
-      }
-      .result-item:nth-child(4) {
-        animation-delay: 90ms;
-      }
-      .result-item:nth-child(5) {
-        animation-delay: 120ms;
-      }
-      .result-item:nth-child(6) {
-        animation-delay: 150ms;
-      }
-      .result-item:nth-child(7) {
-        animation-delay: 180ms;
-      }
-      .result-item:nth-child(8) {
-        animation-delay: 210ms;
-      }
-      .result-item:nth-child(9) {
-        animation-delay: 240ms;
-      }
-      .result-item:nth-child(10) {
-        animation-delay: 270ms;
-      }
-      .result-item:nth-child(11) {
-        animation-delay: 300ms;
-      }
-      .result-item:nth-child(12) {
-        animation-delay: 330ms;
-      }
-      .result-item:nth-child(13) {
-        animation-delay: 360ms;
-      }
-      .result-item:nth-child(14) {
-        animation-delay: 390ms;
-      }
-      .result-item:nth-child(15) {
-        animation-delay: 420ms;
-      }
-      .result-item:nth-child(16) {
-        animation-delay: 450ms;
-      }
-      .result-item:nth-child(17) {
-        animation-delay: 480ms;
-      }
-      .result-item:nth-child(18) {
-        animation-delay: 510ms;
-      }
-      .result-item:nth-child(19) {
-        animation-delay: 540ms;
-      }
-      .result-item:nth-child(20) {
-        animation-delay: 570ms;
-      }
-
-      .empty-state {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        padding: 60px 20px;
-        text-align: center;
-        animation: emptyEnter var(--dur-slow) var(--ease) both;
-      }
-
-      .empty-icon {
-        color: var(--bone-700);
-        margin-bottom: 4px;
-      }
-
-      .empty-icon svg {
-        width: 3.2rem;
-        height: 3.2rem;
-      }
-
-      .empty-title {
-        font-family: var(--font-body);
-        font-size: clamp(1.375rem, 1.2707rem + 0.4049vw, 1.625rem);
-        font-weight: 600;
-        text-transform: uppercase;
-        color: var(--bone);
-        margin: 0;
-      }
-
-      .empty-sub {
-        font-size: clamp(0.875rem, 0.7707rem + 0.4049vw, 1.125rem);
-        font-family: var(--font-display);
-        color: var(--bone-600);
-        font-style: italic;
-        margin: 0;
-        max-width: 240px;
-      }
-    `,
-  ],
 })
 export class ReleasesComponent implements OnInit {
   private searchSvc = inject(SearchService);
@@ -489,17 +210,15 @@ export class ReleasesComponent implements OnInit {
 
   allReleases = signal<ReleaseItem[]>([]);
   loading = signal(false);
+  animatingMonth = signal(false);
 
   favorites = this.favoritesSvc.favorites;
 
-  monthLabel = computed(() => {
-    const month = this.selectedMonth();
-    return `${MONTHS[month]}`;
-  });
+  private touchStartX = 0;
+  private readonly SWIPE_THRESHOLD = 50;
 
-  yearLabel = computed(() => {
-    return this.selectedYear().toString();
-  });
+  monthLabel = computed(() => MONTHS[this.selectedMonth()]);
+  yearLabel = computed(() => this.selectedYear().toString());
 
   canGoToNextMonth = computed(() => {
     const now = new Date();
@@ -507,7 +226,6 @@ export class ReleasesComponent implements OnInit {
     const currentMonth = now.getMonth();
     const selectedYear = this.selectedYear();
     const selectedMonth = this.selectedMonth();
-
     return !(selectedYear === currentYear && selectedMonth === currentMonth);
   });
 
@@ -630,5 +348,30 @@ export class ReleasesComponent implements OnInit {
       if (!user) return;
       await this.wishlistSvc.addRelease(item, user);
     }
+  }
+
+  onTouchStart(e: TouchEvent) {
+    if (e.touches.length > 0) {
+      this.touchStartX = e.touches[0].clientX;
+    }
+  }
+
+  onTouchEnd(e: TouchEvent) {
+    if (e.changedTouches.length === 0) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const diff = this.touchStartX - touchEndX;
+
+    if (Math.abs(diff) < this.SWIPE_THRESHOLD) return;
+
+    this.animatingMonth.set(true);
+    setTimeout(() => {
+      if (diff > 0) {
+        this.nextMonth();
+      } else {
+        this.prevMonth();
+      }
+      this.animatingMonth.set(false);
+    }, 150);
   }
 }
