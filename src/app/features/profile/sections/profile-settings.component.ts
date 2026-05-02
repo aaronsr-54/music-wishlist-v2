@@ -1,6 +1,15 @@
-import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  signal,
+  ChangeDetectionStrategy,
+  computed,
+  inject,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ProfileSectionComponent } from '../../../shared/components/profile-section/profile-section.component';
+import { SegmentedTabsComponent } from '../../../shared/components/segmented-tabs/segmented-tabs.component';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ThemeService } from '../../../core/theme/theme.service';
 
 type TabType = 'releases' | 'search' | 'wishlist';
@@ -9,101 +18,148 @@ type Theme = 'light' | 'dark' | 'system';
 @Component({
   selector: 'app-profile-settings',
   standalone: true,
-  imports: [CommonModule, ProfileSectionComponent],
+  imports: [
+    CommonModule,
+    ProfileSectionComponent,
+    SegmentedTabsComponent,
+    ModalComponent,
+  ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-profile-section title="Configuración">
       <section
-        class="border border-solid border-bone-800 dark:border-ink-200 rounded-lg p-4 flex flex-col gap-8 shadow-[0_2px_12px_4px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
+        class="border border-solid border-bone-800 dark:border-ink-200 rounded-lg p-4 flex flex-col gap-8"
       >
-        <div class="flex flex-col md:flex-row gap-2 md:gap-10 md:items-center">
-          <span
-            class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-700 dark:text-bone-700 italic md:min-w-36"
-          >
+        <!-- TAB -->
+        <div class="flex flex-col md:flex-row gap-2 md:items-center">
+          <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
             Página principal:
           </span>
 
-          <div class="p-1 bg-ink-200 rounded-2xl md:rounded-pill md:flex-1">
-            <div class="flex flex-col md:flex-row gap-1 overflow-hidden">
-              <button
-                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
-                [class.active]="defaultTab() === 'releases'"
-                (click)="setDefaultTab('releases')"
-              >
-                Lanzamientos
-              </button>
+          <button
+            class="md:hidden w-full px-4 py-2 rounded-lg bg-bone dark:bg-ink-200 dark:text-bone font-bold uppercase"
+            (click)="openTabModal()"
+          >
+            {{ tabOptionLabel() }}
+          </button>
 
-              <button
-                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
-                [class.active]="defaultTab() === 'search'"
-                (click)="setDefaultTab('search')"
-              >
-                Buscador
-              </button>
-
-              <button
-                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
-                [class.active]="defaultTab() === 'wishlist'"
-                (click)="setDefaultTab('wishlist')"
-              >
-                Wishlist
-              </button>
-            </div>
-          </div>
+          <app-segmented-tabs
+            class="hidden md:flex flex-1"
+            variant="toggle"
+            [options]="tabOptions()"
+            [value]="defaultTab()"
+            (valueChange)="setDefaultTab($event)"
+          />
         </div>
 
-        <div class="flex flex-col md:flex-row gap-2 md:gap-10 md:items-center">
-          <span
-            class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-700 dark:text-bone-700 italic md:min-w-36"
-          >
+        <!-- THEME -->
+        <div class="flex flex-col md:flex-row gap-2 md:items-center">
+          <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
             Tema:
           </span>
 
-          <div class="p-1 bg-ink-200 rounded-2xl md:rounded-pill md:flex-1">
-            <div class="flex flex-col md:flex-row gap-1 overflow-hidden">
-              <button
-                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
-                [class.active]="currentTheme() === 'system'"
-                (click)="setTheme('system')"
-              >
-                Sistema
-              </button>
+          <button
+            class="md:hidden w-full px-4 py-2 rounded-lg bg-bone dark:bg-ink-200 dark:text-bone font-bold uppercase"
+            (click)="openThemeModal()"
+          >
+            {{ themeOptionLabel() }}
+          </button>
 
-              <button
-                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
-                [class.active]="currentTheme() === 'light'"
-                (click)="setTheme('light')"
-              >
-                Claro
-              </button>
-
-              <button
-                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
-                [class.active]="currentTheme() === 'dark'"
-                (click)="setTheme('dark')"
-              >
-                Oscuro
-              </button>
-            </div>
-          </div>
+          <app-segmented-tabs
+            class="hidden md:flex flex-1"
+            variant="toggle"
+            [options]="themeOptions()"
+            [value]="currentTheme()"
+            (valueChange)="setTheme($event)"
+          />
         </div>
       </section>
+
+      <!-- MODAL TAB -->
+      <app-modal #tabModal title="Página principal" (onClose)="closeTabModal()">
+        <app-segmented-tabs
+          variant="list"
+          [options]="tabOptions()"
+          [value]="defaultTab()"
+          (valueChange)="onTabChange($event)"
+        />
+      </app-modal>
+
+      <!-- MODAL THEME -->
+      <app-modal #themeModal title="Tema" (onClose)="closeThemeModal()">
+        <app-segmented-tabs
+          variant="list"
+          [options]="themeOptions()"
+          [value]="currentTheme()"
+          (valueChange)="onThemeChange($event)"
+        />
+      </app-modal>
     </app-profile-section>
   `,
 })
 export class ProfileSettingsComponent {
+  private themeService = inject(ThemeService);
+
+  @ViewChild('tabModal', { static: true }) tabModal!: ModalComponent;
+  @ViewChild('themeModal', { static: true }) themeModal!: ModalComponent;
+
   defaultTab = signal<TabType>('releases');
   currentTheme = signal<Theme>('system');
 
-  constructor(private themeService: ThemeService) {
-    const saved = localStorage.getItem('defaultTab') as TabType | null;
+  tabOptions = signal([
+    { value: 'releases' as const, label: 'Lanzamientos' },
+    { value: 'search' as const, label: 'Buscador' },
+    { value: 'wishlist' as const, label: 'Wishlist' },
+  ]);
 
-    if (saved) {
-      this.defaultTab.set(saved);
-    }
+  themeOptions = signal([
+    { value: 'system' as const, label: 'Sistema' },
+    { value: 'light' as const, label: 'Claro' },
+    { value: 'dark' as const, label: 'Oscuro' },
+  ]);
+
+  tabOptionLabel = computed(
+    () =>
+      this.tabOptions().find((o) => o.value === this.defaultTab())?.label ??
+      'Seleccionar',
+  );
+
+  themeOptionLabel = computed(
+    () =>
+      this.themeOptions().find((o) => o.value === this.currentTheme())?.label ??
+      'Seleccionar',
+  );
+
+  constructor() {
+    const saved = localStorage.getItem('defaultTab') as TabType | null;
+    if (saved) this.defaultTab.set(saved);
 
     this.currentTheme.set(this.themeService.getTheme());
   }
+
+  // -------------------
+  // MODAL CONTROL
+  // -------------------
+
+  openTabModal() {
+    this.tabModal.open();
+  }
+
+  closeTabModal() {
+    this.tabModal.close();
+  }
+
+  openThemeModal() {
+    this.themeModal.open();
+  }
+
+  closeThemeModal() {
+    this.themeModal.close();
+  }
+
+  // -------------------
+  // STATE
+  // -------------------
 
   setDefaultTab(tab: TabType) {
     this.defaultTab.set(tab);
@@ -113,5 +169,15 @@ export class ProfileSettingsComponent {
   setTheme(theme: Theme) {
     this.currentTheme.set(theme);
     this.themeService.setTheme(theme);
+  }
+
+  onTabChange(value: string) {
+    this.setDefaultTab(value as TabType);
+    this.closeTabModal();
+  }
+
+  onThemeChange(value: string) {
+    this.setTheme(value as Theme);
+    this.closeThemeModal();
   }
 }

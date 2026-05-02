@@ -24,9 +24,16 @@ import { formatFans } from '../../shared/utils/format-fans';
   ],
   styles: `
     @keyframes popIn {
-      0% { opacity: 0; transform: scale(0.8); }
-      50% { opacity: 1; }
-      100% { transform: scale(1); }
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
     }
     .btn-pop-in {
       animation: popIn 220ms var(--ease-smooth) both;
@@ -37,8 +44,20 @@ import { formatFans } from '../../shared/utils/format-fans';
       scrollbar-width: none;
       padding-bottom: 2rem;
       padding-top: 4px;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
-      mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 16px,
+        black 95%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 16px,
+        black 95%,
+        transparent 100%
+      );
     }
     .scroll-fade::-webkit-scrollbar {
       display: none;
@@ -57,15 +76,16 @@ import { formatFans } from '../../shared/utils/format-fans';
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em]"
         >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic">02.a/</span> ARTISTA
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
+            >02.a/</span
+          >
+          ARTISTA
         </span>
       </div>
 
-      <div
-        class="scroll-fade flex flex-col p-4 py-2 gap-16"
-      >
+      <div class="scroll-fade flex flex-col p-4 py-2 gap-8">
         <div
-          class="flex gap-[30px] max-md:flex-col max-md:items-center max-md:gap-5 max-md:text-center mt-4"
+          class="flex gap-2 max-md:flex-col max-md:items-center md:gap-8 max-md:text-center mt-4"
         >
           <div
             class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-[150px] max-md:h-[150px]"
@@ -81,7 +101,7 @@ import { formatFans } from '../../shared/utils/format-fans';
 
           <div class="flex-1 flex flex-col justify-start">
             @if (artist(); as a) {
-              <div class="flex flex-col">
+              <div class="flex flex-col text-ink dark:text-bone">
                 <div class="flex items-center gap-4 mb-5">
                   <h1
                     class="m-0 text-[clamp(2rem,1.166rem+3.2389vw,4rem)] font-bold font-display flex-1"
@@ -89,11 +109,8 @@ import { formatFans } from '../../shared/utils/format-fans';
                     {{ a.name }}
                   </h1>
                   <button
-                    class="w-9 h-9 md:w-12 md:h-12 rounded-full cursor-pointer flex items-center justify-center text-ink-600 dark:text-bone-600 shrink-0 border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent p-0 transition-[background,border-color,color,transform] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:bg-ink-100 hover:text-ink-100 dark:hover:text-bone-100 active:scale-[0.88]"
-                    [class.!bg-bone]="isArtistInWishlist(a.id)"
-                    [class.!border-bone]="isArtistInWishlist(a.id)"
-                    [class.!text-ink]="isArtistInWishlist(a.id)"
-                    [class.btn-pop-in]="isArtistInWishlist(a.id)"
+                    class="[&.active]:btn-pop-in w-9 h-9 md:w-12 md:h-12 rounded-full cursor-pointer flex items-center justify-center text-ink-600 dark:text-bone-600 shrink-0 bg-transparent p-0 transition-[color,transform] duration-fast ease-smooth hover:scale-[1.05] active:scale-[0.88]"
+                    [class.active]="isArtistInWishlist(a.id)"
                     (click)="toggleArtist($event)"
                     [title]="
                       isArtistInWishlist(a.id)
@@ -104,10 +121,10 @@ import { formatFans } from '../../shared/utils/format-fans';
                     @if (isArtistInWishlist(a.id)) {
                       <app-icon
                         name="heart-filled"
-                        class="w-5 h-5 md:w-8 md:h-8"
+                        class="w-8 h-8 md:w-12 md:h-12"
                       />
                     } @else {
-                      <app-icon name="heart" class="w-5 h-5 md:w-8 md:h-8" />
+                      <app-icon name="heart" class="w-8 h-8 md:w-12 md:h-12" />
                     }
                   </button>
                 </div>
@@ -138,17 +155,6 @@ import { formatFans } from '../../shared/utils/format-fans';
                     </div>
                   }
                 </div>
-
-                @if (a.link) {
-                  <a
-                    [href]="a.link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="inline-block py-2.5 px-5 bg-accent-track text-bone dark:text-ink rounded-sm no-underline text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold transition-opacity duration-fast ease-smooth hover:opacity-80 md:w-fit"
-                  >
-                    Ver en Deezer
-                  </a>
-                }
               </div>
             }
           </div>
