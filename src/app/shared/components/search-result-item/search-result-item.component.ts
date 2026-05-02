@@ -52,7 +52,7 @@ import { firstValueFrom } from 'rxjs';
                   {{ trackItem().name }}
                 </span>
                 <div
-                  class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800"
+                  class="flex items-baseline gap-2 leading-none text-ink-800 dark:text-bone-800"
                 >
                   @if (trackItem().fanCount) {
                     <span
@@ -137,7 +137,7 @@ import { firstValueFrom } from 'rxjs';
                 {{ trackItem().name }}
               </span>
               <div
-                class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800"
+                class="flex items-baseline gap-2 leading-none text-ink-800 dark:text-bone-800"
               >
                 <span
                   class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis"
@@ -213,32 +213,34 @@ import { firstValueFrom } from 'rxjs';
           />
         }
 
-        <div class="flex-1 flex flex-col gap-[3px] min-w-0">
-          <span
-            class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
-          >
-            {{ wishlistItem().name }}
-          </span>
-          <span
-            class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800"
-          >
+        <div class="flex-1 flex flex-col gap-2 min-w-0">
+          <div class="flex-1 flex flex-col">
             <span
-              class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis"
+              class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink dark:text-bone leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
             >
-              {{ wishlistItem().artist }}
+              {{ wishlistItem().name }}
             </span>
-            ·
-            <app-type-chip [type]="wishlistItem().type" />
-          </span>
+            <span
+              class="flex items-center gap-2 leading-none text-ink-800 dark:text-bone-800"
+            >
+              <span
+                class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-700 dark:text-bone-700 whitespace-nowrap overflow-hidden text-ellipsis"
+              >
+                {{ wishlistItem().artist }} </span
+              >·
+              <app-type-chip [type]="wishlistItem().type" />
+            </span>
+          </div>
           <span
-            class="text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] text-ink-800 dark:text-bone-800 flex items-center gap-1 flex-wrap font-semibold"
+            class="text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] text-ink-200 dark:text-bone-800 flex items-center gap-1 flex-wrap font-semibold"
           >
             <app-avatar [name]="wishlistItem().addedBy" [size]="14" />
-            {{ wishlistItem().addedBy }}
+            {{ isShared() ? wishlistItem().addedBy : 'Yo' }}
             @if (isShared()) {
+              ·
               <span
-                class="text-[clamp(0.6rem,0.5rem+0.3vw,0.75rem)] px-1.5 py-0.5 bg-bone-200 dark:bg-ink-200 rounded text-ink-700 dark:text-bone-700 font-normal"
-                >Compartida</span
+                class="text-[clamp(0.6rem,0.5rem+0.3vw,0.75rem)] px-1.5 py-0.5 bg-bone-200 dark:bg-ink-200 rounded font-normal italic lowercase"
+                >compartida</span
               >
             }
             ·

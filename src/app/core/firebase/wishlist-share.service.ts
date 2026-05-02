@@ -9,26 +9,21 @@ import {
 import {
   Firestore,
   collection,
-  deleteDoc,
   updateDoc,
   doc,
   onSnapshot,
   query,
   orderBy,
   where,
-  setDoc,
   writeBatch,
   getDocs,
 } from '@angular/fire/firestore';
-import { User } from '@angular/fire/auth';
 import { WishlistShare } from '../../shared/models/wishlist-share.model';
 import { AuthService } from '../auth/auth.service';
-import { WishlistService } from './wishlist.service';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistShareService {
   private firestore = inject(Firestore);
-  private wishlistService = inject(WishlistService);
   private injector = inject(Injector);
 
   private _sharesGiven = signal<WishlistShare[]>([]);

@@ -38,7 +38,10 @@ export class AuthService {
     effect(() => {
       const firebaseUser = this.firebaseUser();
       if (firebaseUser) {
-        this.wishlistService.initListener(firebaseUser.uid);
+        this.wishlistService.initListener(
+          firebaseUser.uid,
+          firebaseUser.email || '',
+        );
         this.favoriteArtistsService.initListener(firebaseUser.uid);
         this.wishlistShareService.initListeners(
           firebaseUser.uid,
@@ -103,7 +106,7 @@ export class AuthService {
   setDemoMode(enabled: boolean): void {
     this.demoMode.set(enabled);
     if (enabled) {
-      this.wishlistService.initListener('demo-user');
+      this.wishlistService.initListener('demo-user', 'demo@example.com');
       this.favoriteArtistsService.initListener('demo-user');
       this.wishlistShareService.initListeners('demo-user', 'demo@example.com');
     }
