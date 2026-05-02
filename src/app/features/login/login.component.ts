@@ -53,10 +53,21 @@ import { IconComponent } from '../../shared/icons/icon.component';
   `,
   template: `
     <div
-      class="min-h-dvh bg-bone dark:bg-ink flex flex-col p-8 min-[600px]:px-24 mx-auto relative overflow-hidden before:content-[''] before:absolute before:top-[-120px] before:right-[-80px] before:w-80 before:h-80 before:rounded-full before:bg-radial before:from-white before:to-zinc-900 before:pointer-events-none"
+      class="min-h-dvh bg-bone-300 dark:bg-ink flex flex-col p-8 min-[600px]:px-24 mx-auto overflow-hidden
+            relative 
+            before:content-['']
+            before:absolute
+            before:-top-32
+            before:-right-32
+            before:w-96
+            before:h-96
+            before:rounded-full
+            before:pointer-events-none
+            before:dark:bg-[radial-gradient(circle,_theme(colors.ink.400)_0%,_transparent_70%)]
+            before:bg-[radial-gradient(circle,_theme(colors.bone.400)_0%,_transparent_70%)]"
     >
       <header
-        class="flex justify-between items-center pb-6"
+        class="flex justify-between items-center pb-6 z-10"
         style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 0ms"
       >
         <span

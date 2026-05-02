@@ -25,7 +25,7 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
       class="flex flex-col h-full overflow-hidden px-2 gap-4 bg-bone-300 dark:bg-ink"
     >
       <div
-        class="flex items-center justify-between h-16 px-6 shrink-0 gap-4 max-md:h-14 max-md:px-4"
+        class="z-10 flex items-center justify-between h-16 px-6 shrink-0 gap-4 max-md:h-14 max-md:px-4"
       >
         <button
           class="bg-transparent text-ink-700 dark:text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast hover:text-ink dark:hover:text-bone lowercase"

@@ -55,16 +55,28 @@ type Tab = 'releases' | 'search' | 'wishlist';
   `,
   template: `
     <!-- DESKTOP -->
-    <div class="hidden bg-bone-300 dark:bg-ink md:flex flex-col h-full">
-      <app-header (openProfile)="goToProfile()" />
+    <div
+      class="hidden bg-bone-300 dark:bg-ink md:flex flex-col h-full
+        relative 
+        before:content-['']
+        before:absolute
+        before:-top-1/4
+        before:-right-52
+        before:w-2/4
+        before:h-3/4
+        before:pointer-events-none
+        before:dark:bg-[radial-gradient(circle,_theme(colors.ink.400)_0%,_transparent_70%)]
+        before:bg-[radial-gradient(circle,_theme(colors.bone.400)_0%,_transparent_70%)]"
+    >
+      <app-header class="z-10" (openProfile)="goToProfile()" />
 
       <main
-        class="flex flex-1 overflow-hidden gap-16 p-3 w-full mx-auto min-[1400px]:mx-[10%] min-[1400px]:w-[calc(100%-20%)]"
+        class="z-10 flex flex-1 overflow-hidden gap-16 p-3 w-full mx-auto min-[1400px]:mx-[10%] min-[1400px]:w-[calc(100%-20%)]"
       >
         <aside class="mt-60 w-[300px] flex flex-col items-start">
           <button
             class="inline-flex gap-2 text-ink-700 dark:text-bone-700 text-[28px] font-light italic font-display cursor-pointer uppercase transition-[transform,color] duration-fast ease-smooth border-none bg-transparent p-0 hover:scale-[1.01]"
-            [class.!font-bold]="activeTab() === 'releases'"
+            [class.active]="activeTab() === 'releases'"
             (click)="activeTab.set('releases')"
           >
             <span
@@ -73,10 +85,8 @@ type Tab = 'releases' | 'search' | 'wishlist';
               >01/</span
             >
             <span
-              class="shrink"
-              [class.text-bone]="activeTab() === 'releases'"
-              [class.not-italic]="activeTab() === 'releases'"
-              [class.font-bold]="activeTab() === 'releases'"
+              class="shrink [&.active]:text-ink [&.active]:dark:text-bone [&.active]:font-bold [&.active]:not-italic"
+              [class.active]="activeTab() === 'releases'"
               >LANZAMIENTOS</span
             >
           </button>
@@ -91,10 +101,8 @@ type Tab = 'releases' | 'search' | 'wishlist';
               >02/</span
             >
             <span
-              class="shrink"
-              [class.text-bone]="activeTab() === 'search'"
-              [class.not-italic]="activeTab() === 'search'"
-              [class.font-bold]="activeTab() === 'search'"
+              class="shrink [&.active]:text-ink [&.active]:dark:text-bone [&.active]:font-bold [&.active]:not-italic"
+              [class.active]="activeTab() === 'search'"
               >BUSCADOR</span
             >
           </button>
@@ -109,17 +117,15 @@ type Tab = 'releases' | 'search' | 'wishlist';
               >03/</span
             >
             <span
-              class="shrink"
-              [class.text-bone]="activeTab() === 'wishlist'"
-              [class.not-italic]="activeTab() === 'wishlist'"
-              [class.font-bold]="activeTab() === 'wishlist'"
+              class="shrink [&.active]:text-ink [&.active]:dark:text-bone [&.active]:font-bold [&.active]:not-italic"
+              [class.active]="activeTab() === 'wishlist'"
               >WHISLIST</span
             >
           </button>
         </aside>
 
         <section
-          class="desktop-content flex-1 overflow-y-auto p-4 rounded-xl border border-bone-200 dark:border-ink-200 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)] h-full [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10"
+          class="desktop-content flex-1 overflow-y-auto p-4 rounded-xl border border-bone-800 dark:border-ink-200 shadow-[0_2px_12px_4px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)] h-full [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10"
         >
           @if (hasChildRoute()) {
             <router-outlet />
@@ -141,10 +147,23 @@ type Tab = 'releases' | 'search' | 'wishlist';
     </div>
 
     <!-- MOBILE -->
-    <div class="bg-bone-300 dark:bg-ink flex flex-col h-full md:hidden">
-      <app-header (openProfile)="goToProfile()" />
+    <div
+      class="bg-bone-300 dark:bg-ink flex flex-col h-full md:hidden 
+        relative 
+        before:content-['']
+        before:absolute
+        before:-top-1/4
+        before:-right-1/4
+        before:w-3/4
+        before:h-2/4
+        before:rounded-full
+        before:pointer-events-none
+        before:dark:bg-[radial-gradient(circle,_theme(colors.ink.400)_0%,_transparent_70%)]
+        before:bg-[radial-gradient(circle,_theme(colors.bone.400)_0%,_transparent_70%)]"
+    >
+      <app-header class="z-10" (openProfile)="goToProfile()" />
 
-      <main class="mobile-content flex-1 overflow-hidden px-4">
+      <main class="z-10 mobile-content flex-1 overflow-hidden px-4">
         @switch (activeTab()) {
           @case ('releases') {
             <app-releases />
