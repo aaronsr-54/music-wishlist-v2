@@ -107,20 +107,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
     </div>
 
     <!-- MOBILE -->
-    <div
-      class="bg-bone-300 dark:bg-ink flex flex-col h-full md:hidden 
-        relative 
-        before:content-['']
-        before:absolute
-        before:-top-1/4
-        before:-right-1/4
-        before:w-3/4
-        before:h-2/4
-        before:rounded-full
-        before:pointer-events-none
-        before:dark:bg-[radial-gradient(circle,_theme(colors.ink.400)_0%,_transparent_70%)]
-        before:bg-[radial-gradient(circle,_theme(colors.bone.400)_0%,_transparent_70%)]"
-    >
+    <div class="bg-bone-300 dark:bg-ink flex flex-col h-full md:hidden">
       <app-header class="z-10" (openProfile)="goToProfile()" />
 
       <main class="z-10 mobile-content flex-1 overflow-hidden px-4">
