@@ -51,7 +51,9 @@ import { firstValueFrom } from 'rxjs';
                 >
                   {{ trackItem().name }}
                 </span>
-                <div class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800">
+                <div
+                  class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800"
+                >
                   @if (trackItem().fanCount) {
                     <span
                       class="text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700"
@@ -134,7 +136,9 @@ import { firstValueFrom } from 'rxjs';
               >
                 {{ trackItem().name }}
               </span>
-              <div class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800">
+              <div
+                class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800"
+              >
                 <span
                   class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis"
                 >
@@ -215,7 +219,9 @@ import { firstValueFrom } from 'rxjs';
           >
             {{ wishlistItem().name }}
           </span>
-          <span class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800">
+          <span
+            class="flex items-baseline gap-2 text-ink-800 dark:text-bone-800"
+          >
             <span
               class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(0.9375rem,0.8072rem+0.5061vw,1.25rem)]"
             >
@@ -252,7 +258,7 @@ import { firstValueFrom } from 'rxjs';
             >
               <app-icon
                 name="check"
-                class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)]"
+                class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)] text-ink dark:text-bone"
               />
             </button>
             <button
@@ -264,7 +270,7 @@ import { firstValueFrom } from 'rxjs';
             >
               <app-icon
                 name="close"
-                class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)]"
+                class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)] text-ink dark:text-bone"
               />
             </button>
           } @else {
@@ -276,7 +282,7 @@ import { firstValueFrom } from 'rxjs';
             >
               <app-icon
                 name="chevron-left"
-                class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)]"
+                class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)] text-ink dark:text-bone"
               />
             </button>
             <button
@@ -288,7 +294,7 @@ import { firstValueFrom } from 'rxjs';
             >
               <app-icon
                 name="trash"
-                class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)]"
+                class="w-[clamp(1rem,2.5vw,1.25rem)] h-[clamp(1rem,2.5vw,1.25rem)] text-ink dark:text-bone"
               />
             </button>
           }
@@ -328,7 +334,9 @@ export class SearchResultItemComponent {
   }
 
   async onPlayPreviewWishlist(entry: WishlistEntry): Promise<void> {
-    const previewUrl = await firstValueFrom(this.search.getTrackPreview(entry.trackId));
+    const previewUrl = await firstValueFrom(
+      this.search.getTrackPreview(entry.trackId),
+    );
     if (!previewUrl) return;
     this.preview.play(entry.trackId, previewUrl);
   }

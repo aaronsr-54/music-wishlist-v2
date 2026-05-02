@@ -9,23 +9,26 @@ import { IconComponent } from '../../shared/icons/icon.component';
   imports: [IconComponent],
   styles: `
     @keyframes dot-pulse {
-      0%, 80%, 100% { opacity: 0.3; transform: scale(0.9); }
-      40% { opacity: 1; transform: scale(1.1); }
+      0%,
+      80%,
+      100% {
+        opacity: 0.3;
+        transform: scale(0.9);
+      }
+      40% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
     }
     @keyframes rowEnter {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .login-screen::before {
-      content: "";
-      position: absolute;
-      top: -120px;
-      right: -80px;
-      width: 320px;
-      height: 320px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(200, 149, 107, 0.07) 0%, transparent 70%);
-      pointer-events: none;
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     .dot-pulse {
       display: flex;
@@ -50,7 +53,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
   `,
   template: `
     <div
-      class="min-h-dvh bg-bone dark:bg-ink flex flex-col p-8 min-[600px]:px-24 mx-auto relative overflow-hidden before:content-[''] before:absolute before:top-[-120px] before:right-[-80px] before:w-80 before:h-80 before:rounded-full before:bg-radial before:pointer-events-none"
+      class="min-h-dvh bg-bone dark:bg-ink flex flex-col p-8 min-[600px]:px-24 mx-auto relative overflow-hidden before:content-[''] before:absolute before:top-[-120px] before:right-[-80px] before:w-80 before:h-80 before:rounded-full before:bg-radial before:from-white before:to-zinc-900 before:pointer-events-none"
     >
       <header
         class="flex justify-between items-center pb-6"
@@ -59,9 +62,13 @@ import { IconComponent } from '../../shared/icons/icon.component';
         <span
           class="font-display text-[12px] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase"
         >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic">00/</span> ACCESO
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
+            >00/</span
+          >
+          ACCESO
         </span>
-        <span class="text-ink-700 dark:text-bone-700 text-[11px] italic font-medium"
+        <span
+          class="text-ink-700 dark:text-bone-700 text-[11px] italic font-medium"
           >v{{ version() }}</span
         >
       </header>
@@ -71,11 +78,13 @@ import { IconComponent } from '../../shared/icons/icon.component';
         style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 80ms"
       >
         <h1
-          class="font-display text-[clamp(68px,10vw,88px)] font-bold leading-[0.8] m-0 tracking-[-0.03em] bg-linear-to-br from-bone from-[60%] to-bone-600 bg-clip-text"
+          class="font-display text-[clamp(68px,10vw,88px)] font-bold leading-[0.8] m-0 tracking-[-0.03em] text-ink dark:text-bone"
         >
           Music <span class="font-extralight italic ml-[-7px]">Wishlist</span>.
         </h1>
-        <p class="font-body text-sm leading-[1.2] text-ink-600 dark:text-bone-600 m-0">
+        <p
+          class="font-body text-sm leading-[1.2] text-ink-600 dark:text-bone-600 m-0"
+        >
           Lleva un registro de la música que quieres descubrir. Busca, añade y
           marca lo que ya tienes.
         </p>
@@ -85,13 +94,14 @@ import { IconComponent } from '../../shared/icons/icon.component';
         class="flex flex-col gap-4 pt-6"
         style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 200ms"
       >
-        <span class="font-body text-[12px] font-medium text-ink-700 dark:text-bone-700"
+        <span
+          class="font-body text-[12px] font-medium text-ink-700 dark:text-bone-700"
           >INICIA SESIÓN CON</span
         >
 
         <div class="flex gap-4 flex-wrap items-end">
           <button
-            class="inline-flex items-center justify-center gap-[10px] py-[14px] px-6 rounded-pill bg-ink dark:bg-bone text-ink font-body text-[15px] font-semibold border-none cursor-pointer transition-[opacity,transform] duration-fast ease-smooth self-start min-w-[220px] min-h-12 max-[480px]:w-full hover:opacity-[0.88] hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
+            class="inline-flex items-center justify-center gap-[10px] py-[14px] px-6 rounded-pill bg-ink dark:bg-bone text-bone dark:text-ink font-body text-[15px] font-semibold border-none cursor-pointer transition-[opacity,transform] duration-fast ease-smooth self-start min-w-[220px] min-h-12 max-[480px]:w-full hover:opacity-[0.88] hover:-translate-y-px active:translate-y-0 disabled:cursor-not-allowed disabled:opacity-70"
             (click)="login()"
             [disabled]="loading()"
           >
@@ -102,7 +112,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
             } @else {
               <app-icon
                 name="google"
-                class="w-[clamp(1.125rem,2.5vw,1.375rem)] h-[clamp(1.125rem,2.5vw,1.375rem)]"
+                class="w-[clamp(1.125rem,2.5vw,1.375rem)] h-[clamp(1.125rem,2.5vw,1.375rem)] fill-bone dark:fill-ink"
               />
               Continuar con Google
             }

@@ -54,30 +54,30 @@ type WishlistTab = 'pending' | 'downloaded';
         </span>
       </div>
 
-      <div class="p-1 bg-ink-200 rounded-3xl my-3">
-        <div class="flex gap-1 rounded-3xl overflow-hidden">
+      <div class="p-1 bg-ink-200 rounded-pill my-3">
+        <div class="flex gap-1 rounded-pill overflow-hidden">
           <button
-            class="flex-1 py-2 font-body uppercase text-bone-600 rounded-2xl transition-all duration-fast ease-smooth flex items-center justify-center gap-2 [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+            class="flex-1 py-2 font-body uppercase text-bone-600 rounded-md transition-all duration-fast ease-smooth flex items-center justify-center gap-2 [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
             [class.active]="activeTab() === 'pending'"
             (click)="activeTab.set('pending')"
           >
             Pendientes
             @if (wishlistSvc.pending().length > 0) {
               <span
-                class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-ink-100 text-bone-600 text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] font-bold [.active>&]:bg-ink-300 [.active>&]:text-bone-600"
+                class="inline-flex items-center justify-center  px-1.5 rounded-full bg-ink-100 text-bone-600 text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] font-bold [.active>&]:bg-ink-300 [.active>&]:text-bone-600"
                 >{{ wishlistSvc.pending().length }}</span
               >
             }
           </button>
           <button
-            class="flex-1 py-2 font-body uppercase text-bone-600 rounded-2xl transition-all duration-fast ease-smooth flex items-center justify-center gap-2 [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+            class="flex-1 py-2 font-body uppercase text-bone-600 rounded-md transition-all duration-fast ease-smooth flex items-center justify-center gap-2 [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
             [class.active]="activeTab() === 'downloaded'"
             (click)="activeTab.set('downloaded')"
           >
             Listos
             @if (wishlistSvc.downloaded().length > 0) {
               <span
-                class="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 rounded-full bg-ink-100 text-bone-600 text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] font-bold [.active>&]:bg-ink-300 [.active>&]:text-bone-600"
+                class="inline-flex items-center justify-center  px-1.5 rounded-full bg-ink-100 text-bone-600 text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] font-bold [.active>&]:bg-ink-300 [.active>&]:text-bone-600"
                 >{{ wishlistSvc.downloaded().length }}</span
               >
             }

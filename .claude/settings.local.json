@@ -101,7 +101,8 @@
       "Bash(timeout 120 bash *)",
       "Bash(cat)",
       "Bash(chmod +x /tmp/swap_colors_v2.sh)",
-      "Bash(bash /tmp/swap_colors_v2.sh)"
+      "Bash(bash /tmp/swap_colors_v2.sh)",
+      "Bash(Start-Sleep -Seconds 5)"
     ]
   }
 }

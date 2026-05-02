@@ -101,7 +101,7 @@ import { IconComponent } from '../../icons/icon.component';
         </div>
 
         <button
-          class="flex items-center text-ink font-display font-medium [&.added]:font-bold [&.added]:bg-ink [&.added]:text-bone [&.added]:dark:bg-bone  dark:text-bone [&.added]:dark:text-ink border border-ink dark:border-bone rounded-card uppercase px-4 py-1"
+          class="flex items-center text-ink font-display font-medium [&.added]:font-bold [&.added]:bg-ink italic [&.added]:not-italic [&.added]:text-bone [&.added]:dark:bg-bone  dark:text-bone [&.added]:dark:text-ink border border-ink dark:border-bone rounded-card uppercase px-4 py-1"
           [class.added]="isAdded()"
           (click)="onToggleWishlist()"
         >

@@ -23,12 +23,10 @@ type Theme = 'light' | 'dark' | 'system';
             Página principal:
           </span>
 
-          <div
-            class="p-1 bg-bone-200 dark:bg-ink-200 rounded-2xl md:rounded-pill md:flex-1"
-          >
+          <div class="p-1 bg-ink-200 rounded-2xl md:rounded-pill md:flex-1">
             <div class="flex flex-col md:flex-row gap-1 overflow-hidden">
               <button
-                class="flex-1 py-1 font-body uppercase text-ink-600 dark:text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
                 [class.active]="defaultTab() === 'releases'"
                 (click)="setDefaultTab('releases')"
               >
@@ -36,7 +34,7 @@ type Theme = 'light' | 'dark' | 'system';
               </button>
 
               <button
-                class="flex-1 py-1 font-body uppercase text-ink-600 dark:text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
                 [class.active]="defaultTab() === 'search'"
                 (click)="setDefaultTab('search')"
               >
@@ -44,7 +42,7 @@ type Theme = 'light' | 'dark' | 'system';
               </button>
 
               <button
-                class="flex-1 py-1 font-body uppercase text-ink-600 dark:text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
                 [class.active]="defaultTab() === 'wishlist'"
                 (click)="setDefaultTab('wishlist')"
               >
@@ -61,12 +59,10 @@ type Theme = 'light' | 'dark' | 'system';
             Tema:
           </span>
 
-          <div
-            class="p-1 bg-bone-200 dark:bg-ink-200 rounded-2xl md:rounded-pill md:flex-1"
-          >
+          <div class="p-1 bg-ink-200 rounded-2xl md:rounded-pill md:flex-1">
             <div class="flex flex-col md:flex-row gap-1 overflow-hidden">
               <button
-                class="flex-1 py-1 font-body uppercase text-ink-600 dark:text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
                 [class.active]="currentTheme() === 'system'"
                 (click)="setTheme('system')"
               >
@@ -74,7 +70,7 @@ type Theme = 'light' | 'dark' | 'system';
               </button>
 
               <button
-                class="flex-1 py-1 font-body uppercase text-ink-600 dark:text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
                 [class.active]="currentTheme() === 'light'"
                 (click)="setTheme('light')"
               >
@@ -82,7 +78,7 @@ type Theme = 'light' | 'dark' | 'system';
               </button>
 
               <button
-                class="flex-1 py-1 font-body uppercase text-ink-600 dark:text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
+                class="flex-1 py-1 font-body uppercase text-bone-600 rounded-lg [&.active]:bg-bone [&.active]:text-ink [&.active]:font-bold"
                 [class.active]="currentTheme() === 'dark'"
                 (click)="setTheme('dark')"
               >
