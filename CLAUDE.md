@@ -54,3 +54,30 @@ Angular signals throughout — no NgRx. `WishlistService` keeps a reactive `sign
 ## Demo mode
 
 Visit `http://localhost:4200/?demo` to enable mock auth. Login with `demo` / `1234`. No Firebase Auth required.
+
+## Conventions
+
+### Change Detection
+All components use `ChangeDetectionStrategy.OnPush`. The app is signal-driven — default CD is unnecessary overhead.
+
+### Reactive patterns
+- State → `signal()` + `computed()`
+- Router/query params → `toSignal()`
+- Long-lived subscriptions → `takeUntilDestroyed()`
+- Avoid imperative `.subscribe()` without cleanup
+
+### CSS / Tailwind
+- Design tokens defined in `src/styles.css` `@theme` block — single source of truth
+- All component styles → Tailwind utility classes (no inline `styles: []`)
+- Existing `var(--bone-*)`, `var(--ink-*)`, `var(--radius-*)` are legacy aliases in `:root`; replace with Tailwind utilities when touching a component
+- New components: Tailwind only, no `styles: []`
+
+### Icons
+- All SVGs via `src/app/shared/icons/icon.component.ts` — never inline SVG markup
+- `src/app/shared/icons/icon-registry.ts` is the single source for icon paths
+
+### Reusable primitives
+- `src/app/shared/animations/animations.ts` — Angular Animations factories
+- `src/app/shared/utils/format-fans.ts` — number formatting
+- `src/app/shared/components/empty-state/` — empty state pattern
+- `src/app/shared/components/button/` — action/add/cover button variants

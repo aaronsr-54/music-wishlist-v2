@@ -59,17 +59,16 @@ export class PreviewService {
     this.audio.onerror = () => this.stop();
     this.audio.oncanplay = () => {
       this.state.update((s) => ({ ...s, isLoading: false }));
+      this.startTime = Date.now();
+      this.startProgressInterval();
     };
 
-    this.startTime = Date.now();
     this.audio.play().catch(() => this.stop());
 
     this.state.update((s) => ({
       ...s,
       isPlaying: true,
     }));
-
-    this.startProgressInterval();
   }
 
   private resume(): void {

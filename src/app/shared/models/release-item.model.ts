@@ -8,4 +8,5 @@ export interface ReleaseItem {
   type: TrackType;
   releaseDate: string;
   previewUrl?: string;
+  artistId?: string;
 }

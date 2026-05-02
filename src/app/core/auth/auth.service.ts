@@ -18,6 +18,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { WishlistService } from '../firebase/wishlist.service';
 import { FavoriteArtistsService } from '../firebase/favorite-artists.service';
+import { WishlistShareService } from '../firebase/wishlist-share.service';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -25,6 +26,7 @@ export class AuthService {
   private router = inject(Router);
   private wishlistService = inject(WishlistService);
   private favoriteArtistsService = inject(FavoriteArtistsService);
+  private wishlistShareService = inject(WishlistShareService);
   private ngZone = inject(NgZone);
 
   private firebaseUser = toSignal(authState(this.auth), { initialValue: null });
@@ -38,9 +40,14 @@ export class AuthService {
       if (firebaseUser) {
         this.wishlistService.initListener(firebaseUser.uid);
         this.favoriteArtistsService.initListener(firebaseUser.uid);
+        this.wishlistShareService.initListeners(
+          firebaseUser.uid,
+          firebaseUser.email || ''
+        );
       } else if (!this.demoMode()) {
         this.wishlistService.stopListener();
         this.favoriteArtistsService.stopListener();
+        this.wishlistShareService.stopListeners();
       }
     });
   }
@@ -98,6 +105,10 @@ export class AuthService {
     if (enabled) {
       this.wishlistService.initListener('demo-user');
       this.favoriteArtistsService.initListener('demo-user');
+      this.wishlistShareService.initListeners(
+        'demo-user',
+        'demo@example.com'
+      );
     }
   }
 }
