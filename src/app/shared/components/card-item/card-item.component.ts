@@ -21,46 +21,16 @@ import { IconComponent } from '../../icons/icon.component';
   ],
   styles: `
     @keyframes popIn {
-      0% { opacity: 0; transform: scale(0.8); }
-      50% { opacity: 1; }
-      100% { transform: scale(1); }
-    }
-    .card-save-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 4px;
-      border: 1px solid var(--bone-600);
-      border-radius: 0.5rem;
-      background: none;
-      cursor: pointer;
-      color: var(--bone-600);
-      padding: 6px 12px;
-      text-transform: uppercase;
-      transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
-    }
-    .card-save-btn:hover {
-      background: var(--ink-200);
-      color: var(--bone-100);
-      border-color: var(--bone-100);
-    }
-    .card-save-btn:active {
-      opacity: 0.8;
-    }
-    .card-save-btn.added {
-      background: var(--bone);
-      color: var(--ink);
-      border-color: var(--bone);
-      animation: popIn 220ms var(--ease-smooth) both;
-    }
-    .card-save-btn.added span {
-      font-family: var(--font-display);
-      font-weight: 800;
-    }
-    .card-save-btn span {
-      font-size: clamp(0.75rem, 0.6457rem + 0.4049vw, 1rem);
-      font-weight: 500;
-      flex-grow: 1;
+      0% {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
     }
   `,
   template: `
@@ -100,16 +70,19 @@ import { IconComponent } from '../../icons/icon.component';
       </button>
 
       <div class="flex flex-col gap-2 min-w-0">
-        <div class="flex items-center justify-between text-ink-800 dark:text-bone-800">
+        <div
+          class="flex items-center justify-between text-ink-800 dark:text-bone-800"
+        >
           <span
             class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-600 dark:text-bone-600 flex gap-0.5 items-center"
           >
             <b class="font-bold not-italic text-ink-700 dark:text-bone-700">{{
               releaseItem().releaseDate | date: 'dd'
             }}</b>
-            <em class="italic font-normal text-ink-600 dark:text-bone-600 lowercase">{{
-              releaseItem().releaseDate | date: 'LLL'
-            }}</em>
+            <em
+              class="italic font-normal text-ink-600 dark:text-bone-600 lowercase"
+              >{{ releaseItem().releaseDate | date: 'LLL' }}</em
+            >
           </span>
           <app-type-chip [type]="releaseItem().type" />
         </div>
@@ -128,7 +101,7 @@ import { IconComponent } from '../../icons/icon.component';
         </div>
 
         <button
-          class="card-save-btn"
+          class="flex items-center text-ink font-display font-medium [&.added]:font-bold [&.added]:bg-ink [&.added]:text-bone [&.added]:dark:bg-bone  dark:text-bone [&.added]:dark:text-ink border border-ink dark:border-bone rounded-card uppercase px-4 py-1"
           [class.added]="isAdded()"
           (click)="onToggleWishlist()"
         >
@@ -137,13 +110,13 @@ import { IconComponent } from '../../icons/icon.component';
               name="check"
               class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]"
             />
-            <span>Añadido</span>
+            <span class="flex-1">Añadido</span>
           } @else {
             <app-icon
               name="plus"
               class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]"
             />
-            <span>Guardar</span>
+            <span class="flex-1">Guardar</span>
           }
         </button>
       </div>

@@ -14,7 +14,7 @@ type Theme = 'light' | 'dark' | 'system';
   template: `
     <app-profile-section title="Configuración">
       <section
-        class="border border-solid border-bone-200 dark:border-ink-200 rounded-lg p-4 flex flex-col gap-8 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
+        class="border border-solid border-bone-800 dark:border-ink-200 rounded-lg p-4 flex flex-col gap-8 shadow-[0_2px_12px_4px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
       >
         <div class="flex flex-col md:flex-row gap-2 md:gap-10 md:items-center">
           <span

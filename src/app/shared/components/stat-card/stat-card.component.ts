@@ -6,7 +6,7 @@ import { Component, input, ChangeDetectionStrategy } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex flex-col gap-2 p-4 rounded-card text-center border border-bone-200 dark:border-ink-200 hover:border-bone-600 transition-colors duration-base group shadow-[0_2px_12px_4px_rgba(0,0,0,0.1)]"
+      class="flex flex-col gap-2 p-4 rounded-card text-center border border-bone-800 dark:border-ink-200 transition-colors duration-base group shadow-[0_2px_12px_4px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_4px_rgba(0,0,0,0.1)]"
     >
       <span
         class="italic text-xs text-center uppercase font-light text-ink-700 dark:text-bone-700 group-hover:text-ink-600 dark:hover:text-bone-600 transition-colors duration-base"

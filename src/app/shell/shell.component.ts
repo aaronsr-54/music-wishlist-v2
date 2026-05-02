@@ -33,8 +33,14 @@ type Tab = 'releases' | 'search' | 'wishlist';
   ],
   styles: `
     @keyframes panelEnter {
-      from { opacity: 0; transform: translateX(10px); }
-      to { opacity: 1; transform: translateX(0); }
+      from {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
     .mobile-content > * {
       animation: panelEnter var(--dur-base) var(--ease);
@@ -138,7 +144,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
     <div class="bg-bone-300 dark:bg-ink flex flex-col h-full md:hidden">
       <app-header (openProfile)="goToProfile()" />
 
-      <main class="mobile-content flex-1 overflow-hidden">
+      <main class="mobile-content flex-1 overflow-hidden px-4">
         @switch (activeTab()) {
           @case ('releases') {
             <app-releases />

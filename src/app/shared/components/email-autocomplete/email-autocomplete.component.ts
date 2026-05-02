@@ -18,7 +18,7 @@ import { IconComponent } from '../../icons/icon.component';
   template: `
     <div class="relative w-full">
       <div
-        class="w-100 flex items-center gap-2.5 py-4 border-b border-solid border-bone-100 dark:border-ink-100 group hover:border-ink-600 dark:hover:border-bone-600 transition-colors duration-base"
+        class="w-100 flex items-center gap-2 py-4 border-b border-solid border-bone-600 dark:border-ink-100 group hover:border-ink-600 dark:hover:border-bone-600 transition-colors duration-base"
       >
         <app-icon
           name="mail"
@@ -30,7 +30,7 @@ import { IconComponent } from '../../icons/icon.component';
           [(ngModel)]="emailInput"
           (keyup.enter)="selectEmail(emailInput())"
           [disabled]="disabled()"
-          class="flex-1 bg-transparent text-ink dark:text-bone font-body text-lg placeholder:text-bone-800 placeholder:italic transition-colors duration-base border-none outline-none"
+          class="flex-1 px-2 rounded-sm bg-transparent text-ink dark:text-bone font-body text-lg placeholder:text-bone-800 placeholder:italic transition-colors duration-base border-none outline-none"
         />
         <button
           (click)="selectEmail(emailInput())"

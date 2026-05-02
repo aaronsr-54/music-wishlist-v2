@@ -1,4 +1,16 @@
 /** @type {import('tailwindcss').Config} */
+const accentLight = {
+  track: '#cea219',
+  album: '#0891b2',
+  ep: '#b45309',
+};
+
+const accentDark = {
+  track: '#ffffc7',
+  album: '#3aa7a3',
+  ep: '#a37871',
+};
+
 export default {
   darkMode: 'class',
   content: ['./src/**/*.{html,ts}'],
@@ -29,11 +41,7 @@ export default {
           800: '#0d0d09',
           900: '#070705',
         },
-        accent: {
-          track: '#ffffc7',
-          album: '#3aa7a3',
-          ep: '#a37871',
-        },
+        accent: accentLight,
       },
       fontFamily: {
         display: '"Satoshi", sans-serif',
@@ -60,5 +68,7 @@ export default {
       },
     },
   },
+  accentLight,
+  accentDark,
   plugins: [],
 };

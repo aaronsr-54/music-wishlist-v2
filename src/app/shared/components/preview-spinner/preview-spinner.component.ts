@@ -5,22 +5,17 @@ import { Component, input } from '@angular/core';
   standalone: true,
   styles: `
     @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+      to {
+        transform: rotate(360deg);
+      }
     }
     .spinner-loading {
       animation: spin 1s linear infinite;
     }
-    .spinner-bg {
-      fill: none;
-      stroke: var(--bone-800);
-      stroke-width: 5;
-    }
-    .spinner-progress {
-      fill: none;
-      stroke: var(--bone-100);
-      stroke-width: 5;
-      stroke-linecap: round;
+    .spinner-transition {
       transition: stroke-dashoffset 100ms linear;
     }
   `,
@@ -31,9 +26,14 @@ import { Component, input } from '@angular/core';
     >
       @if (isLoading()) {
         <svg class="w-full h-full spinner-loading" viewBox="0 0 100 100">
-          <circle class="spinner-bg" cx="50" cy="50" r="40" />
+          <circle
+            class="stroke-[5px] fill-none stroke-bone-800"
+            cx="50"
+            cy="50"
+            r="40"
+          />
           <path
-            class="spinner-progress"
+            class="fill-none stroke-bone-100 stroke-[5px] spinner-transition"
             d="M50 10a40 40 0 0140 40"
             stroke-linecap="round"
             stroke-dasharray="62.8 200"
@@ -41,18 +41,23 @@ import { Component, input } from '@angular/core';
         </svg>
       } @else {
         <svg viewBox="0 0 100 100" class="w-full h-full -rotate-90">
-          <circle cx="50" cy="50" r="40" class="spinner-bg" />
           <circle
             cx="50"
             cy="50"
             r="40"
-            class="spinner-progress"
+            class="stroke-[5px] fill-none stroke-bone-800"
+          />
+          <circle
+            cx="50"
+            cy="50"
+            r="40"
+            class="fill-none stroke-bone-100 stroke-[5px] spinner-transition"
             [style.stroke-dasharray]="circumference"
             [style.stroke-dashoffset]="strokeDashoffset()"
           />
         </svg>
         <div
-          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-ink-100 dark:text-bone-100"
+          class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center text-bone-100"
         >
           @if (isPlaying()) {
             <svg

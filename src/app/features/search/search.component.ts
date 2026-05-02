@@ -51,8 +51,20 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
       scrollbar-width: none;
       padding-bottom: 2rem;
       padding-top: 4px;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
-      mask-image: linear-gradient(to bottom, transparent 0%, black 16px, black 95%, transparent 100%);
+      -webkit-mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 16px,
+        black 95%,
+        transparent 100%
+      );
+      mask-image: linear-gradient(
+        to bottom,
+        transparent 0%,
+        black 16px,
+        black 95%,
+        transparent 100%
+      );
     }
     .scroll-fade::-webkit-scrollbar {
       display: none;
@@ -64,7 +76,10 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
         >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic">02/</span> BUSCADOR
+          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
+            >02/</span
+          >
+          BUSCADOR
         </span>
       </div>
 
@@ -106,37 +121,29 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           class="flex gap-2 overflow-x-auto [animation:slideDown_200ms_var(--ease)_both] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent text-ink-600 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:text-bone"
-            [class.!bg-bone]="selectedTypes().has('artist')"
-            [class.!border-bone]="selectedTypes().has('artist')"
-            [class.!text-ink]="selectedTypes().has('artist')"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
+            [class.active]="selectedTypes().has('artist')"
             (click)="toggleType('artist')"
           >
             Artistas
           </button>
           <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent text-ink-600 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:text-bone"
-            [class.!bg-bone]="selectedTypes().has('track')"
-            [class.!border-bone]="selectedTypes().has('track')"
-            [class.!text-ink]="selectedTypes().has('track')"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
+            [class.active]="selectedTypes().has('track')"
             (click)="toggleType('track')"
           >
             Canciones
           </button>
           <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent text-ink-600 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:text-bone"
-            [class.!bg-bone]="selectedTypes().has('album')"
-            [class.!border-bone]="selectedTypes().has('album')"
-            [class.!text-ink]="selectedTypes().has('album')"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
+            [class.active]="selectedTypes().has('album')"
             (click)="toggleType('album')"
           >
             Álbums
           </button>
           <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-bone-200 dark:border-ink-200 bg-transparent text-ink-600 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink-600 dark:hover:border-bone-600 hover:text-bone"
+            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
             [class.!bg-bone]="selectedTypes().has('ep')"
-            [class.!border-bone]="selectedTypes().has('ep')"
-            [class.!text-ink]="selectedTypes().has('ep')"
             (click)="toggleType('ep')"
           >
             EPs

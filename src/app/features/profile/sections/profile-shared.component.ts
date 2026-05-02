@@ -27,7 +27,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
   template: `
     <app-profile-section title="Social">
       <section
-        class="flex flex-col gap-8 border border-solid border-bone-200 dark:border-ink-200 rounded-lg p-4 shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
+        class="flex flex-col gap-8 border border-solid border-bone-800 dark:border-ink-200 rounded-lg p-4 shadow-[0_2px_12px_4px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
       >
         <!-- SECCIÓN: Compartida con -->
         <div class="flex flex-col gap-4">
@@ -88,7 +88,9 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
                   [class.opacity-50]="share.hidden"
                 >
                   <div class="flex flex-col gap-1 min-w-0">
-                    <span class="text-ink dark:text-bone text-sm font-semibold truncate">
+                    <span
+                      class="text-ink dark:text-bone text-sm font-semibold truncate"
+                    >
                       {{ share.ownerName }}
                     </span>
                     <span class="text-ink-600 dark:text-bone-600 text-xs">
