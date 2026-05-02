@@ -45,43 +45,41 @@ export class WishlistShareService {
     runInInjectionContext(this.injector, () => {
       const auth = inject(AuthService);
       this.isDemoMode = auth.demoMode();
-    });
 
-    if (this.isDemoMode) {
-      return;
-    }
+      if (this.isDemoMode) {
+        return;
+      }
 
-    const col = collection(this.firestore, 'wishlist-shares');
+      const col = collection(this.firestore, 'wishlist-shares');
 
-    // Query 1: shares que yo he hecho (compartidas conmigo)
-    const q1 = query(
-      col,
-      where('ownerUid', '==', uid),
-      orderBy('sharedAt', 'desc'),
-    );
-
-    // Query 2: shares que me han hecho a mí
-    const q2 = query(
-      col,
-      where('recipientEmail', '==', email),
-      orderBy('sharedAt', 'desc'),
-    );
-
-    const unsubscribe1 = onSnapshot(q1, (snap1) => {
-      const shares = snap1.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistShare,
+      const q1 = query(
+        col,
+        where('ownerUid', '==', uid),
+        orderBy('sharedAt', 'desc'),
       );
-      this._sharesGiven.set(shares);
-    });
 
-    const unsubscribe2 = onSnapshot(q2, (snap2) => {
-      const shares = snap2.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistShare,
+      const q2 = query(
+        col,
+        where('recipientEmail', '==', email),
+        orderBy('sharedAt', 'desc'),
       );
-      this._sharesReceived.set(shares);
-    });
 
-    this.unsubscribe = [unsubscribe1, unsubscribe2];
+      const unsubscribe1 = onSnapshot(q1, (snap1) => {
+        const shares = snap1.docs.map(
+          (d) => ({ id: d.id, ...d.data() }) as WishlistShare,
+        );
+        this._sharesGiven.set(shares);
+      });
+
+      const unsubscribe2 = onSnapshot(q2, (snap2) => {
+        const shares = snap2.docs.map(
+          (d) => ({ id: d.id, ...d.data() }) as WishlistShare,
+        );
+        this._sharesReceived.set(shares);
+      });
+
+      this.unsubscribe = [unsubscribe1, unsubscribe2];
+    });
   }
 
   stopListeners(): void {

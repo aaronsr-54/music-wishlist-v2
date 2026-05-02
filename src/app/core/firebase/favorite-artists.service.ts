@@ -1,4 +1,11 @@
-import { Injectable, computed, inject, signal, Injector, runInInjectionContext } from '@angular/core';
+import {
+  Injectable,
+  computed,
+  inject,
+  signal,
+  Injector,
+  runInInjectionContext,
+} from '@angular/core';
 import {
   Firestore,
   collection,
@@ -41,47 +48,54 @@ export class FavoriteArtistsService {
   initListener(uid: string): void {
     if (this.unsubscribe) return;
 
+    // Ejecutamos todo dentro del contexto de inyección para que Firebase esté "seguro"
     runInInjectionContext(this.injector, () => {
+      // Obtenemos AuthService aquí para evitar la dependencia circular (NG0200)
       const auth = inject(AuthService);
       this.isDemoMode = auth.demoMode();
-    });
 
-    if (this.isDemoMode) {
-      this.initLocalStorage(uid);
-      return;
-    }
+      if (this.isDemoMode) {
+        this.initLocalStorage(uid);
+        return;
+      }
 
-    const col = collection(this.firestore, 'favorite-artists');
-    const q = query(
-      col,
-      where('addedByUid', '==', uid),
-      orderBy('addedAt', 'desc')
-    );
-
-    this.unsubscribe = onSnapshot(q, async (snap) => {
-      let artists = snap.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as FavoriteArtist,
+      // Referencias de Firebase dentro del contexto
+      const col = collection(this.firestore, 'favorite-artists');
+      const q = query(
+        col,
+        where('addedByUid', '==', uid),
+        orderBy('addedAt', 'desc'),
       );
 
-      // Enriquecer artistas sin image
-      artists = await Promise.all(
-        artists.map(async (artist) => {
-          if (!artist.image || !artist.image.trim()) {
-            try {
-              const data = await this.search.getArtist(artist.artistId).toPromise();
-              return {
-                ...artist,
-                image: data?.picture_big ?? data?.picture_medium ?? artist.image,
-              };
-            } catch {
-              return artist;
+      this.unsubscribe = onSnapshot(q, async (snap) => {
+        let artists = snap.docs.map(
+          (d) => ({ id: d.id, ...d.data() }) as FavoriteArtist,
+        );
+
+        // Enriquecer artistas sin imagen
+        artists = await Promise.all(
+          artists.map(async (artist) => {
+            if (!artist.image || !artist.image.trim()) {
+              try {
+                // Usamos toPromise() como en tu código original
+                const data = await this.search
+                  .getArtist(artist.artistId)
+                  .toPromise();
+                return {
+                  ...artist,
+                  image:
+                    data?.picture_big ?? data?.picture_medium ?? artist.image,
+                };
+              } catch {
+                return artist;
+              }
             }
-          }
-          return artist;
-        })
-      );
+            return artist;
+          }),
+        );
 
-      this._artists.set(artists);
+        this._artists.set(artists);
+      });
     });
   }
 
@@ -97,9 +111,15 @@ export class FavoriteArtistsService {
       this.unsubscribe();
       this.unsubscribe = null;
     }
+    this._artists.set([]);
   }
 
-  async add(artistId: string, artistName: string, image: string | undefined, user: User): Promise<void> {
+  async add(
+    artistId: string,
+    artistName: string,
+    image: string | undefined,
+    user: User,
+  ): Promise<void> {
     const entry: Omit<FavoriteArtist, 'id'> = {
       artistId,
       name: artistName,
@@ -120,8 +140,11 @@ export class FavoriteArtistsService {
       return;
     }
 
-    const col = collection(this.firestore, 'favorite-artists');
-    await addDoc(col, entry);
+    // Envolvemos addDoc en el contexto para evitar el warning
+    return runInInjectionContext(this.injector, () => {
+      const col = collection(this.firestore, 'favorite-artists');
+      return addDoc(col, entry).then(() => {});
+    });
   }
 
   async remove(id: string): Promise<void> {
@@ -129,16 +152,21 @@ export class FavoriteArtistsService {
       const current = this._artists();
       const updated = current.filter((a) => a.id !== id);
       this._artists.set(updated);
-      // Persist to localStorage
-      const artists = this._artists();
-      if (artists.length > 0) {
-        const uid = artists[0].addedByUid;
-        const key = `favorite-artists-${uid}`;
+
+      if (updated.length >= 0) {
+        // Obtenemos el UID de los argumentos o del estado si es necesario
+        // Aquí asumimos que el estado actual tiene la info
+        const storedUid = localStorage.getItem('last_uid') || '';
+        const key = `favorite-artists-${storedUid}`;
         localStorage.setItem(key, JSON.stringify(updated));
       }
       return;
     }
 
-    await deleteDoc(doc(this.firestore, 'favorite-artists', id));
+    // Envolvemos deleteDoc en el contexto para evitar el warning
+    return runInInjectionContext(this.injector, () => {
+      const docRef = doc(this.firestore, 'favorite-artists', id);
+      return deleteDoc(docRef);
+    });
   }
 }

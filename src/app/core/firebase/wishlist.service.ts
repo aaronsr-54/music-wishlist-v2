@@ -66,47 +66,49 @@ export class WishlistService {
   initListener(uid: string, email: string): void {
     if (this.unsubscribe.length > 0) return;
 
-    runInInjectionContext(this.injector, () => {
-      const auth = inject(AuthService);
-      this.isDemoMode = auth.demoMode();
-    });
+    // Usamos el injector para obtener AuthService SOLO cuando se llama a esta función
+    // Esto evita que Angular se bloquee al intentar crear los servicios
+    const auth = this.injector.get(AuthService);
+    this.isDemoMode = auth.demoMode();
 
     if (this.isDemoMode) {
       this.initLocalStorage(uid);
       return;
     }
 
-    const col = collection(this.firestore, 'wishlist');
+    // El resto del código de Firebase debe ir dentro de runInInjectionContext
+    // para que AngularFire no se queje del contexto de inyección.
+    runInInjectionContext(this.injector, () => {
+      const col = collection(this.firestore, 'wishlist');
 
-    // Query 1: Mi propia wishlist
-    const q1 = query(
-      col,
-      where('addedByUid', '==', uid),
-      orderBy('addedAt', 'desc'),
-    );
-
-    // Query 2: Wishlists compartidas conmigo (Buscamos por EMAIL)
-    const q2 = query(
-      col,
-      where('sharedWith', 'array-contains', email),
-      orderBy('addedAt', 'desc'),
-    );
-
-    const unsubscribe1 = onSnapshot(q1, (snap1) => {
-      const entries = snap1.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
+      const q1 = query(
+        col,
+        where('addedByUid', '==', uid),
+        orderBy('addedAt', 'desc'),
       );
-      this._ownEntries.set(entries);
-    });
 
-    const unsubscribe2 = onSnapshot(q2, (snap2) => {
-      const entries = snap2.docs.map(
-        (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
+      const q2 = query(
+        col,
+        where('sharedWith', 'array-contains', email),
+        orderBy('addedAt', 'desc'),
       );
-      this._sharedEntries.set(entries);
-    });
 
-    this.unsubscribe = [unsubscribe1, unsubscribe2];
+      const unsubscribe1 = onSnapshot(q1, (snap1) => {
+        const entries = snap1.docs.map(
+          (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
+        );
+        this._ownEntries.set(entries);
+      });
+
+      const unsubscribe2 = onSnapshot(q2, (snap2) => {
+        const entries = snap2.docs.map(
+          (d) => ({ id: d.id, ...d.data() }) as WishlistEntry,
+        );
+        this._sharedEntries.set(entries);
+      });
+
+      this.unsubscribe = [unsubscribe1, unsubscribe2];
+    });
   }
 
   private initLocalStorage(uid: string): void {
