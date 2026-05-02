@@ -132,13 +132,13 @@ const MONTHS = [
               &lt;
             </button>
             <span
-              class="flex items-center justify-center gap-2 text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] text-ink dark:text-bone min-w-[150px] text-center uppercase py-4 transition-opacity duration-[200ms] ease-[ease]"
+              class="font-display flex items-baseline justify-center gap-[2px] leading-none text-ink dark:text-bone min-w-[150px] text-center uppercase py-4 transition-opacity duration-[200ms] ease-[ease]"
             >
-              <span class="font-semibold tracking-[0.04em]">{{
+              <span class="font-semibold tracking-[0.04em] text-3xl">{{
                 monthLabel()
               }}</span>
               <span
-                class="font-display text-ink-700 dark:text-bone-700 font-light italic mt-[2.5px]"
+                class=" text-ink-700 dark:text-bone-700 text-3xl font-light italic"
                 >{{ yearLabel() }}</span
               >
             </span>
