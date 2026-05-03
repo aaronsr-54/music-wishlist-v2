@@ -1,59 +1,104 @@
 # MusicWishlistV2
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.6.
+![Login](public/screenshots/screenshot-login.png)
 
-## Development server
+A music wishlist app built with Angular 20 that lets you search for tracks and albums via Deezer, save them to a personal wishlist, and track their download status.
 
-To start a local development server, run:
+## Tech Stack
 
-```bash
-ng serve
-```
+- **Frontend**: Angular 20 with signals, standalone components, OnPush change detection
+- **Styling**: Tailwind CSS with custom design tokens
+- **Backend**: Firebase (Auth + Firestore) + Vercel serverless API functions
+- **Search**: Deezer API (proxied via Vercel serverless functions)
+- **Deployment**: Vercel
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Features
 
-## Code scaffolding
+- **Search**: Search tracks and albums via Deezer API
+- **Wishlist**: Add/remove items, mark as downloaded, filter by status
+- **Releases**: View new releases from favorite artists
+- **Profile**: Account settings, language, theme (light/dark/system)
+- **Share**: Share wishlists with other users via invite links
+- **Demo Mode**: Test the UI without Firebase auth using `?demo` query param
+- **i18n**: Spanish and English translations
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## Demo Mode
 
-```bash
-ng generate component component-name
-```
+Visit `http://localhost:4200/?demo` to try the app without a Google account:
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+- Username: `demo`
+- Password: `1234`
 
-```bash
-ng generate --help
-```
+## Getting Started
 
-## Building
+### Prerequisites
 
-To build the project run:
+- Node.js 20+
+- npm 10+
 
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Installation
 
 ```bash
-ng test
+npm install
 ```
 
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
+### Development Server
 
 ```bash
-ng e2e
+npm start
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Open `http://localhost:4200/`
 
-## Additional Resources
+### Build
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```bash
+npm run build
+```
+
+Output: `dist/music-wishlist-v2/browser/`
+
+### Tests
+
+```bash
+npm test
+```
+
+Run a single test file:
+
+```bash
+ng test --include='**/wishlist.service.spec.ts'
+```
+
+## Project Structure
+
+```
+src/app/
+├── core/
+│   ├── api/          # Deezer search integration
+│   ├── auth/         # Firebase Auth + mock auth
+│   ├── config/      # App configuration (demo mode)
+│   ├── firebase/    # Firestore services (wishlist, favorites, invites)
+│   ├── guards/      # Route guards
+│   ├── i18n/        # Translations (ES/EN)
+│   └── theme/       # Theme switching
+├── features/
+│   ├── login/       # Authentication
+│   ├── profile/     # User settings
+│   ├── releases/    # New releases from favorites
+│   ├── search/      # Deezer search
+│   └── wishlist/    # Personal wishlist
+├── layout/          # Header, tab bar
+└── shared/
+    ├── components/  # Reusable UI components
+    ├── icons/       # SVG icon system
+    └── models/      # TypeScript interfaces
+```
+
+## Deployment
+
+The app deploys automatically to Vercel via the included `vercel.json` configuration. API endpoints are deployed as serverless functions.
+
+## License
+
+MIT
