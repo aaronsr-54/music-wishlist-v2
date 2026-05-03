@@ -7,18 +7,32 @@ type Theme = 'light' | 'dark' | 'system';
 })
 export class ThemeService {
   private theme = signal<Theme>(this.getSavedTheme());
+  private systemPrefersDark = signal(this.getSystemPreference());
+
   isDarkMode = computed(() => {
     const theme = this.theme();
     if (theme === 'system') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      return this.systemPrefersDark();
     }
     return theme === 'dark';
   });
 
   constructor() {
+    this.initSystemThemeListener();
     effect(() => {
       this.isDarkMode();
       this.updateTheme();
+    });
+  }
+
+  private getSystemPreference(): boolean {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  }
+
+  private initSystemThemeListener() {
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    mediaQuery.addEventListener('change', (e) => {
+      this.systemPrefersDark.set(e.matches);
     });
   }
 
