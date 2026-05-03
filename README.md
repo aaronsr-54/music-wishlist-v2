@@ -1,4 +1,4 @@
-# MusicWishlistV2
+# MusicWishlist.
 
 ![Login](public/screenshots/screenshot-login.png)
 
