@@ -7,6 +7,7 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { PreviewService } from '../../../core/services/preview.service';
 import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
 import { IconComponent } from '../../icons/icon.component';
+import { LanguageService } from '../../../core/i18n/language.service';
 
 @Component({
   selector: 'app-card-item',
@@ -43,8 +44,8 @@ import { IconComponent } from '../../icons/icon.component';
         [title]="
           previewState().trackId === releaseItem().id &&
           previewState().isPlaying
-            ? 'Pausar'
-            : 'Reproducir preview'
+            ? t().pause
+            : t().playPreview
         "
         [disabled]="!releaseItem().previewUrl"
       >
@@ -110,13 +111,13 @@ import { IconComponent } from '../../icons/icon.component';
               name="check"
               class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]"
             />
-            <span class="flex-1">Añadido</span>
+            <span class="flex-1">{{ t().added }}</span>
           } @else {
             <app-icon
               name="plus"
               class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]"
             />
-            <span class="flex-1">Guardar</span>
+            <span class="flex-1">{{ t().save }}</span>
           }
         </button>
       </div>
@@ -125,6 +126,7 @@ import { IconComponent } from '../../icons/icon.component';
 })
 export class CardItemComponent {
   private preview = inject(PreviewService);
+  private languageService = inject(LanguageService);
 
   item = input.required<ReleaseItem>();
   isAdded = input(false);
@@ -132,6 +134,7 @@ export class CardItemComponent {
 
   toggleWishlist = output<ReleaseItem>();
 
+  t = computed(() => this.languageService.t());
   releaseItem = computed(() => this.item() as ReleaseItem);
   previewState = computed(() => this.preview.state());
 

@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal, computed } from '@angular/core';
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -15,6 +15,7 @@ import { SegmentedTabsComponent } from '../shared/components/segmented-tabs/segm
 import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
 import { ReleasesComponent } from '../features/releases/releases.component';
+import { LanguageService } from '../core/i18n/language.service';
 
 type Tab = 'releases' | 'search' | 'wishlist';
 
@@ -138,14 +139,29 @@ type Tab = 'releases' | 'search' | 'wishlist';
 export class ShellComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private languageService = inject(LanguageService);
 
   activeTab = signal<Tab>(this.getDefaultTab());
   hasChildRoute = signal(false);
 
-  navTabs = signal([
-    { value: 'releases' as const, label: 'LANZAMIENTOS', prefix: '01/' },
-    { value: 'search' as const, label: 'BUSCADOR', prefix: '02/' },
-    { value: 'wishlist' as const, label: 'WHISLIST', prefix: '03/' },
+  t = computed(() => this.languageService.t());
+
+  navTabs = computed(() => [
+    {
+      value: 'releases' as const,
+      label: this.t().releases.toUpperCase(),
+      prefix: '01/',
+    },
+    {
+      value: 'search' as const,
+      label: this.t().search.toUpperCase(),
+      prefix: '02/',
+    },
+    {
+      value: 'wishlist' as const,
+      label: this.t().wishlist.toUpperCase(),
+      prefix: '03/',
+    },
   ]);
 
   constructor() {

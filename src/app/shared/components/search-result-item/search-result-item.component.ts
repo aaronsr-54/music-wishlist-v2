@@ -14,6 +14,7 @@ import { IconComponent } from '../../icons/icon.component';
 import { ButtonComponent } from '../button/button.component';
 import { formatFans } from '../../utils/format-fans';
 import { firstValueFrom } from 'rxjs';
+import { LanguageService } from '../../../core/i18n/language.service';
 
 @Component({
   selector: 'app-search-result-item',
@@ -80,7 +81,7 @@ import { firstValueFrom } from 'rxjs';
                 variant="add"
                 [added]="isAdded()"
                 (click)="onAddClick.emit(trackItem())"
-                [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
+                [title]="isAdded() ? t().removeFromWishlist : t().addToWishlist"
               >
                 @if (isAdded()) {
                   <app-icon
@@ -154,7 +155,7 @@ import { firstValueFrom } from 'rxjs';
                 variant="add"
                 [added]="isAdded()"
                 (click)="onAddClick.emit(trackItem())"
-                [title]="isAdded() ? 'Quitar de wishlist' : 'Añadir a wishlist'"
+                [title]="isAdded() ? t().removeFromWishlist : t().addToWishlist"
               >
                 @if (isAdded()) {
                   <app-icon
@@ -240,7 +241,7 @@ import { firstValueFrom } from 'rxjs';
               ·
               <span
                 class="text-[clamp(0.6rem,0.5rem+0.3vw,0.75rem)] px-1.5 py-0.5 bg-bone-200 dark:bg-ink-200 rounded font-normal italic lowercase"
-                >compartida</span
+                >{{ t().shared }}</span
               >
             }
             ·
@@ -308,6 +309,7 @@ import { firstValueFrom } from 'rxjs';
 export class SearchResultItemComponent {
   private preview = inject(PreviewService);
   private search = inject(SearchService);
+  private languageService = inject(LanguageService);
 
   item = input.required<Track | WishlistEntry | ReleaseItem>();
   source = input<'search' | 'wishlist' | 'releases'>('search');
@@ -323,6 +325,7 @@ export class SearchResultItemComponent {
   onUnmarkDownloaded = output<WishlistEntry>();
   onRemove = output<WishlistEntry>();
 
+  t = computed(() => this.languageService.t());
   trackItem = computed(() => this.item() as Track);
   wishlistItem = computed(() => this.item() as WishlistEntry);
   releaseItem = computed(() => this.item() as ReleaseItem);

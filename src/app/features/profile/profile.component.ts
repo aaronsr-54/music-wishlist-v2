@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
@@ -7,6 +7,7 @@ import { ProfileAccountComponent } from './sections/profile-account.component';
 import { ProfileStatsComponent } from './sections/profile-stats.component';
 import { ProfileSharedComponent } from './sections/profile-shared.component';
 import { ProfileSettingsComponent } from './sections/profile-settings.component';
+import { LanguageService } from '../../core/i18n/language.service';
 
 @Component({
   selector: 'app-profile',
@@ -30,9 +31,9 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
         <button
           class="bg-transparent text-ink-700 dark:text-bone-700 text-md cursor-pointer transition-colors duration-fast hover:text-ink dark:hover:text-bone lowercase"
           (click)="goBack()"
-          aria-label="Volver"
+          [aria-label]="t().back"
         >
-          ← Volver
+          ← {{ t().back }}
         </button>
 
         <span
@@ -41,7 +42,7 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
           <span class="text-ink-700 dark:text-bone-700 font-normal italic"
             >04/</span
           >
-          PERFIL
+          {{ t().profile }}
         </span>
       </div>
 
@@ -108,6 +109,9 @@ import { ProfileSettingsComponent } from './sections/profile-settings.component'
 export class ProfileComponent {
   auth = inject(AuthService);
   private router = inject(Router);
+  private languageService = inject(LanguageService);
+
+  t = computed(() => this.languageService.t());
 
   goBack() {
     this.router.navigate(['/']);

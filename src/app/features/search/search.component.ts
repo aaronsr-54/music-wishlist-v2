@@ -23,6 +23,7 @@ import { FavoriteArtistsService } from '../../core/firebase/favorite-artists.ser
 import { AuthService } from '../../core/auth/auth.service';
 import { Track, TrackType } from '../../shared/models/track.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
+import { LanguageService } from '../../core/i18n/language.service';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { ArtistCardComponent } from '../../shared/components/artist-card/artist-card.component';
 import { Router } from '@angular/router';
@@ -94,7 +95,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         <input
           id="search-input"
           type="text"
-          placeholder="Buscar canciones, álbumes..."
+          [placeholder]="t().searchPlaceholder"
           [ngModel]="query()"
           (ngModelChange)="onQuery($event)"
           class="flex-1 bg-transparent border-none outline-none text-ink dark:text-bone font-display text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] font-normal placeholder:text-bone-800 placeholder:italic"
@@ -106,7 +107,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           <button
             class="bg-transparent border-none cursor-pointer text-ink-600 dark:text-bone-600 p-[0.25em] flex items-center rounded-full transition-colors duration-fast ease-smooth text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] hover:text-ink dark:hover:text-bone"
             (click)="clearQuery()"
-            aria-label="Limpiar"
+            [aria-label]="t().clear"
           >
             <app-icon
               name="close"
@@ -125,28 +126,28 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
             [class.active]="selectedTypes().has('artist')"
             (click)="toggleType('artist')"
           >
-            Artistas
+            {{ t().artists }}
           </button>
           <button
             class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
             [class.active]="selectedTypes().has('track')"
             (click)="toggleType('track')"
           >
-            Canciones
+            {{ t().songs }}
           </button>
           <button
             class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
             [class.active]="selectedTypes().has('album')"
             (click)="toggleType('album')"
           >
-            Álbums
+            {{ t().albums }}
           </button>
           <button
             class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
             [class.!bg-bone]="selectedTypes().has('ep')"
             (click)="toggleType('ep')"
           >
-            EPs
+            {{ t().eps }}
           </button>
         </div>
       }
@@ -156,8 +157,8 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           <div class="scroll-fade">
             <app-empty-state
               icon="search"
-              title="Empieza a escribir"
-              subtitle="Canciones, álbumes o EPs — busca lo que quieras y lo encontramos en Deezer."
+              [title]="t().startSearching"
+              [subtitle]="t().searchSubtitle"
             />
           </div>
         }
@@ -209,8 +210,8 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
         @case ('empty') {
           <div class="scroll-fade">
             <app-empty-state
-              title="Sin resultados"
-              subtitle="Prueba con otro término de búsqueda"
+              [title]="t().noResults"
+              [subtitle]="t().tryAnotherSearch"
             />
           </div>
         }
@@ -223,7 +224,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           <h3
             class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-ink-700 dark:text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2"
           >
-            Artistas favoritos
+            {{ t().favoriteArtists }}
           </h3>
           <div
             class="flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-2 [-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_10px,black_calc(100%-10px),transparent_100%)] [mask-image:linear-gradient(to_right,transparent_0%,black_10px,black_calc(100%-10px),transparent_100%)]"
@@ -247,7 +248,10 @@ export class SearchComponent implements OnInit, OnDestroy {
   private wishlistSvc = inject(WishlistService);
   private favoriteArtistsSvc = inject(FavoriteArtistsService);
   private authSvc = inject(AuthService);
+  private languageService = inject(LanguageService);
   private router = inject(Router);
+
+  t = computed(() => this.languageService.t());
 
   loading = signal(false);
   query = signal('');

@@ -5,10 +5,12 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
+  inject,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IconComponent } from '../../icons/icon.component';
+import { LanguageService } from '../../../core/i18n/language.service';
 
 @Component({
   selector: 'app-email-autocomplete',
@@ -26,7 +28,7 @@ import { IconComponent } from '../../icons/icon.component';
         />
         <input
           type="email"
-          placeholder="Email de la persona"
+          [placeholder]="t().emailPlaceholder"
           [(ngModel)]="emailInput"
           (keyup.enter)="selectEmail(emailInput())"
           [disabled]="disabled()"
@@ -36,7 +38,7 @@ import { IconComponent } from '../../icons/icon.component';
           (click)="selectEmail(emailInput())"
           [disabled]="!emailValid()"
           class="fill-ink-600 dark:fill-bone-600 hover:fill-bone transition-colors duration-base cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Compartir"
+          [title]="t().share"
         >
           <app-icon name="send" class="w-6 h-6" />
         </button>
@@ -47,6 +49,9 @@ import { IconComponent } from '../../icons/icon.component';
 export class EmailAutocompleteComponent {
   disabled = input<boolean>(false);
   emailSelected = output<string>();
+  private languageService = inject(LanguageService);
+
+  t = computed(() => this.languageService.t());
 
   emailInput = signal('');
 

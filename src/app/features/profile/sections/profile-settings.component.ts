@@ -11,9 +11,11 @@ import { ProfileSectionComponent } from '../../../shared/components/profile-sect
 import { SegmentedTabsComponent } from '../../../shared/components/segmented-tabs/segmented-tabs.component';
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ThemeService } from '../../../core/theme/theme.service';
+import { LanguageService } from '../../../core/i18n/language.service';
 
 type TabType = 'releases' | 'search' | 'wishlist';
 type Theme = 'light' | 'dark' | 'system';
+type Language = 'es' | 'en';
 
 @Component({
   selector: 'app-profile-settings',
@@ -26,14 +28,14 @@ type Theme = 'light' | 'dark' | 'system';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-profile-section title="Configuración">
+    <app-profile-section [title]="t().settings">
       <section
         class="border border-solid border-bone-800 dark:border-ink-200 rounded-lg p-4 flex flex-col gap-8"
       >
         <!-- TAB -->
         <div class="flex flex-col md:flex-row gap-2 md:items-center">
           <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
-            Página principal:
+            {{ t().defaultPage }}:
           </span>
 
           <button
@@ -55,7 +57,7 @@ type Theme = 'light' | 'dark' | 'system';
         <!-- THEME -->
         <div class="flex flex-col md:flex-row gap-2 md:items-center">
           <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
-            Tema:
+            {{ t().theme }}:
           </span>
 
           <button
@@ -73,10 +75,32 @@ type Theme = 'light' | 'dark' | 'system';
             (valueChange)="setTheme($event)"
           />
         </div>
+
+        <!-- LANGUAGE -->
+        <div class="flex flex-col md:flex-row gap-2 md:items-center">
+          <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
+            {{ t().language }}:
+          </span>
+
+          <button
+            class="md:hidden w-full px-4 py-2 rounded-lg bg-bone dark:bg-ink-200 dark:text-bone font-bold uppercase"
+            (click)="openLangModal()"
+          >
+            {{ langOptionLabel() }}
+          </button>
+
+          <app-segmented-tabs
+            class="hidden md:flex flex-1"
+            variant="toggle"
+            [options]="langOptions()"
+            [value]="currentLanguage()"
+            (valueChange)="setLanguage($event)"
+          />
+        </div>
       </section>
 
       <!-- MODAL TAB -->
-      <app-modal #tabModal title="Página principal" (onClose)="closeTabModal()">
+      <app-modal #tabModal [title]="t().defaultPage" (onClose)="closeTabModal()">
         <app-segmented-tabs
           variant="list"
           [options]="tabOptions()"
@@ -86,7 +110,7 @@ type Theme = 'light' | 'dark' | 'system';
       </app-modal>
 
       <!-- MODAL THEME -->
-      <app-modal #themeModal title="Tema" (onClose)="closeThemeModal()">
+      <app-modal #themeModal [title]="t().theme" (onClose)="closeThemeModal()">
         <app-segmented-tabs
           variant="list"
           [options]="themeOptions()"
@@ -94,40 +118,66 @@ type Theme = 'light' | 'dark' | 'system';
           (valueChange)="onThemeChange($event)"
         />
       </app-modal>
+
+      <!-- MODAL LANGUAGE -->
+      <app-modal #langModal [title]="t().language" (onClose)="closeLangModal()">
+        <app-segmented-tabs
+          variant="list"
+          [options]="langOptions()"
+          [value]="currentLanguage()"
+          (valueChange)="onLangChange($event)"
+        />
+      </app-modal>
     </app-profile-section>
   `,
 })
 export class ProfileSettingsComponent {
   private themeService = inject(ThemeService);
+  private languageService = inject(LanguageService);
 
   @ViewChild('tabModal', { static: true }) tabModal!: ModalComponent;
   @ViewChild('themeModal', { static: true }) themeModal!: ModalComponent;
+  @ViewChild('langModal', { static: true }) langModal!: ModalComponent;
 
   defaultTab = signal<TabType>('releases');
   currentTheme = signal<Theme>('system');
+  currentLanguage = signal<Language>('es');
 
-  tabOptions = signal([
-    { value: 'releases' as const, label: 'Lanzamientos' },
-    { value: 'search' as const, label: 'Buscador' },
-    { value: 'wishlist' as const, label: 'Wishlist' },
+  t = computed(() => this.languageService.t());
+
+  tabOptions = computed(() => [
+    { value: 'releases' as const, label: this.t().releases },
+    { value: 'search' as const, label: this.t().search },
+    { value: 'wishlist' as const, label: this.t().wishlist },
   ]);
 
-  themeOptions = signal([
-    { value: 'system' as const, label: 'Sistema' },
-    { value: 'light' as const, label: 'Claro' },
-    { value: 'dark' as const, label: 'Oscuro' },
+  themeOptions = computed(() => [
+    { value: 'system' as const, label: this.t().system },
+    { value: 'light' as const, label: this.t().light },
+    { value: 'dark' as const, label: this.t().dark },
+  ]);
+
+  langOptions = signal([
+    { value: 'es' as const, label: 'Español' },
+    { value: 'en' as const, label: 'English' },
   ]);
 
   tabOptionLabel = computed(
     () =>
       this.tabOptions().find((o) => o.value === this.defaultTab())?.label ??
-      'Seleccionar',
+      this.t().select,
   );
 
   themeOptionLabel = computed(
     () =>
       this.themeOptions().find((o) => o.value === this.currentTheme())?.label ??
-      'Seleccionar',
+      this.t().select,
+  );
+
+  langOptionLabel = computed(
+    () =>
+      this.langOptions().find((o) => o.value === this.currentLanguage())?.label ??
+      this.t().select,
   );
 
   constructor() {
@@ -135,6 +185,7 @@ export class ProfileSettingsComponent {
     if (saved) this.defaultTab.set(saved);
 
     this.currentTheme.set(this.themeService.getTheme());
+    this.currentLanguage.set(this.languageService.getLanguage());
   }
 
   // -------------------
@@ -157,6 +208,14 @@ export class ProfileSettingsComponent {
     this.themeModal.close();
   }
 
+  openLangModal() {
+    this.langModal.open();
+  }
+
+  closeLangModal() {
+    this.langModal.close();
+  }
+
   // -------------------
   // STATE
   // -------------------
@@ -171,6 +230,11 @@ export class ProfileSettingsComponent {
     this.themeService.setTheme(theme);
   }
 
+  setLanguage(lang: Language) {
+    this.currentLanguage.set(lang);
+    this.languageService.setLanguage(lang);
+  }
+
   onTabChange(value: string) {
     this.setDefaultTab(value as TabType);
     this.closeTabModal();
@@ -179,5 +243,10 @@ export class ProfileSettingsComponent {
   onThemeChange(value: string) {
     this.setTheme(value as Theme);
     this.closeThemeModal();
+  }
+
+  onLangChange(value: string) {
+    this.setLanguage(value as Language);
+    this.closeLangModal();
   }
 }

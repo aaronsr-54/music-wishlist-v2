@@ -7,6 +7,7 @@ import {
   SegmentedTabsComponent,
   SegmentedTabOption,
 } from '../../shared/components/segmented-tabs/segmented-tabs.component';
+import { LanguageService } from '../../core/i18n/language.service';
 
 type WishlistTab = 'pending' | 'downloaded';
 
@@ -74,14 +75,14 @@ type WishlistTab = 'pending' | 'downloaded';
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 tracking-[0.06em] italic"
         >
-          {{ wishlistSvc.total() }} elementos
+          {{ wishlistSvc.total() }} {{ t().elements }}
         </span>
       </div>
 
       <div class="[animation:slideDown_300ms_ease_both]">
         <app-segmented-tabs
           variant="toggle"
-          [options]="tabs"
+          [options]="tabs()"
           [value]="activeTab()"
           (valueChange)="activeTab.set($event)"
         />
@@ -111,12 +112,12 @@ type WishlistTab = 'pending' | 'downloaded';
           <app-empty-state
             [icon]="activeTab() === 'pending' ? 'plus' : 'check'"
             [title]="
-              activeTab() === 'pending' ? 'Tu wishlist espera' : 'Nada listo'
+              activeTab() === 'pending' ? t().wishlistTitle : t().emptyReady
             "
             [subtitle]="
               activeTab() === 'pending'
-                ? 'Busca canciones y añádelas aquí'
-                : 'Marca canciones como listas para verlas aquí'
+                ? t().searchToAdd
+                : t().markToSee
             "
           />
         }
@@ -126,20 +127,23 @@ type WishlistTab = 'pending' | 'downloaded';
 })
 export class WishlistComponent {
   wishlistSvc = inject(WishlistService);
+  private languageService = inject(LanguageService);
 
   activeTab = signal<WishlistTab>('pending');
   animatingTab = signal(false);
 
-  tabs: SegmentedTabOption<WishlistTab>[] = [
+  t = computed(() => this.languageService.t());
+
+  tabs = computed<SegmentedTabOption<WishlistTab>[]>(() => [
     {
-      value: 'pending',
-      label: 'Pendientes',
+      value: 'pending' as const,
+      label: this.t().pending,
     },
     {
-      value: 'downloaded',
-      label: 'Listos',
+      value: 'downloaded' as const,
+      label: this.t().ready,
     },
-  ];
+  ]);
 
   private touchStartX = 0;
   private touchStartY = 0;

@@ -3,6 +3,7 @@ import {
   inject,
   signal,
   ChangeDetectionStrategy,
+  computed,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../core/auth/auth.service';
@@ -12,6 +13,7 @@ import { IconComponent } from '../../../shared/icons/icon.component';
 import { ProfileSectionComponent } from '../../../shared/components/profile-section/profile-section.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { EmailAutocompleteComponent } from '../../../shared/components/email-autocomplete/email-autocomplete.component';
+import { LanguageService } from '../../../core/i18n/language.service';
 
 @Component({
   selector: 'app-profile-shared',
@@ -25,7 +27,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <app-profile-section title="Social">
+    <app-profile-section [title]="t().social">
       <section
         class="flex flex-col gap-8 border border-solid border-bone-800 dark:border-ink-200 rounded-lg p-4 shadow-[0_2px_12px_4px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)]"
       >
@@ -34,7 +36,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
           <h3
             class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-700 dark:text-bone-700 italic"
           >
-            Compartir wishlist con
+            {{ t().shareWith }}
           </h3>
 
           <!-- Input de email autocomplete -->
@@ -56,7 +58,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
                   (click)="unshare(share)"
                   [disabled]="loading()"
                   class="text-ink-400 dark:text-bone-600 hover:text-ink hover:dark:text-bone transition-colors duration-base cursor-pointer md:opacity-0 md:group-hover:opacity-100"
-                  title="Quitar"
+                  [title]="t().remove"
                 >
                   <app-icon name="close" class="w-5 h-5" />
                 </button>
@@ -64,8 +66,8 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
             } @empty {
               <app-empty-state
                 icon="heart"
-                title="Aún no has compartido"
-                subtitle="Comparte tu wishlist con alguien para que pueda verla"
+                [title]="t().notSharedYet"
+                [subtitle]="t().shareSubtitle"
               />
             }
           </div>
@@ -77,7 +79,7 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
             <h3
               class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-700 dark:text-bone-700 italic "
             >
-              Wishlists de otros usuarios
+              {{ t().otherUsersWishlists }}
             </h3>
 
             <div class="flex flex-col gap-3">
@@ -121,8 +123,11 @@ import { EmailAutocompleteComponent } from '../../../shared/components/email-aut
 export class ProfileSharedComponent {
   private auth = inject(AuthService);
   shareService = inject(WishlistShareService);
+  private languageService = inject(LanguageService);
 
   loading = signal(false);
+
+  t = computed(() => this.languageService.t());
 
   async shareWith(email: string): Promise<void> {
     if (this.loading()) return;

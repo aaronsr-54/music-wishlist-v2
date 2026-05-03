@@ -17,21 +17,7 @@ import { ReleaseItem } from '../../shared/models/release-item.model';
 import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
-
-const MONTHS = [
-  'Enero',
-  'Febrero',
-  'Marzo',
-  'Abril',
-  'Mayo',
-  'Junio',
-  'Julio',
-  'Agosto',
-  'Septiembre',
-  'Octubre',
-  'Noviembre',
-  'Diciembre',
-];
+import { LanguageService } from '../../core/i18n/language.service';
 
 @Component({
   selector: 'app-releases',
@@ -127,7 +113,7 @@ const MONTHS = [
             <button
               class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               (click)="prevMonth()"
-              title="Mes anterior"
+              [title]="t().prevMonth"
             >
               &lt;
             </button>
@@ -146,7 +132,7 @@ const MONTHS = [
               class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               [disabled]="!canGoToNextMonth()"
               (click)="nextMonth()"
-              title="Mes siguiente"
+              [title]="t().nextMonth"
             >
               &gt;
             </button>
@@ -160,19 +146,19 @@ const MONTHS = [
             <app-spinner size="md" />
             <span
               class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
-              >Cargando lanzamientos...</span
+              >{{ t().loadingReleases }}</span
             >
           </div>
         } @else if (filteredReleases().length === 0) {
           <app-empty-state
             [icon]="favorites().length === 0 ? 'heart' : 'music-note'"
             [title]="
-              favorites().length === 0 ? 'Sin artistas' : 'Sin lanzamientos'
+              favorites().length === 0 ? t().noFavoriteArtists : t().noReleasesThisMonth
             "
             [subtitle]="
               favorites().length === 0
-                ? 'Busca tus artistas favoritos y añádelos aquí.'
-                : 'Ninguno de tus artistas favoritos ha lanzado algo este mes. Añade más artistas a tu lista de favoritos.'
+                ? t().searchFavoriteArtists
+                : t().noReleasesFromFavorites
             "
           />
         } @else {
@@ -204,6 +190,9 @@ export class ReleasesComponent implements OnInit {
   private favoritesSvc = inject(FavoritesService);
   private wishlistSvc = inject(WishlistService);
   private authSvc = inject(AuthService);
+  private languageService = inject(LanguageService);
+
+  t = computed(() => this.languageService.t());
 
   selectedYear = signal<number>(new Date().getFullYear());
   selectedMonth = signal<number>(new Date().getMonth());
@@ -217,7 +206,12 @@ export class ReleasesComponent implements OnInit {
   private touchStartX = 0;
   private readonly SWIPE_THRESHOLD = 50;
 
-  monthLabel = computed(() => MONTHS[this.selectedMonth()]);
+  monthNames = computed(() => [
+    this.t().jan, this.t().feb, this.t().mar, this.t().apr, this.t().may, this.t().jun,
+    this.t().jul, this.t().aug, this.t().sep, this.t().oct, this.t().nov, this.t().dec,
+  ]);
+
+  monthLabel = computed(() => this.monthNames()[this.selectedMonth()]);
   yearLabel = computed(() => this.selectedYear().toString());
 
   canGoToNextMonth = computed(() => {

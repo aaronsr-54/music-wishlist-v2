@@ -1,14 +1,8 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, inject, computed } from '@angular/core';
 import { TrackType } from '../../models/track.model';
+import { LanguageService } from '../../../core/i18n/language.service';
 // @ts-ignore
 import tailwindConfig from '../../../../../tailwind.config';
-
-const LABELS: Partial<Record<TrackType, string>> = {
-  track: 'Canción',
-  album: 'Álbum',
-  ep: 'EP',
-  single: 'Single',
-};
 
 const createColorMap = (palette: Record<string, string>) => ({
   track: palette['track'],
@@ -43,8 +37,21 @@ const hexToRgba = (hex: string, alpha: number): string => {
 export class TypeChipComponent {
   @Input({ required: true }) type: TrackType = 'track';
 
+  private languageService = inject(LanguageService);
+
+  get t() {
+    return this.languageService.t();
+  }
+
   get label() {
-    return LABELS[this.type];
+    const translations = this.t;
+    const labels: Partial<Record<TrackType, string>> = {
+      track: translations.track,
+      album: translations.album,
+      ep: 'EP',
+      single: 'Single',
+    };
+    return labels[this.type];
   }
 
   get color() {

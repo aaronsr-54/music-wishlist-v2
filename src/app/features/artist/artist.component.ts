@@ -11,6 +11,7 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { IconComponent } from '../../shared/icons/icon.component';
 import { formatFans } from '../../shared/utils/format-fans';
+import { LanguageService } from '../../core/i18n/language.service';
 
 @Component({
   selector: 'app-artist',
@@ -67,11 +68,11 @@ import { formatFans } from '../../shared/utils/format-fans';
     <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
       <div class="flex items-center justify-between gap-2">
         <button
-          class="bg-transparent border-none text-ink-700 dark:text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] cursor-pointer transition-colors duration-fast ease-smooth hover:text-ink dark:hover:text-bone lowercase"
+          class="bg-transparent text-ink-700 dark:text-bone-700 text-md cursor-pointer transition-colors duration-fast hover:text-ink dark:hover:text-bone lowercase"
           (click)="goBack()"
-          aria-label="Volver"
+          [aria-label]="t().back"
         >
-          ← Volver
+          ← {{ t().back }}
         </button>
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em]"
@@ -79,7 +80,7 @@ import { formatFans } from '../../shared/utils/format-fans';
           <span class="text-ink-700 dark:text-bone-700 font-normal italic"
             >02.a/</span
           >
-          ARTISTA
+          {{ t().artist }}
         </span>
       </div>
 
@@ -134,7 +135,7 @@ import { formatFans } from '../../shared/utils/format-fans';
                     <div class="flex flex-col gap-1">
                       <span
                         class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 uppercase tracking-[0.5px]"
-                        >Seguidores</span
+                        >{{ t().followers }}</span
                       >
                       <span
                         class="text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-bold"
@@ -146,7 +147,7 @@ import { formatFans } from '../../shared/utils/format-fans';
                     <div class="flex flex-col gap-1">
                       <span
                         class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 uppercase tracking-[0.5px]"
-                        >Álbumes</span
+                        >{{ t().albums2 }}</span
                       >
                       <span
                         class="text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-bold"
@@ -164,7 +165,7 @@ import { formatFans } from '../../shared/utils/format-fans';
           <h2
             class="font-body text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
           >
-            Canciones populares
+            {{ t().popularSongs }}
           </h2>
 
           @if (loading()) {
@@ -174,14 +175,14 @@ import { formatFans } from '../../shared/utils/format-fans';
               <app-spinner size="md" />
               <span
                 class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
-                >Cargando canciones...</span
+                >{{ t().loadingSongs }}</span
               >
             </div>
           } @else if (tracks().length === 0) {
             <div
               class="text-center py-10 px-5 text-ink-700 dark:text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] [animation:fadeIn_300ms_var(--ease)_both]"
             >
-              No hay canciones disponibles
+              {{ t().noSongsAvailable }}
             </div>
           } @else {
             <div
@@ -211,6 +212,9 @@ export class ArtistComponent implements OnInit {
   private wishlistSvc = inject(WishlistService);
   private favoriteArtistsSvc = inject(FavoriteArtistsService);
   private authSvc = inject(AuthService);
+  private languageService = inject(LanguageService);
+
+  t = computed(() => this.languageService.t());
 
   artist = signal<any>(null);
   tracks = signal<Track[]>([]);
