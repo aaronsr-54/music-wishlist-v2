@@ -37,6 +37,10 @@ yarn-error.log
 testem.log
 /typings
 
+# AI agents
+.agents/
+skills-lock.json
+
 # System files
 .DS_Store
 Thumbs.db
