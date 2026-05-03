@@ -19,6 +19,17 @@ type WishlistTab = 'pending' | 'downloaded';
     SegmentedTabsComponent,
   ],
   styles: `
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
     .scroll-fade {
       overflow-y: auto;
       scrollbar-width: none;
@@ -45,7 +56,11 @@ type WishlistTab = 'pending' | 'downloaded';
     }
   `,
   template: `
-    <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
+    <div
+      class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4 [animation:fadeIn_300ms_ease_both]"
+      (touchstart)="onTouchStart($event)"
+      (touchend)="onTouchEnd($event)"
+    >
       <div class="flex items-center justify-between gap-2 md:justify-end">
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
@@ -63,25 +78,35 @@ type WishlistTab = 'pending' | 'downloaded';
         </span>
       </div>
 
-      <app-segmented-tabs
-        variant="toggle"
-        [options]="tabs"
-        [value]="activeTab()"
-        (valueChange)="activeTab.set($event)"
-      />
+      <div class="[animation:slideDown_300ms_ease_both]">
+        <app-segmented-tabs
+          variant="toggle"
+          [options]="tabs"
+          [value]="activeTab()"
+          (valueChange)="activeTab.set($event)"
+        />
+      </div>
 
-      <div class="scroll-fade">
-        @for (entry of activeEntries(); track entry.id) {
-          <app-search-result-item
-            [item]="entry"
-            source="wishlist"
-            [wishlistStatus]="
-              activeTab() === 'pending' ? 'pending' : 'downloaded'
-            "
-            (onMarkDownloaded)="markDownloaded($event)"
-            (onUnmarkDownloaded)="unmarkDownloaded($event)"
-            (onRemove)="remove($event)"
-          />
+      <div
+        class="scroll-fade transition-opacity duration-300"
+        [class.opacity-0]="animatingTab()"
+      >
+        @for (entry of activeEntries(); track entry.id; let i = $index) {
+          <div
+            class="[animation:scaleIn_300ms_ease_both]"
+            [style.animation-delay]="i * 30 + 'ms'"
+          >
+            <app-search-result-item
+              [item]="entry"
+              source="wishlist"
+              [wishlistStatus]="
+                activeTab() === 'pending' ? 'pending' : 'downloaded'
+              "
+              (onMarkDownloaded)="markDownloaded($event)"
+              (onUnmarkDownloaded)="unmarkDownloaded($event)"
+              (onRemove)="remove($event)"
+            />
+          </div>
         } @empty {
           <app-empty-state
             [icon]="activeTab() === 'pending' ? 'plus' : 'check'"
@@ -103,6 +128,7 @@ export class WishlistComponent {
   wishlistSvc = inject(WishlistService);
 
   activeTab = signal<WishlistTab>('pending');
+  animatingTab = signal(false);
 
   tabs: SegmentedTabOption<WishlistTab>[] = [
     {
@@ -115,21 +141,79 @@ export class WishlistComponent {
     },
   ];
 
+  private touchStartX = 0;
+  private touchStartY = 0;
+
+  private readonly SWIPE_THRESHOLD = 50;
+
   activeEntries = computed(() =>
     this.activeTab() === 'pending'
       ? this.wishlistSvc.pending()
       : this.wishlistSvc.downloaded(),
   );
 
+  onTouchStart(event: TouchEvent) {
+    const touch = event.changedTouches[0];
+
+    this.touchStartX = touch.screenX;
+    this.touchStartY = touch.screenY;
+  }
+
+  onTouchEnd(event: TouchEvent) {
+    const touch = event.changedTouches[0];
+
+    const deltaX = touch.screenX - this.touchStartX;
+    const deltaY = touch.screenY - this.touchStartY;
+
+    // Ignorar scroll vertical
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      return;
+    }
+
+    if (Math.abs(deltaX) < this.SWIPE_THRESHOLD) {
+      return;
+    }
+
+    this.animatingTab.set(true);
+
+    setTimeout(() => {
+      if (deltaX < 0) {
+        this.goToNextTab();
+      } else {
+        this.goToPreviousTab();
+      }
+
+      this.animatingTab.set(false);
+    }, 150);
+  }
+
+  private goToNextTab() {
+    if (this.activeTab() === 'pending') {
+      this.activeTab.set('downloaded');
+    }
+  }
+
+  private goToPreviousTab() {
+    if (this.activeTab() === 'downloaded') {
+      this.activeTab.set('pending');
+    }
+  }
+
   async markDownloaded(entry: WishlistEntry) {
-    if (entry.id) await this.wishlistSvc.markDownloaded(entry.id);
+    if (entry.id) {
+      await this.wishlistSvc.markDownloaded(entry.id);
+    }
   }
 
   async unmarkDownloaded(entry: WishlistEntry) {
-    if (entry.id) await this.wishlistSvc.unmarkDownloaded(entry.id);
+    if (entry.id) {
+      await this.wishlistSvc.unmarkDownloaded(entry.id);
+    }
   }
 
   async remove(entry: WishlistEntry) {
-    if (entry.id) await this.wishlistSvc.remove(entry.id);
+    if (entry.id) {
+      await this.wishlistSvc.remove(entry.id);
+    }
   }
 }
