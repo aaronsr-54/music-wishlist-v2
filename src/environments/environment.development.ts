@@ -1,11 +1,11 @@
 export const environment = {
   production: false,
   firebase: {
-    apiKey: 'AIzaSyDIIW0YmNtS0WMcSyQa8l5ntv89C7SWlUo',
-    authDomain: 'music-whitelist.firebaseapp.com',
-    projectId: 'music-whitelist',
-    storageBucket: 'music-whitelist.firebasestorage.app',
-    messagingSenderId: '513306310710',
-    appId: '1:513306310710:web:98fcc9550e904ee71a0097',
+    apiKey: 'YOUR_API_KEY',
+    authDomain: 'your-project.firebaseapp.com',
+    projectId: 'your-project-id',
+    storageBucket: 'your-project.firebasestorage.app',
+    messagingSenderId: 'YOUR_SENDER_ID',
+    appId: 'YOUR_APP_ID',
   },
 };
