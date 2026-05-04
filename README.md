@@ -58,6 +58,34 @@ npm run build
 
 Output: `dist/music-wishlist-v2/browser/`
 
+## Firebase Configuration
+
+To run the app with real authentication, you need to set up Firebase:
+
+1. Create a project at [firebase.google.com](https://firebase.google.com)
+2. Enable **Authentication** → Google sign-in provider
+3. Enable **Firestore** (create database in test mode or with rules)
+4. Copy `src/environments/environment.ts` to `src/environments/environment.local.ts`
+5. Add your Firebase config keys:
+
+```typescript
+export const environment = {
+  production: false,
+  firebase: {
+    apiKey: 'YOUR_API_KEY',
+    authDomain: 'YOUR_PROJECT.firebaseapp.com',
+    projectId: 'YOUR_PROJECT_ID',
+    storageBucket: 'YOUR_PROJECT.appspot.com',
+    messagingSenderId: 'YOUR_SENDER_ID',
+    appId: 'YOUR_APP_ID'
+  }
+};
+```
+
+6. Update Firebase Console → Authentication → **Authorized domains**:
+   - `localhost` (for development)
+   - `your-project.vercel.app` (for production)
+
 ### Tests
 
 ```bash
