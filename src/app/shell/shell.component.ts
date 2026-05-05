@@ -11,11 +11,13 @@ import { filter } from 'rxjs';
 import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
 import { SegmentedTabsComponent } from '../shared/components/segmented-tabs/segmented-tabs.component';
+import { FloatingPlayerComponent } from '../shared/components/floating-player/floating-player.component';
 
 import { SearchComponent } from '../features/search/search.component';
 import { WishlistComponent } from '../features/wishlist/wishlist.component';
 import { ReleasesComponent } from '../features/releases/releases.component';
 import { LanguageService } from '../core/i18n/language.service';
+import { PreviewService } from '../core/services/preview.service';
 
 type Tab = 'releases' | 'search' | 'wishlist';
 
@@ -30,6 +32,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
     HeaderComponent,
     TabBarComponent,
     SegmentedTabsComponent,
+    FloatingPlayerComponent,
     ReleasesComponent,
     SearchComponent,
     WishlistComponent,
@@ -105,6 +108,10 @@ type Tab = 'releases' | 'search' | 'wishlist';
           }
         </section>
       </main>
+
+      @if (hasActivePreview()) {
+        <app-floating-player />
+      }
     </div>
 
     <!-- MOBILE -->
@@ -114,7 +121,11 @@ type Tab = 'releases' | 'search' | 'wishlist';
       <main class="z-10 mobile-content flex-1 overflow-hidden px-4">
         @switch (activeTab()) {
           @case ('releases') {
-            <app-releases />
+            @if (hasChildRoute()) {
+              <router-outlet />
+            } @else {
+              <app-releases />
+            }
           }
           @case ('search') {
             @if (hasChildRoute()) {
@@ -124,7 +135,11 @@ type Tab = 'releases' | 'search' | 'wishlist';
             }
           }
           @case ('wishlist') {
-            <app-wishlist />
+            @if (hasChildRoute()) {
+              <router-outlet />
+            } @else {
+              <app-wishlist />
+            }
           }
         }
       </main>
@@ -133,6 +148,10 @@ type Tab = 'releases' | 'search' | 'wishlist';
         [activeTab]="activeTab()"
         (tabChange)="activeTab.set($event)"
       />
+
+      @if (hasActivePreview()) {
+        <app-floating-player />
+      }
     </div>
   `,
 })
@@ -140,11 +159,14 @@ export class ShellComponent {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   private languageService = inject(LanguageService);
+  private previewService = inject(PreviewService);
 
   activeTab = signal<Tab>(this.getDefaultTab());
   hasChildRoute = signal(false);
 
   t = computed(() => this.languageService.t());
+
+  hasActivePreview = computed(() => this.previewService.state().metadata !== null);
 
   navTabs = computed(() => [
     {

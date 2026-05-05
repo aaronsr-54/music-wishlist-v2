@@ -199,8 +199,9 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
                 <app-search-result-item
                   class="[animation:rowEnter_var(--dur-base)_var(--ease)_both]"
                   [item]="track"
-                  type="track"
+                  [type]="track.type"
                   [isAdded]="isAdded(track.id)"
+                  (onAlbumClick)="goToAlbum($event)"
                   (onAddClick)="toggle($event)"
                 />
               }
@@ -413,6 +414,10 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   goToArtist(artist: Track) {
     this.router.navigate(['/artist', artist.artistId || artist.id]);
+  }
+
+  goToAlbum(albumId: string) {
+    this.router.navigate(['/album', albumId]);
   }
 
   navigateToArtist(artist: any) {

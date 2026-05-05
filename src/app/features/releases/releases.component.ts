@@ -7,6 +7,7 @@ import {
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { SearchService } from '../../core/api/search.service';
@@ -177,6 +178,7 @@ import { LanguageService } from '../../core/i18n/language.service';
                 [item]="item"
                 [isAdded]="isInWishlist(item.id)"
                 (toggleWishlist)="toggleWishlist($event)"
+                (onAlbumClick)="goToAlbum($event)"
               />
             }
           </div>
@@ -191,6 +193,7 @@ export class ReleasesComponent implements OnInit {
   private wishlistSvc = inject(WishlistService);
   private authSvc = inject(AuthService);
   private languageService = inject(LanguageService);
+  private router = inject(Router);
 
   t = computed(() => this.languageService.t());
 
@@ -367,5 +370,9 @@ export class ReleasesComponent implements OnInit {
       }
       this.animatingMonth.set(false);
     }, 150);
+  }
+
+  goToAlbum(albumId: string) {
+    this.router.navigate(['/album', albumId]);
   }
 }
