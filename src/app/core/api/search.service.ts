@@ -249,7 +249,7 @@ export class SearchService {
         artist: res.artist?.name ?? '',
         artistId: res.artist?.id ? String(res.artist.id) : undefined,
         coverUrl: res.cover_big ?? res.cover_medium ?? '',
-        type: (res.record_type === 'single' ? 'single' : 'album') as TrackType,
+        type: (res.record_type === 'ep' || res.record_type === 'single' ? 'ep' : 'album') as TrackType,
         releaseDate: res.release_date ?? '',
       })),
       catchError(() => of(null)),

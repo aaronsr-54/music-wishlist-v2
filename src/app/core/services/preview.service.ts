@@ -55,7 +55,11 @@ export class PreviewService {
 
   play(track: TrackMetadata): void;
   play(id: string, previewUrl: string, parentId?: string): void;
-  play(trackOrId: TrackMetadata | string, previewUrlOrParentId?: string | string, parentId?: string): void {
+  play(
+    trackOrId: TrackMetadata | string,
+    previewUrlOrParentId?: string | string,
+    parentId?: string,
+  ): void {
     if (typeof trackOrId === 'string') {
       const id = trackOrId;
       const previewUrl = previewUrlOrParentId as string;
@@ -71,35 +75,6 @@ export class PreviewService {
       return;
     }
     this.playTrack(trackOrId);
-  }
-
-  async playAlbum(album: AlbumInfo): Promise<void> {
-    const tracks = await firstValueFrom(this.searchService.getAlbumTracks(album.id));
-    const trackWithPreview = tracks.find(t => t.previewUrl);
-    
-    if (trackWithPreview) {
-      this.playTrack({
-        id: trackWithPreview.id,
-        title: trackWithPreview.title,
-        artist: album.artist,
-        cover: album.coverUrl,
-        previewUrl: trackWithPreview.previewUrl!,
-        parentId: album.id,
-      });
-      
-      const playlistWithPreviews = tracks
-        .filter(t => t.previewUrl)
-        .map((t, idx) => ({
-          id: t.id,
-          title: t.title,
-          artist: album.artist,
-          cover: album.coverUrl,
-          previewUrl: t.previewUrl!,
-          parentId: album.id,
-        }));
-      
-      this.setPlaylist(playlistWithPreviews, 0);
-    }
   }
 
   private playTrack(track: TrackMetadata): void {
@@ -119,7 +94,12 @@ export class PreviewService {
     this.audio.onerror = () => this.stop();
     this.audio.oncanplay = () => {
       const duration = this.audio?.duration || 30;
-      this.state.update((s) => ({ ...s, isLoading: false, duration, totalTime: duration }));
+      this.state.update((s) => ({
+        ...s,
+        isLoading: false,
+        duration,
+        totalTime: duration,
+      }));
       this.startTime = Date.now();
       this.startProgressInterval();
     };
@@ -154,7 +134,10 @@ export class PreviewService {
 
     this.progressInterval = setInterval(() => {
       const elapsed = (Date.now() - this.startTime) / 1000;
-      const progress = Math.min((elapsed / (this.audio?.duration || 30)) * 100, 100);
+      const progress = Math.min(
+        (elapsed / (this.audio?.duration || 30)) * 100,
+        100,
+      );
 
       this.state.update((s) => ({ ...s, progress, currentTime: elapsed }));
 
@@ -181,7 +164,6 @@ export class PreviewService {
       currentTime: s.totalTime,
     }));
 
-    // Reset after 300ms
     setTimeout(() => {
       if (!this.state().isPlaying) {
         this.state.update((s) => ({
@@ -223,44 +205,5 @@ export class PreviewService {
     } else {
       this.resume();
     }
-  }
-
-  setPlaylist(tracks: TrackMetadata[], startIndex: number = 0): void {
-    this.playlist = tracks;
-    this.playlistIndex = startIndex;
-  }
-
-  next(): void {
-    if (this.playlistIndex < this.playlist.length - 1) {
-      this.playlistIndex++;
-      this.playTrack(this.playlist[this.playlistIndex]);
-    }
-  }
-
-  prev(): void {
-    if (this.playlistIndex > 0) {
-      this.playlistIndex--;
-      this.playTrack(this.playlist[this.playlistIndex]);
-    }
-  }
-
-  get hasNext(): boolean {
-    return this.playlistIndex < this.playlist.length - 1;
-  }
-
-  get hasPrev(): boolean {
-    return this.playlistIndex > 0;
-  }
-
-  get currentIndex(): number {
-    return this.playlistIndex;
-  }
-
-  hasNextTrack(): boolean {
-    return this.hasNext;
-  }
-
-  hasPrevTrack(): boolean {
-    return this.hasPrev;
   }
 }

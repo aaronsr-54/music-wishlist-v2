@@ -61,19 +61,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
   `,
   template: `
     <!-- DESKTOP -->
-    <div
-      class="hidden bg-bone-300 dark:bg-ink md:flex flex-col h-full
-        relative 
-        before:content-['']
-        before:absolute
-        before:-top-1/4
-        before:-right-52
-        before:w-2/4
-        before:h-3/4
-        before:pointer-events-none
-        before:dark:bg-[radial-gradient(circle,_theme(colors.ink.400)_0%,_transparent_70%)]
-        before:bg-[radial-gradient(circle,_theme(colors.bone.400)_0%,_transparent_70%)]"
-    >
+    <div class="hidden bg-bone-300 dark:bg-ink md:flex flex-col h-full">
       <app-header class="z-10" (openProfile)="goToProfile()" />
 
       <main
@@ -118,7 +106,10 @@ type Tab = 'releases' | 'search' | 'wishlist';
     <div class="bg-bone-300 dark:bg-ink flex flex-col h-full md:hidden">
       <app-header class="z-10" (openProfile)="goToProfile()" />
 
-      <main class="z-10 mobile-content flex-1 overflow-hidden px-4">
+      <main
+        class="z-10 mobile-content flex-1 overflow-hidden px-4"
+        [class.has-preview]="hasActivePreview()"
+      >
         @switch (activeTab()) {
           @case ('releases') {
             @if (hasChildRoute()) {
@@ -166,7 +157,9 @@ export class ShellComponent {
 
   t = computed(() => this.languageService.t());
 
-  hasActivePreview = computed(() => this.previewService.state().metadata !== null);
+  hasActivePreview = computed(
+    () => this.previewService.state().metadata !== null,
+  );
 
   navTabs = computed(() => [
     {

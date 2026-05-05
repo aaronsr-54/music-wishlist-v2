@@ -2,9 +2,7 @@ import {
   Component,
   inject,
   computed,
-  signal,
   ChangeDetectionStrategy,
-  HostListener,
 } from '@angular/core';
 import { CoverComponent } from '../cover/cover.component';
 import { IconComponent } from '../../icons/icon.component';
@@ -17,18 +15,17 @@ import { PreviewService } from '../../../core/services/preview.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
     class:
-      'fixed bottom-[5.4rem] md:bottom-4 z-50 mx-[0.5rem] md:mx-auto animate-slide-up',
+      'fixed bottom-[5.4rem] md:top-2 md:bottom-auto z-50 left-2 right-2 md:left-1/2 md:right-auto md:w-[30rem] md:-translate-x-1/2 animate-slide-up',
   },
   template: `
     <div
-      class="flex items-center gap-3 p-3 rounded-xl bg-bone/95 backdrop-blur-sm shadow-lg overflow-hidden"
-      [style.width]="isMobile() ? 'calc(100dvw - 1rem)' : '360px'"
+      class="flex items-center gap-3 p-2.5 rounded-xl bg-bone/95 backdrop-blur-sm shadow-lg overflow-hidden w-full"
     >
       <app-cover
         [name]="metadata()?.title ?? ''"
         [coverUrl]="metadata()?.cover ?? ''"
         [size]="36"
-        rounded="rounded-md"
+        rounded="rounded-full"
       />
 
       <div class="flex flex-col flex-1 min-w-0 pr-2 w-full">
@@ -41,19 +38,13 @@ import { PreviewService } from '../../../core/services/preview.service';
       </div>
 
       <div class="flex items-center gap-1">
-        @if (hasParent()) {
-          <button
-            (click)="prev()"
-            [disabled]="!hasPrev()"
-            class="w-8 h-8 flex items-center justify-center rounded-full text-ink/70 hover:text-ink hover:bg-ink-500/5 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors"
-            title="Previous"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M6 6h2v12H6z" />
-              <path d="M19 20V4l-11 8 11 8z" />
-            </svg>
-          </button>
-        }
+        <button
+          (click)="stop()"
+          class="w-8 h-8 flex items-center justify-center"
+          title="Stop"
+        >
+          <app-icon name="stop" class="w-8 h-8 fill-ink-200 hover:fill-ink" />
+        </button>
 
         <button
           (click)="togglePlay()"
@@ -62,20 +53,6 @@ import { PreviewService } from '../../../core/services/preview.service';
         >
           <app-icon [name]="isPlaying() ? 'pause' : 'play'" class="w-5 h-5" />
         </button>
-
-        @if (hasParent()) {
-          <button
-            (click)="next()"
-            [disabled]="!hasNext()"
-            class="w-8 h-8 flex items-center justify-center rounded-full text-ink/70 hover:text-ink hover:bg-ink-500/5 disabled:opacity-30 disabled:hover:bg-transparent disabled:cursor-not-allowed transition-colors"
-            title="Next"
-          >
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M16 6h2v12h-2z" />
-              <path d="M5 20V4l11 8-11 8z" />
-            </svg>
-          </button>
-        }
 
         <div
           class="absolute bottom-[2px] left-0 right-0 flex justify-center px-6"
@@ -93,33 +70,16 @@ import { PreviewService } from '../../../core/services/preview.service';
 })
 export class FloatingPlayerComponent {
   private preview = inject(PreviewService);
-  isMobile = signal(true);
-
-  @HostListener('window:resize')
-  onResize() {
-    this.isMobile.set(window.innerWidth < 768);
-  }
-
-  constructor() {
-    this.isMobile.set(window.innerWidth < 768);
-  }
 
   metadata = computed(() => this.preview.state().metadata);
   isPlaying = computed(() => this.preview.state().isPlaying);
   progress = computed(() => this.preview.state().progress);
-  hasNext = computed(() => this.preview.hasNextTrack());
-  hasPrev = computed(() => this.preview.hasPrevTrack());
-  hasParent = computed(() => !!this.preview.state().parentId);
 
   togglePlay() {
     this.preview.toggle();
   }
 
-  prev() {
-    this.preview.prev();
-  }
-
-  next() {
-    this.preview.next();
+  stop() {
+    this.preview.stop();
   }
 }

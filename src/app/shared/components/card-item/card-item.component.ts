@@ -1,6 +1,5 @@
 import { Component, computed, input, output, inject } from '@angular/core';
-import { DatePipe } from '@angular/common';
-import { fadeInOut } from '../../animations/animations';
+import { DatePipe, NgClass } from '@angular/common';
 import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
@@ -13,53 +12,66 @@ import { LanguageService } from '../../../core/i18n/language.service';
   standalone: true,
   imports: [
     DatePipe,
+    NgClass,
     CoverComponent,
     TypeChipComponent,
     IconComponent,
   ],
-  animations: [fadeInOut()],
   styles: `
-    @keyframes popIn {
-      0% {
-        opacity: 0;
-        transform: scale(0.8);
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        transform: scale(1);
-      }
+    .card[data-type='album']:hover .card-name,
+    .card[data-type='album']:hover .card-artist {
+      color: #0891b2;
+      opacity: 0.8;
+    }
+    .dark .card[data-type='album']:hover .card-name,
+    .dark .card[data-type='album']:hover .card-artist {
+      color: #3aa7a3;
+      opacity: 0.8;
+    }
+    .card[data-type='ep']:hover .card-name,
+    .card[data-type='ep']:hover .card-artist {
+      color: #b45309;
+      opacity: 0.8;
+    }
+    .dark .card[data-type='ep']:hover .card-name,
+    .dark .card[data-type='ep']:hover .card-artist {
+      color: #a37871;
+      opacity: 0.8;
+    }
+    .card[data-type='single']:hover .card-name,
+    .card[data-type='single']:hover .card-artist {
+      color: #cea219;
+      opacity: 0.8;
+    }
+    .dark .card[data-type='single']:hover .card-name,
+    .dark .card[data-type='single']:hover .card-artist {
+      color: #ffffc7;
+      opacity: 0.8;
+    }
+    .card-name,
+    .card-artist {
+      transition:
+        color 160ms ease,
+        opacity 160ms ease;
     }
   `,
   template: `
     <div
-      class="relative flex flex-col p-2 rounded-lg bg-bone-200 dark:bg-ink-200 gap-1 w-full"
+      class="card relative flex flex-col p-2 rounded-lg bg-bone-200 dark:bg-ink-200 gap-1 w-full cursor-pointer"
+      [attr.data-type]="releaseItem().type"
+      (click)="onCardClick()"
     >
       <div class="relative">
         <div
-          class="relative w-full shrink-0 rounded-md overflow-hidden transition-opacity duration-fast ease-smooth cursor-pointer"
+          class="relative w-full shrink-0 rounded-md overflow-hidden"
           [title]="releaseItem().name"
-          (click)="onCardClick()"
         >
           <app-cover
-            class="!rounded-md overflow-hidden cursor-pointer"
-            style="cursor: pointer !important"
+            class="!rounded-md overflow-hidden"
             [coverUrl]="releaseItem().coverUrl"
             [name]="releaseItem().name"
             [rounded]="'rounded-md'"
           />
-          @if (isPlayingCurrentItem()) {
-            <div
-              class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-md backdrop-blur-[1.5px]"
-              @fadeInOut
-            >
-              <app-icon
-                [name]="previewState().isPlaying ? 'pause' : 'play'"
-                class="w-12 h-12 text-bone-100"
-              />
-            </div>
-          }
         </div>
       </div>
 
@@ -81,14 +93,16 @@ import { LanguageService } from '../../../core/i18n/language.service';
           <app-type-chip [type]="releaseItem().type" />
         </div>
 
-        <div class="flex flex-col gap-1 cursor-pointer" (click)="onCardClick()">
+        <div class="flex flex-col gap-1">
           <span
-            class="font-display text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none truncate max-w-full"
+            class="card-name font-display text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none truncate max-w-full"
+            [ngClass]="playingClass()"
           >
             {{ releaseItem().name }}
           </span>
           <span
-            class="text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-600 dark:text-bone-600 truncate max-w-full"
+            class="card-artist text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-600 dark:text-bone-600 truncate max-w-full"
+            [ngClass]="playingClass()"
           >
             {{ releaseItem().artist }}
           </span>
@@ -97,7 +111,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
         <button
           class="flex items-center text-ink font-display font-medium [&.added]:font-bold [&.added]:bg-ink italic [&.added]:not-italic [&.added]:text-bone [&.added]:dark:bg-bone  dark:text-bone [&.added]:dark:text-ink border border-ink dark:border-bone rounded-card uppercase px-4 py-1"
           [class.added]="isAdded()"
-          (click)="onToggleWishlist()"
+          (click)="onToggleWishlist(); $event.stopPropagation()"
         >
           @if (isAdded()) {
             <app-icon
@@ -134,7 +148,19 @@ export class CardItemComponent {
 
   isPlayingCurrentItem = computed(() => {
     const state = this.previewState();
-    return state.trackId === this.releaseItem().id || state.parentId === this.releaseItem().id;
+    return (
+      state.trackId === this.releaseItem().id ||
+      state.parentId === this.releaseItem().id
+    );
+  });
+
+  playingClass = computed(() => {
+    if (!this.isPlayingCurrentItem()) return '';
+    const type = this.releaseItem().type;
+    if (type === 'ep') return '!text-accent-ep dark:!text-accent-dark-ep';
+    if (type === 'album')
+      return '!text-accent-album dark:!text-accent-dark-album';
+    return '!text-accent-track dark:!text-accent-dark-track';
   });
 
   onToggleWishlist() {
@@ -142,28 +168,23 @@ export class CardItemComponent {
   }
 
   onCardClick() {
-    this.onAlbumClick.emit(this.releaseItem().id);
+    if (this.releaseItem().type === 'single') {
+      this.onPlayPreview(this.releaseItem());
+    } else {
+      this.onAlbumClick.emit(this.releaseItem().id);
+    }
   }
 
   async onPlayPreview(item: ReleaseItem) {
-    if (item.previewUrl) {
-      this.preview.play({
-        id: item.id,
-        title: item.name,
-        artist: item.artist,
-        cover: item.coverUrl,
-        previewUrl: item.previewUrl,
-        parentId: item.id,
-      });
-    } else {
-      await this.preview.playAlbum({
-        id: item.id,
-        name: item.name,
-        artist: item.artist,
-        coverUrl: item.coverUrl,
-        type: item.type,
-        releaseDate: item.releaseDate,
-      });
-    }
+    if (!item.previewUrl) return;
+
+    this.preview.play({
+      id: item.id,
+      title: item.name,
+      artist: item.artist,
+      cover: item.coverUrl,
+      previewUrl: item.previewUrl,
+      parentId: item.id,
+    });
   }
 }

@@ -4,11 +4,11 @@ import { CommonModule } from '@angular/common';
 import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { PreviewService } from '../../core/services/preview.service';
 import {
-  AlbumTrack,
-  ReleaseItem,
-} from '../../shared/models/release-item.model';
+  PreviewService,
+  TrackMetadata,
+} from '../../core/services/preview.service';
+import { AlbumTrack } from '../../shared/models/release-item.model';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { TypeChipComponent } from '../../shared/components/type-chip/type-chip.component';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
@@ -16,6 +16,7 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 import { IconComponent } from '../../shared/icons/icon.component';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Track, TrackType } from '../../shared/models/track.model';
+import { ButtonComponent } from '../../shared/components/button/button.component';
 
 interface AlbumDetail {
   id: string;
@@ -37,6 +38,7 @@ interface AlbumDetail {
     SearchResultItemComponent,
     SpinnerComponent,
     IconComponent,
+    ButtonComponent,
   ],
   styles: `
     @keyframes popIn {
@@ -100,7 +102,7 @@ interface AlbumDetail {
         </span>
       </div>
 
-      <div class="scroll-fade flex flex-col p-4 py-2 gap-6">
+      <div class="scroll-fade flex flex-col p-2 gap-12">
         @if (loading()) {
           <div
             class="flex flex-col items-center gap-4 py-10 px-5 text-ink-600 dark:text-bone-600 text-center"
@@ -123,17 +125,33 @@ interface AlbumDetail {
 
             <div class="flex-1 flex flex-col justify-start">
               <div class="flex flex-col text-ink dark:text-bone">
-                <div class="flex items-center gap-4 mb-3 max-md:justify-center">
+                <div
+                  class="flex items-center gap-4 mb-2 md:mb-8 max-md:justify-center"
+                >
                   <app-type-chip [type]="a.type" />
                 </div>
 
-                <h1
-                  class="m-0 text-[clamp(1.75rem,1.166rem+3.2389vw,3rem)] font-bold font-display mb-2"
-                >
-                  {{ a.name }}
-                </h1>
+                <div class="flex items-center justify-center gap-4">
+                  <h1
+                    class="m-0 text-[clamp(1.75rem,1.166rem+3.2389vw,3rem)] font-bold font-display md:flex-1"
+                  >
+                    {{ a.name }}
+                  </h1>
+                  <button
+                    appBtn
+                    variant="add"
+                    [added]="isAlbumInWishlist()"
+                    (click)="toggleWishlist()"
+                  >
+                    @if (isAlbumInWishlist()) {
+                      <app-icon name="check" class="w-5 h-5 " />
+                    } @else {
+                      <app-icon name="plus" class="w-5 h-5 " />
+                    }
+                  </button>
+                </div>
 
-                <div class="flex items-center gap-2 mb-4 max-md:justify-center">
+                <div class="flex items-center gap-2 max-md:justify-center">
                   @if (a.artistId) {
                     <a
                       class="text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] text-ink-700 dark:text-bone-700 hover:underline cursor-pointer"
@@ -154,34 +172,6 @@ interface AlbumDetail {
                   >
                     {{ a.releaseDate | date: 'd MMM yyyy' }}
                   </span>
-                </div>
-
-                <div class="flex gap-3 max-md:justify-center">
-                  <button
-                    class="flex items-center gap-2 px-6 py-2.5 rounded-full bg-accent text-bone font-semibold text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] transition-transform duration-fast hover:scale-[1.02] active:scale-[0.98]"
-                    (click)="playPreview()"
-                    [title]="t().playPreview"
-                  >
-                    <app-icon name="play" class="w-5 h-5" />
-                    {{ t().play }}
-                  </button>
-
-                  <button
-                    class="[&.added]:btn-pop-in w-10 h-10 rounded-full cursor-pointer flex items-center justify-center text-ink-600 dark:text-bone-600 shrink-0 border border-ink-400 dark:border-bone-400 transition-[color,transform] duration-fast ease-smooth hover:scale-[1.05] active:scale-[0.88]"
-                    [class.added]="isAlbumInWishlist()"
-                    (click)="toggleWishlist()"
-                    [title]="
-                      isAlbumInWishlist()
-                        ? t().removeFromWishlist
-                        : t().addToWishlist
-                    "
-                  >
-                    @if (isAlbumInWishlist()) {
-                      <app-icon name="check" class="w-5 h-5" />
-                    } @else {
-                      <app-icon name="plus" class="w-5 h-5" />
-                    }
-                  </button>
                 </div>
               </div>
             </div>
@@ -205,7 +195,9 @@ interface AlbumDetail {
                     [isAdded]="isInWishlist(track.id)"
                     [showAddButton]="true"
                     [showTypeChip]="false"
+                    [showTrackNumber]="true"
                     (onAddClick)="toggle($event)"
+                    (onPlayClick)="onTrackPlayClicked($event)"
                   />
                 }
               </div>
@@ -248,6 +240,7 @@ export class AlbumComponent implements OnInit {
       type: 'track' as TrackType,
       uri: '',
       previewUrl: t.previewUrl,
+      trackNumber: t.trackNumber,
     }));
   });
 
@@ -335,39 +328,33 @@ export class AlbumComponent implements OnInit {
 
   playPreview() {
     const currentAlbum = this.album();
-    if (currentAlbum) {
-      this.previewSvc.playAlbum(currentAlbum);
-    }
+    if (!currentAlbum) return;
+
+    const playlist = this.buildPlaylist(currentAlbum);
+    if (playlist.length === 0) return;
+
+    this.previewSvc.play(playlist[0]);
   }
 
-  onPlayTrack(track: AlbumTrack) {
+  onTrackPlayClicked(track: Track) {
     const currentAlbum = this.album();
-    if (!currentAlbum || !track.previewUrl) return;
+    if (!currentAlbum) return;
 
-    this.previewSvc.play({
-      id: track.id,
-      title: track.title,
-      artist: currentAlbum.artist,
-      cover: currentAlbum.coverUrl,
-      previewUrl: track.previewUrl,
-      parentId: currentAlbum.id,
-    });
+    const playlist = this.buildPlaylist(currentAlbum);
+    const idx = playlist.findIndex((p) => p.id === track.id);
+  }
 
-    const playlist = this.tracks()
+  private buildPlaylist(album: AlbumDetail): TrackMetadata[] {
+    return this.tracks()
       .filter((t) => t.previewUrl)
-      .map((t, idx) => ({
+      .map((t) => ({
         id: t.id,
         title: t.title,
-        artist: currentAlbum.artist,
-        cover: currentAlbum.coverUrl,
+        artist: album.artist,
+        cover: album.coverUrl,
         previewUrl: t.previewUrl!,
-        parentId: currentAlbum.id,
+        parentId: album.id,
       }));
-
-    const currentIndex = playlist.findIndex((p) => p.id === track.id);
-    if (currentIndex >= 0) {
-      this.previewSvc.setPlaylist(playlist, currentIndex);
-    }
   }
 
   formatDuration(seconds: number): string {

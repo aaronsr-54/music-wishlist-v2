@@ -5,6 +5,7 @@ import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { FavoriteArtistsService } from '../../core/firebase/favorite-artists.service';
 import { AuthService } from '../../core/auth/auth.service';
+import { PreviewService } from '../../core/services/preview.service';
 import { Track } from '../../shared/models/track.model';
 import { CoverComponent } from '../../shared/components/cover/cover.component';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
@@ -197,6 +198,7 @@ import { LanguageService } from '../../core/i18n/language.service';
                   [showAddButton]="true"
                   [showTypeChip]="false"
                   (onAddClick)="toggle($event)"
+                  (onPlayClick)="onTrackPlayClicked($event)"
                 />
               }
             </div>
@@ -213,6 +215,7 @@ export class ArtistComponent implements OnInit {
   private wishlistSvc = inject(WishlistService);
   private favoriteArtistsSvc = inject(FavoriteArtistsService);
   private authSvc = inject(AuthService);
+  private previewSvc = inject(PreviewService);
   private languageService = inject(LanguageService);
 
   t = computed(() => this.languageService.t());
@@ -286,6 +289,20 @@ export class ArtistComponent implements OnInit {
         user,
       );
     }
+  }
+
+  onTrackPlayClicked(track: Track) {
+    const playlist = this.tracks()
+      .filter((t) => t.previewUrl)
+      .map((t) => ({
+        id: t.id,
+        title: t.name,
+        artist: t.artists?.[0] ?? '',
+        cover: t.coverUrl,
+        previewUrl: t.previewUrl!,
+      }));
+
+    const idx = playlist.findIndex((p) => p.id === track.id);
   }
 
   goBack() {

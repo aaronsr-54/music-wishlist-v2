@@ -163,6 +163,13 @@ app-icon span {
   display: contents;
 }
 
+@media (max-width: 768px) {
+  .has-preview .scroll-fade,
+  .has-preview .releases-grid {
+    padding-bottom: 5rem !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -171,4 +178,3 @@ app-icon span {
     transition-duration: 0.01ms !important;
   }
 }
-

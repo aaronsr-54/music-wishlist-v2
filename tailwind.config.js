@@ -44,6 +44,7 @@ export default {
           900: '#070705',
         },
         accent: accentLight,
+        'accent-dark': accentDark,
       },
       fontFamily: {
         display: '"Satoshi", sans-serif',
