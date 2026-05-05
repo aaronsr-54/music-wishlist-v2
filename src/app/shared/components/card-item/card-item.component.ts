@@ -5,21 +5,19 @@ import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
 import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { PreviewService } from '../../../core/services/preview.service';
-import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
 import { IconComponent } from '../../icons/icon.component';
 import { LanguageService } from '../../../core/i18n/language.service';
 
 @Component({
   selector: 'app-card-item',
   standalone: true,
-  animations: [fadeInOut()],
   imports: [
     DatePipe,
     CoverComponent,
     TypeChipComponent,
-    PreviewSpinnerComponent,
     IconComponent,
   ],
+  animations: [fadeInOut()],
   styles: `
     @keyframes popIn {
       0% {
@@ -36,39 +34,34 @@ import { LanguageService } from '../../../core/i18n/language.service';
   `,
   template: `
     <div
-      class="flex flex-col p-2 rounded-lg bg-bone-200 dark:bg-ink-200 gap-1 w-full overflow-hidden"
+      class="relative flex flex-col p-2 rounded-lg bg-bone-200 dark:bg-ink-200 gap-1 w-full"
     >
-      <button
-        class="relative w-full border-none bg-transparent p-0 cursor-pointer shrink-0 rounded-md transition-opacity duration-fast ease-smooth disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:opacity-80"
-        (click)="onPlayPreview(releaseItem())"
-        [title]="
-          previewState().trackId === releaseItem().id &&
-          previewState().isPlaying
-            ? t().pause
-            : t().playPreview
-        "
-        [disabled]="!releaseItem().previewUrl"
-      >
-        <app-cover
-          class="!rounded-md overflow-hidden"
-          [coverUrl]="releaseItem().coverUrl"
-          [name]="releaseItem().name"
-          [rounded]="'rounded-md'"
-        />
-        @if (previewState().trackId === releaseItem().id) {
-          <div
-            class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-md backdrop-blur-[1.5px]"
-            @fadeInOut
-          >
-            <app-preview-spinner
-              [progress]="previewState().progress"
-              [isPlaying]="previewState().isPlaying"
-              [isLoading]="previewState().isLoading"
-              source="card"
-            />
-          </div>
-        }
-      </button>
+      <div class="relative">
+        <div
+          class="relative w-full shrink-0 rounded-md overflow-hidden transition-opacity duration-fast ease-smooth cursor-pointer"
+          [title]="releaseItem().name"
+          (click)="onCardClick()"
+        >
+          <app-cover
+            class="!rounded-md overflow-hidden cursor-pointer"
+            style="cursor: pointer !important"
+            [coverUrl]="releaseItem().coverUrl"
+            [name]="releaseItem().name"
+            [rounded]="'rounded-md'"
+          />
+          @if (isPlayingCurrentItem()) {
+            <div
+              class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-md backdrop-blur-[1.5px]"
+              @fadeInOut
+            >
+              <app-icon
+                [name]="previewState().isPlaying ? 'pause' : 'play'"
+                class="w-12 h-12 text-bone-100"
+              />
+            </div>
+          }
+        </div>
+      </div>
 
       <div class="flex flex-col gap-2 min-w-0">
         <div
@@ -88,7 +81,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
           <app-type-chip [type]="releaseItem().type" />
         </div>
 
-        <div class="flex flex-col gap-1">
+        <div class="flex flex-col gap-1 cursor-pointer" (click)="onCardClick()">
           <span
             class="font-display text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none truncate max-w-full"
           >
@@ -133,17 +126,44 @@ export class CardItemComponent {
   showTypeChip = input(true);
 
   toggleWishlist = output<ReleaseItem>();
+  onAlbumClick = output<string>();
 
   t = computed(() => this.languageService.t());
   releaseItem = computed(() => this.item() as ReleaseItem);
   previewState = computed(() => this.preview.state());
 
+  isPlayingCurrentItem = computed(() => {
+    const state = this.previewState();
+    return state.trackId === this.releaseItem().id || state.parentId === this.releaseItem().id;
+  });
+
   onToggleWishlist() {
     this.toggleWishlist.emit(this.item());
   }
 
-  onPlayPreview(item: ReleaseItem): void {
-    if (!item.previewUrl) return;
-    this.preview.play(item.id, item.previewUrl);
+  onCardClick() {
+    this.onAlbumClick.emit(this.releaseItem().id);
+  }
+
+  async onPlayPreview(item: ReleaseItem) {
+    if (item.previewUrl) {
+      this.preview.play({
+        id: item.id,
+        title: item.name,
+        artist: item.artist,
+        cover: item.coverUrl,
+        previewUrl: item.previewUrl,
+        parentId: item.id,
+      });
+    } else {
+      await this.preview.playAlbum({
+        id: item.id,
+        name: item.name,
+        artist: item.artist,
+        coverUrl: item.coverUrl,
+        type: item.type,
+        releaseDate: item.releaseDate,
+      });
+    }
   }
 }

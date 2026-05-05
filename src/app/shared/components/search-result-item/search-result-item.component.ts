@@ -1,5 +1,6 @@
 import { Component, computed, input, output, inject } from '@angular/core';
 import { DatePipe } from '@angular/common';
+import { Router } from '@angular/router';
 import { fadeInOut } from '../../animations/animations';
 import { Track } from '../../models/track.model';
 import { WishlistEntry } from '../../models/wishlist-entry.model';
@@ -9,11 +10,10 @@ import { TypeChipComponent } from '../type-chip/type-chip.component';
 import { AvatarComponent } from '../avatar/avatar.component';
 import { PreviewService } from '../../../core/services/preview.service';
 import { SearchService } from '../../../core/api/search.service';
-import { PreviewSpinnerComponent } from '../preview-spinner/preview-spinner.component';
+
 import { IconComponent } from '../../icons/icon.component';
 import { ButtonComponent } from '../button/button.component';
 import { formatFans } from '../../utils/format-fans';
-import { firstValueFrom } from 'rxjs';
 import { LanguageService } from '../../../core/i18n/language.service';
 
 @Component({
@@ -25,7 +25,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
     CoverComponent,
     TypeChipComponent,
     AvatarComponent,
-    PreviewSpinnerComponent,
+    
     IconComponent,
     ButtonComponent,
   ],
@@ -123,11 +123,6 @@ import { LanguageService } from '../../../core/i18n/language.service';
                   class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-sm backdrop-blur-[1.5px]"
                   @fadeInOut
                 >
-                  <app-preview-spinner
-                    [progress]="previewState().progress"
-                    [isPlaying]="previewState().isPlaying"
-                    [isLoading]="previewState().isLoading"
-                  />
                 </div>
               }
             </button>
@@ -172,6 +167,84 @@ import { LanguageService } from '../../../core/i18n/language.service';
             }
           </div>
         }
+        @case ('album') {
+          <div
+            class="flex items-center gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200 transition-[background] duration-fast ease-smooth rounded-md -mx-2 px-2 cursor-pointer"
+            (click)="onAlbumClick.emit(trackItem().id)"
+          >
+            <div class="shrink-0 rounded-md">
+              <app-cover [coverUrl]="trackItem().coverUrl" [name]="trackItem().name" [size]="56" />
+            </div>
+            <div class="flex-1 flex flex-col gap-[3px] min-w-0">
+              <span class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]">
+                {{ trackItem().name }}
+              </span>
+              <div class="flex items-baseline gap-2 leading-none text-ink-800 dark:text-bone-800">
+                <span class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis">
+                  {{ trackItem().artists[0] }}
+                </span>
+                · <app-type-chip [type]="trackItem().type" />
+              </div>
+            </div>
+            @if (showAddButton()) {
+              <button appBtn variant="add" [added]="isAdded()" (click)="onAddClick.emit(trackItem()); $event.stopPropagation()" [title]="isAdded() ? t().removeFromWishlist : t().addToWishlist">
+                <app-icon [name]="isAdded() ? 'check' : 'plus'" class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
+              </button>
+            }
+          </div>
+        }
+        @case ('ep') {
+          <div
+            class="flex items-center gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200 transition-[background] duration-fast ease-smooth rounded-md -mx-2 px-2 cursor-pointer"
+            (click)="onAlbumClick.emit(trackItem().id)"
+          >
+            <div class="shrink-0 rounded-md">
+              <app-cover [coverUrl]="trackItem().coverUrl" [name]="trackItem().name" [size]="56" />
+            </div>
+            <div class="flex-1 flex flex-col gap-[3px] min-w-0">
+              <span class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]">
+                {{ trackItem().name }}
+              </span>
+              <div class="flex items-baseline gap-2 leading-none text-ink-800 dark:text-bone-800">
+                <span class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis">
+                  {{ trackItem().artists[0] }}
+                </span>
+                · <app-type-chip [type]="trackItem().type" />
+              </div>
+            </div>
+            @if (showAddButton()) {
+              <button appBtn variant="add" [added]="isAdded()" (click)="onAddClick.emit(trackItem()); $event.stopPropagation()" [title]="isAdded() ? t().removeFromWishlist : t().addToWishlist">
+                <app-icon [name]="isAdded() ? 'check' : 'plus'" class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
+              </button>
+            }
+          </div>
+        }
+        @case ('single') {
+          <div
+            class="flex items-center gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200 transition-[background] duration-fast ease-smooth rounded-md -mx-2 px-2 cursor-pointer"
+            (click)="onAlbumClick.emit(trackItem().id)"
+          >
+            <div class="shrink-0 rounded-md">
+              <app-cover [coverUrl]="trackItem().coverUrl" [name]="trackItem().name" [size]="56" />
+            </div>
+            <div class="flex-1 flex flex-col gap-[3px] min-w-0">
+              <span class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]">
+                {{ trackItem().name }}
+              </span>
+              <div class="flex items-baseline gap-2 leading-none text-ink-800 dark:text-bone-800">
+                <span class="text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)] text-ink-600 dark:text-bone-600 whitespace-nowrap overflow-hidden text-ellipsis">
+                  {{ trackItem().artists[0] }}
+                </span>
+                · <app-type-chip [type]="trackItem().type" />
+              </div>
+            </div>
+            @if (showAddButton()) {
+              <button appBtn variant="add" [added]="isAdded()" (click)="onAddClick.emit(trackItem()); $event.stopPropagation()" [title]="isAdded() ? t().removeFromWishlist : t().addToWishlist">
+                <app-icon [name]="isAdded() ? 'check' : 'plus'" class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]" />
+              </button>
+            }
+          </div>
+        }
       }
     } @else {
       <div
@@ -198,24 +271,36 @@ import { LanguageService } from '../../../core/i18n/language.service';
                 class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-sm backdrop-blur-[1.5px]"
                 @fadeInOut
               >
-                <app-preview-spinner
-                  [progress]="previewState().progress"
-                  [isPlaying]="previewState().isPlaying"
-                  [isLoading]="previewState().isLoading"
-                />
               </div>
             }
           </button>
         } @else {
-          <app-cover
-            [coverUrl]="wishlistItem().coverUrl"
-            [name]="wishlistItem().name"
-            [size]="64"
-          />
+          @if (isAlbumType(wishlistItem().type)) {
+            <button
+              class="border-none bg-transparent p-0 cursor-pointer shrink-0 rounded-md transition-opacity duration-fast ease-smooth enabled:hover:opacity-80"
+              (click)="goToAlbum(wishlistItem().trackId)"
+              [title]="wishlistItem().name"
+            >
+              <app-cover
+                [coverUrl]="wishlistItem().coverUrl"
+                [name]="wishlistItem().name"
+                [size]="64"
+              />
+            </button>
+          } @else {
+            <app-cover
+              [coverUrl]="wishlistItem().coverUrl"
+              [name]="wishlistItem().name"
+              [size]="64"
+            />
+          }
         }
 
         <div class="flex-1 flex flex-col gap-2 min-w-0">
-          <div class="flex-1 flex flex-col">
+          <button
+            class="flex-1 flex flex-col text-left bg-transparent border-none p-0 cursor-pointer rounded-md transition-[background] duration-fast hover:bg-bone-100 dark:hover:bg-ink-100 -mx-2 px-2"
+            (click)="isAlbumType(wishlistItem().type) ? goToAlbum(wishlistItem().trackId) : null"
+          >
             <span
               class="font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] font-semibold text-ink dark:text-bone leading-none whitespace-nowrap overflow-hidden text-ellipsis h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)]"
             >
@@ -231,7 +316,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
               >·
               <app-type-chip [type]="wishlistItem().type" />
             </span>
-          </div>
+          </button>
           <span
             class="text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] text-ink-200 dark:text-bone-800 flex items-center gap-1 flex-wrap font-semibold"
           >
@@ -310,16 +395,18 @@ export class SearchResultItemComponent {
   private preview = inject(PreviewService);
   private search = inject(SearchService);
   private languageService = inject(LanguageService);
+  private router = inject(Router);
 
   item = input.required<Track | WishlistEntry | ReleaseItem>();
   source = input<'search' | 'wishlist' | 'releases'>('search');
-  type = input<'artist' | 'track'>('track');
+  type = input<'artist' | 'track' | 'album' | 'ep' | 'single'>('track');
   isAdded = input(false);
   showAddButton = input(true);
   showTypeChip = input(true);
   wishlistStatus = input<'pending' | 'downloaded'>('pending');
 
   onArtistClick = output<Track>();
+  onAlbumClick = output<string>();
   onAddClick = output<Track>();
   onMarkDownloaded = output<WishlistEntry>();
   onUnmarkDownloaded = output<WishlistEntry>();
@@ -335,19 +422,37 @@ export class SearchResultItemComponent {
 
   onPlayPreview(track: Track): void {
     if (!track.previewUrl) return;
-    this.preview.play(track.id, track.previewUrl);
+    this.preview.play({
+      id: track.id,
+      title: track.name,
+      artist: track.artists?.[0] ?? '',
+      cover: track.coverUrl,
+      previewUrl: track.previewUrl,
+    });
   }
 
   async onPlayPreviewWishlist(entry: WishlistEntry): Promise<void> {
-    const previewUrl = await firstValueFrom(
-      this.search.getTrackPreview(entry.trackId),
-    );
+    const previewUrl = await this.search.getTrackPreview(entry.trackId).toPromise();
     if (!previewUrl) return;
-    this.preview.play(entry.trackId, previewUrl);
+    this.preview.play({
+      id: entry.trackId,
+      title: entry.name,
+      artist: entry.artist,
+      cover: entry.coverUrl,
+      previewUrl,
+    });
   }
 
   isShared(): boolean {
     const entry = this.wishlistItem() as any;
     return entry?.isOwner === false;
+  }
+
+  isAlbumType(type: string): boolean {
+    return type === 'album' || type === 'ep' || type === 'single';
+  }
+
+  goToAlbum(albumId: string) {
+    this.router.navigate(['/album', albumId]);
   }
 }
