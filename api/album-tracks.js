@@ -6,7 +6,7 @@ export default async (req, res) => {
   }
 
   try {
-    const url = `https://api.deezer.com/album/${id}/tracks?limit=1`;
+    const url = `https://api.deezer.com/album/${id}/tracks`;
     const response = await fetch(url);
     const data = await response.json();
 

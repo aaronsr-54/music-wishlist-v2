@@ -1,5 +1,13 @@
 import { TrackType } from './track.model';
 
+export interface AlbumTrack {
+  id: string;
+  title: string;
+  duration: number;
+  previewUrl?: string;
+  trackNumber: number;
+}
+
 export interface ReleaseItem {
   id: string;
   name: string;
@@ -9,4 +17,5 @@ export interface ReleaseItem {
   releaseDate: string;
   previewUrl?: string;
   artistId?: string;
+  tracks?: AlbumTrack[];
 }
