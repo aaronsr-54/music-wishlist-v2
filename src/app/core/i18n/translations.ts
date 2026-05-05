@@ -68,9 +68,11 @@ export const translations = {
     remove: 'Quitar',
     profile: 'PERFIL',
     save: 'Guardar',
+    play: 'Reproducir',
     playPreview: 'Reproducir preview',
     pause: 'Pausar',
     noSongsAvailable: 'No hay canciones disponibles',
+    tracks: 'Pistas',
   },
   en: {
     defaultPage: 'Home page',
@@ -141,9 +143,11 @@ export const translations = {
     remove: 'Remove',
     profile: 'PROFILE',
     save: 'Save',
+    play: 'Play',
     playPreview: 'Play preview',
     pause: 'Pause',
     noSongsAvailable: 'No songs available',
+    tracks: 'Tracks',
   },
 } as const;
 
