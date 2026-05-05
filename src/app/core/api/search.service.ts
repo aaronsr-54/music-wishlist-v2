@@ -2,7 +2,7 @@ import { Injectable, signal } from '@angular/core';
 import { Observable, forkJoin, from, of } from 'rxjs';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { Track, TrackType } from '../../shared/models/track.model';
-import { ReleaseItem } from '../../shared/models/release-item.model';
+import { ReleaseItem, AlbumTrack } from '../../shared/models/release-item.model';
 
 interface SearchState {
   query: string;
@@ -217,6 +217,42 @@ export class SearchService {
         return previewUrl ? `/api/preview?url=${encodeURIComponent(previewUrl)}` : undefined;
       }),
       catchError(() => of(undefined)),
+    );
+  }
+
+  getAlbumTracks(albumId: string): Observable<AlbumTrack[]> {
+    return from(
+      fetch(`${this.apiUrl}/album-tracks?id=${albumId}`).then((r) => r.json()),
+    ).pipe(
+      map((res: any) => {
+        return (res.data ?? []).map((t: any, index: number) => ({
+          id: String(t.id),
+          title: t.title,
+          duration: t.duration ?? 0,
+          trackNumber: index + 1,
+          previewUrl: t.preview
+            ? `/api/preview?url=${encodeURIComponent(t.preview)}`
+            : undefined,
+        }));
+      }),
+      catchError(() => of([])),
+    );
+  }
+
+  getAlbum(albumId: string): Observable<any> {
+    return from(
+      fetch(`${this.apiUrl}/album?id=${albumId}`).then((r) => r.json()),
+    ).pipe(
+      map((res: any) => ({
+        id: String(res.id),
+        name: res.title,
+        artist: res.artist?.name ?? '',
+        artistId: res.artist?.id ? String(res.artist.id) : undefined,
+        coverUrl: res.cover_big ?? res.cover_medium ?? '',
+        type: (res.record_type === 'single' ? 'single' : 'album') as TrackType,
+        releaseDate: res.release_date ?? '',
+      })),
+      catchError(() => of(null)),
     );
   }
 }
