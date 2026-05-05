@@ -75,9 +75,10 @@ import { LanguageService } from '../../core/i18n/language.service';
           ← {{ t().back }}
         </button>
         <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em]"
+          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase"
         >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
+          <span
+            class="text-ink-700 dark:text-bone-700 font-normal italic lowercase"
             >02.a/</span
           >
           {{ t().artist }}
