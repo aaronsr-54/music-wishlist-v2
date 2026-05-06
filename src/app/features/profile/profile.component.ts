@@ -87,24 +87,6 @@ import { LanguageService } from '../../core/i18n/language.service';
       }
     </div>
   `,
-  styles: [
-    `
-      @keyframes fade-in {
-        from {
-          opacity: 0;
-          transform: translateY(4px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      :host ::ng-deep .animate-fade-in {
-        animation: fade-in 0.4s var(--ease-smooth) forwards;
-      }
-    `,
-  ],
 })
 export class ProfileComponent {
   auth = inject(AuthService);
