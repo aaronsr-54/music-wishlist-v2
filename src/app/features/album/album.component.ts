@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../../core/api/search.service';
@@ -103,9 +110,9 @@ interface AlbumDetail {
             class="flex gap-2 max-md:flex-col max-md:items-center md:gap-8 max-md:text-center mt-4"
           >
             <div
-              class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-[150px] max-md:h-[150px] shadow-lg"
+              class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-3/4 max-md:h-auto max-md:aspect-square shadow-ink/5 shadow-lg"
             >
-              <app-cover [name]="a.name" [coverUrl]="a.coverUrl" [size]="200" />
+              <app-cover [name]="a.name" [coverUrl]="a.coverUrl" />
             </div>
 
             <div class="flex-1 flex flex-col justify-start">
@@ -116,9 +123,9 @@ interface AlbumDetail {
                   <app-type-chip [type]="a.type" />
                 </div>
 
-                <div class="flex items-center justify-center gap-4">
+                <div class="flex items-center justify-center gap-4 md:gap-4">
                   <h1
-                    class="m-0 text-[clamp(1.75rem,1.166rem+3.2389vw,3rem)] font-bold font-display md:flex-1"
+                    class="m-0 text-2xl md:text-5xl font-bold font-display md:flex-1"
                   >
                     {{ a.name }}
                   </h1>
@@ -127,6 +134,7 @@ interface AlbumDetail {
                     variant="add"
                     [added]="isAlbumInWishlist()"
                     (click)="toggleWishlist()"
+                    class="hidden md:block"
                   >
                     @if (isAlbumInWishlist()) {
                       <app-icon name="check" class="w-5 h-5 " />
@@ -136,28 +144,44 @@ interface AlbumDetail {
                   </button>
                 </div>
 
-                <div class="flex items-center gap-2 max-md:justify-center">
+                <div
+                  class="flex items-center gap-2 max-md:justify-center mb-4 md:mb-0"
+                >
                   @if (a.artistId) {
                     <a
-                      class="text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] text-ink-700 dark:text-bone-700 hover:underline cursor-pointer"
+                      class="text-base md:text-xl text-accent-artist dark:text-bone-700 hover:underline cursor-pointer"
                       (click)="goToArtist(a.artistId)"
                     >
                       {{ a.artist }}
                     </a>
                   } @else {
                     <span
-                      class="text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)] text-ink-700 dark:text-bone-700"
+                      class="text-base md:text-xl text-ink-700 dark:text-bone-700"
                     >
                       {{ a.artist }}
                     </span>
                   }
                   <span class="text-ink-600 dark:text-bone-600">·</span>
                   <span
-                    class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-600 dark:text-bone-600"
+                    class="text-sm md:text-lg text-ink-600 dark:text-bone-600"
                   >
                     {{ a.releaseDate | date: 'd MMM yyyy' }}
                   </span>
                 </div>
+
+                <button
+                  appBtn
+                  variant="add"
+                  [added]="isAlbumInWishlist()"
+                  (click)="toggleWishlist()"
+                  class="md:hidden mx-auto"
+                >
+                  @if (isAlbumInWishlist()) {
+                    <app-icon name="check" class="w-5 h-5 " />
+                  } @else {
+                    <app-icon name="plus" class="w-5 h-5 " />
+                  }
+                </button>
               </div>
             </div>
           </div>
@@ -165,7 +189,7 @@ interface AlbumDetail {
           @if (tracks().length > 0) {
             <div class="flex flex-col gap-4">
               <h2
-                class="font-body text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
+                class="font-body text-xs md:text-base text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
               >
                 {{ t().tracks }} ({{ tracks().length }})
               </h2>
@@ -189,7 +213,7 @@ interface AlbumDetail {
             </div>
           } @else {
             <div
-              class="text-center py-10 px-5 text-ink-700 dark:text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)]"
+              class="text-center py-10 px-5 text-ink-700 dark:text-bone-700 text-sm md:text-lg"
             >
               {{ t().noSongsAvailable }}
             </div>
