@@ -204,13 +204,14 @@ export class ReleasesComponent implements OnInit {
 
   private releasesCache = new Map<string, ReleaseItem[]>();
   private currentCacheKey = '';
-
-  private noReleasesArtists = new Set<string>();
+  private readonly CACHE_KEY = 'releasesCache';
+  private readonly NO_RELEASES_KEY = 'noReleasesArtists';
 
   favorites = this.favoritesSvc.favorites;
 
   private touchStartX = 0;
   private readonly SWIPE_THRESHOLD = 50;
+  private noReleasesArtists = new Set<string>();
 
   monthNames = computed(() => [
     this.t().jan, this.t().feb, this.t().mar, this.t().apr, this.t().may, this.t().jun,
@@ -229,11 +230,8 @@ export class ReleasesComponent implements OnInit {
     return !(selectedYear === currentYear && selectedMonth === currentMonth);
   });
 
-  isInWishlist(itemId: string): boolean {
-    return this.wishlistSvc.entries().some((e) => e.trackId === itemId);
-  }
-
   constructor() {
+    this.loadCacheFromSession();
     effect(() => {
       const year = this.selectedYear();
       const month = this.selectedMonth();
@@ -243,6 +241,30 @@ export class ReleasesComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  private loadCacheFromSession() {
+    try {
+      const cached = sessionStorage.getItem(this.CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        this.releasesCache = new Map(Object.entries(parsed));
+      }
+
+      const noReleases = sessionStorage.getItem(this.NO_RELEASES_KEY);
+      if (noReleases) {
+        const arr: string[] = JSON.parse(noReleases);
+        this.noReleasesArtists = new Set(arr);
+      }
+    } catch {}
+  }
+
+  private saveCacheToSession() {
+    try {
+      const cacheObj = Object.fromEntries(this.releasesCache);
+      sessionStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheObj));
+      sessionStorage.setItem(this.NO_RELEASES_KEY, JSON.stringify([...this.noReleasesArtists]));
+    } catch {}
+  }
 
   prevMonth() {
     let month = this.selectedMonth() - 1;
@@ -280,6 +302,10 @@ export class ReleasesComponent implements OnInit {
     this.selectedYear.set(year);
   }
 
+  isInWishlist(itemId: string): boolean {
+    return this.wishlistSvc.entries().some((e) => e.trackId === itemId);
+  }
+
   private loadReleases(year: number, month: number, favorites: { artistId: string; name: string }[]) {
     const cacheKey = `${year}-${month}`;
 
@@ -297,6 +323,14 @@ export class ReleasesComponent implements OnInit {
 
     if (this.currentCacheKey && this.releasesCache.has(this.currentCacheKey)) {
       this.allReleases.set(this.releasesCache.get(this.currentCacheKey)!);
+    }
+
+    const noReleaseKey = `${year}-${month}`;
+
+    if (this.noReleasesArtists.has(noReleaseKey)) {
+      this.allReleases.set([]);
+      this.loading.set(false);
+      return;
     }
 
     this.loading.set(true);
@@ -350,11 +384,12 @@ export class ReleasesComponent implements OnInit {
       });
 
       if (filteredForMonth.length === 0) {
-        this.noReleasesArtists.add(`${year}-${month}`);
+        this.noReleasesArtists.add(noReleaseKey);
         this.allReleases.set([]);
         this.releasesCache.set(cacheKey, []);
         this.currentCacheKey = cacheKey;
         this.loading.set(false);
+        this.saveCacheToSession();
         return;
       }
 
@@ -372,6 +407,7 @@ export class ReleasesComponent implements OnInit {
         this.currentCacheKey = cacheKey;
         this.allReleases.set(sorted);
         this.loading.set(false);
+        this.saveCacheToSession();
         return;
       }
 
@@ -409,6 +445,7 @@ export class ReleasesComponent implements OnInit {
         this.currentCacheKey = cacheKey;
         this.allReleases.set(sorted);
         this.loading.set(false);
+        this.saveCacheToSession();
       });
     });
   }
