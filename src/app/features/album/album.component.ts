@@ -15,6 +15,7 @@ import { SearchResultItemComponent } from '../../shared/components/search-result
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { IconComponent } from '../../shared/icons/icon.component';
 import { LanguageService } from '../../core/i18n/language.service';
+import { formatDuration } from '../../shared/utils/format-duration';
 import { Track, TrackType } from '../../shared/models/track.model';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
@@ -341,11 +342,7 @@ export class AlbumComponent implements OnInit {
       }));
   }
 
-  formatDuration(seconds: number): string {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  }
+  formatDuration = formatDuration;
 
   goBack() {
     this.router.navigate(['']);
