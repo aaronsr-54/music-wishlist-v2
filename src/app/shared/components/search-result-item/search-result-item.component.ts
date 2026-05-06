@@ -1,5 +1,12 @@
-import { Component, computed, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
-import { DatePipe, NgClass } from '@angular/common';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+  ChangeDetectionStrategy,
+} from '@angular/core';
+import { NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { fadeInOut } from '../../animations/animations';
@@ -19,6 +26,7 @@ import { SearchService } from '../../../core/api/search.service';
 import { LanguageService } from '../../../core/i18n/language.service';
 
 import { formatFans } from '../../utils/format-fans';
+import { formatRelativeDate } from '../../utils/format-relative-date';
 
 type SearchItemType = 'artist' | 'track' | 'album' | 'ep' | 'single';
 type WishlistEntryExtended = WishlistEntry & {
@@ -31,7 +39,6 @@ type WishlistEntryExtended = WishlistEntry & {
   changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [fadeInOut()],
   imports: [
-    DatePipe,
     NgClass,
     CoverComponent,
     TypeChipComponent,
@@ -42,58 +49,77 @@ type WishlistEntryExtended = WishlistEntry & {
   template: `
     @if (isArtist()) {
       <div
-        class="flex items-center gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200"
+        class="group flex items-center gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200 rounded-md -mx-2 px-2 cursor-pointer transition-colors"
+        (click)="onArtistClick.emit(trackItem())"
       >
-        <button
-          class="bg-transparent border-none cursor-pointer text-left flex-1 flex items-center gap-3 rounded-md hover:bg-bone-100 dark:hover:bg-ink-100 p-0 transition-colors"
-          (click)="onArtistClick.emit(trackItem())"
-        >
-          <app-cover [coverUrl]="coverUrl()" [name]="title()" [size]="56" />
+        <div class="shrink-0 rounded-md overflow-hidden">
+          <app-cover
+            [coverUrl]="coverUrl()"
+            [name]="title()"
+            [size]="coverSize()"
+          />
+        </div>
 
-          <div class="flex-1 flex flex-col gap-[3px] min-w-0">
-            <span class="search-result-title">
+        <div class="flex-1 flex flex-col gap-2 min-w-0">
+          <div class="flex flex-col">
+            <span
+              class="title truncate transition-colors duration-fast text-md md:text-lg font-semibold text-ink dark:text-bone"
+              [ngClass]="accentClasses()"
+            >
               {{ title() }}
             </span>
 
-            <div
-              class="flex items-baseline gap-2 leading-none text-ink-800 dark:text-bone-800"
-            >
-              @if (trackItem().fanCount) {
-                <span class="search-result-meta">
-                  <b>{{ formatFans(trackItem().fanCount ?? 0) }}</b>
+            <div class="flex items-center gap-2 justify-between">
+              <span
+                class="text-ink-100 dark:text-bone-700 text-sm md:text-md transition-colors duration-fast leading-none"
+                [ngClass]="accentClasses()"
+              >
+                @if (trackItem().fanCount) {
+                  <span class="font-semibold">{{
+                    formatFans(trackItem().fanCount ?? 0)
+                  }}</span>
                   fan{{ trackItem().fanCount !== 1 ? 's' : '' }}
-                </span>
+                }
+                @if (trackItem().fanCount && trackItem().albumCount) {
+                  ·
+                }
+                @if (trackItem().albumCount) {
+                  <i
+                    >{{ trackItem().albumCount }}
+                    <span class="italic">
+                      álbum{{ trackItem().albumCount !== 1 ? 's' : '' }}
+                    </span></i
+                  >
+                }
+              </span>
 
-                <span>·</span>
-              }
-
-              @if (trackItem().albumCount) {
-                <span class="meta italic">
-                  {{ trackItem().albumCount }}
-                  álbum{{ trackItem().albumCount !== 1 ? 's' : '' }}
-                </span>
+              @if (showTypeChip()) {
+                <app-type-chip type="artist" />
               }
             </div>
           </div>
-        </button>
+        </div>
 
-        @if (showAddButton()) {
-          <button
-            appBtn
-            variant="add"
-            [added]="isAdded()"
-            (click)="onAdd(trackItem(), $event)"
-          >
-            <app-icon
-              [name]="isAdded() ? 'heart-filled' : 'heart'"
-              class="search-result-action-icon"
-            />
-          </button>
-        }
+        <div class="flex gap-1 shrink-0">
+          @if (showAddButton()) {
+            <button
+              appBtn
+              variant="add"
+              [added]="isAdded()"
+              (click)="onAdd(trackItem(), $event)"
+            >
+              <app-icon
+                [name]="isAdded() ? 'heart-filled' : 'heart'"
+                class="w-5 md:w-6 h-5 md:h-6"
+              />
+            </button>
+          }
+        </div>
       </div>
     } @else {
       <div
-        class="group flex items-center gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200 rounded-md -mx-2 px-2 cursor-pointer transition-colors"
+        class="group flex gap-3 py-2.5 border-b border-bone-200 dark:border-ink-200 rounded-md -mx-2 px-2 cursor-pointer transition-colors"
+        [ngClass]="showTrackNumber() ? 'items-start' : 'items-center'"
         (click)="handleItemClick()"
       >
         <!-- COVER / TRACK NUMBER -->
@@ -102,21 +128,18 @@ type WishlistEntryExtended = WishlistEntry & {
           showTrackNumber() && trackItem().trackNumber != null && !isWishlist()
         ) {
           <div
-            class="shrink-0 w-7 h-9 md:h-14 flex justify-end text-ink dark:text-bone"
+            class="shrink-0 w-7 flex justify-end h-full text-ink dark:text-bone"
             [class.opacity-40]="!hasPreview()"
           >
             <span
-              class="font-display text-[clamp(1rem,0.9rem+0.5vw,1.375rem)] font-semibold tabular-nums"
+              class="font-display text-base md:text-lg font-semibold tabular-nums"
               [ngClass]="accentClasses()"
             >
               {{ trackItem().trackNumber }}.
             </span>
           </div>
         } @else {
-          <div
-            class="shrink-0 rounded-md overflow-hidden"
-            [class.opacity-60]="!hasPreview()"
-          >
+          <div class="shrink-0 rounded-md overflow-hidden">
             <app-cover
               [coverUrl]="coverUrl()"
               [name]="title()"
@@ -127,27 +150,24 @@ type WishlistEntryExtended = WishlistEntry & {
 
         <!-- CONTENT -->
 
-        <div class="flex-1 flex flex-col gap-2 min-w-0">
+        <div class="flex-1 flex flex-col justify-between min-w-0 gap-2">
           <div class="flex flex-col ">
             <span
-              class="title transition-colors duration-fast"
+              class="title truncate transition-colors duration-fast text-md md:text-lg font-semibold text-ink dark:text-bone"
               [ngClass]="accentClasses()"
             >
               {{ title() }}
             </span>
 
-            <div
-              class="flex items-center gap-2 leading-none text-ink-800 dark:text-bone-800"
-            >
+            <div class="flex items-center gap-2 justify-between min-w-0">
               <span
-                class="search-result-meta whitespace-nowrap overflow-hidden text-ellipsis transition-colors duration-fast"
+                class="text-ink-100 dark:text-bone-700 text-sm md:text-md overflow-hidden text-ellipsis transition-colors duration-fast leading-none"
                 [ngClass]="accentClasses()"
               >
                 {{ subtitle() }}
               </span>
 
               @if (showTypeChip()) {
-                ·
                 <app-type-chip [type]="itemType()" />
               }
             </div>
@@ -155,26 +175,26 @@ type WishlistEntryExtended = WishlistEntry & {
 
           @if (isWishlist()) {
             <span
-              class="text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] text-ink-200 dark:text-bone-800 flex items-center gap-1 flex-wrap font-semibold"
+              class="text-[0.6875rem] md:text-sm text-ink-200 dark:text-bone-800 flex items-center gap-1 flex-wrap font-semibold leading-none"
             >
-              <app-avatar [name]="wishlistItem().addedBy" [size]="14" />
-
-              {{ isShared() ? wishlistItem().addedBy : 'Yo' }}
-
               @if (isShared()) {
-                ·
-
-                <span
-                  class="text-[clamp(0.6rem,0.5rem+0.3vw,0.75rem)] px-1.5 py-0.5 bg-bone-200 dark:bg-ink-200 rounded font-normal italic lowercase"
-                >
-                  {{ t().shared }}
+                <span class="flex p-1 bg-bone-200 dark:bg-ink-200 rounded">
+                  <app-icon
+                    name="share"
+                    class="w-2 h-2 text-ink dark:text-bone"
+                  />
                 </span>
               }
+              <app-avatar
+                [name]="wishlistItem().addedBy"
+                class=" contents"
+                [size]="14"
+              />
 
+              {{ isShared() ? wishlistItem().addedBy : 'Yo' }}
               ·
-
-              <span class="font-display font-normal italic">
-                {{ wishlistItem().addedAt | date: 'd MMM' }}
+              <span class="font-display font-normal italic ">
+                {{ addedAtFormatted() }}
               </span>
             </span>
           }
@@ -186,7 +206,10 @@ type WishlistEntryExtended = WishlistEntry & {
           @if (isWishlist()) {
             @if (wishlistStatus() === 'pending') {
               <button appBtn variant="action" (click)="markDownloaded($event)">
-                <app-icon name="check" class="search-result-wishlist-action-icon" />
+                <app-icon
+                  name="check"
+                  class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
+                />
               </button>
 
               <button
@@ -195,7 +218,10 @@ type WishlistEntryExtended = WishlistEntry & {
                 [danger]="true"
                 (click)="removeWishlistItem($event)"
               >
-                <app-icon name="close" class="search-result-wishlist-action-icon" />
+                <app-icon
+                  name="close"
+                  class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
+                />
               </button>
             } @else {
               <button
@@ -203,7 +229,10 @@ type WishlistEntryExtended = WishlistEntry & {
                 variant="action"
                 (click)="unmarkDownloaded($event)"
               >
-                <app-icon name="chevron-left" class="search-result-wishlist-action-icon" />
+                <app-icon
+                  name="chevron-left"
+                  class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
+                />
               </button>
 
               <button
@@ -212,7 +241,10 @@ type WishlistEntryExtended = WishlistEntry & {
                 [danger]="true"
                 (click)="removeWishlistItem($event)"
               >
-                <app-icon name="trash" class="search-result-wishlist-action-icon" />
+                <app-icon
+                  name="trash"
+                  class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
+                />
               </button>
             }
           } @else if (showAddButton()) {
@@ -222,7 +254,10 @@ type WishlistEntryExtended = WishlistEntry & {
               [added]="isAdded()"
               (click)="onAdd(trackItem(), $event)"
             >
-              <app-icon [name]="addButtonIcon()" class="search-result-action-icon" />
+              <app-icon
+                [name]="addButtonIcon()"
+                class="w-5 md:w-6 h-5 md:h-6"
+              />
             </button>
           }
         </div>
@@ -270,6 +305,11 @@ export class SearchResultItemComponent {
 
   formatFans = formatFans;
 
+  addedAtFormatted = computed(() => {
+    if (!this.isWishlist()) return '';
+    return formatRelativeDate(this.wishlistItem().addedAt);
+  });
+
   readonly isWishlist = computed(() => this.source() === 'wishlist');
 
   readonly isArtist = computed(() => this.type() === 'artist');
@@ -278,7 +318,7 @@ export class SearchResultItemComponent {
     const itemType = this.isWishlist() ? this.wishlistItem().type : this.type();
 
     const map: Record<string, string> = {
-      artist: 'track',
+      artist: 'artist',
       track: 'track',
       album: 'album',
       ep: 'ep',
@@ -317,7 +357,7 @@ export class SearchResultItemComponent {
   });
 
   coverSize = computed(() => {
-    return this.isWishlist() ? 64 : 56;
+    return this.isWishlist() ? 60 : 50;
   });
 
   addButtonIcon = computed(() => {
