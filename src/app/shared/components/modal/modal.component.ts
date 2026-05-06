@@ -20,10 +20,8 @@ import { TemplatePortal } from '@angular/cdk/portal';
   template: `
     <ng-template #modalTemplate>
       <div class="fixed inset-0 z-[9999] flex items-end justify-center">
-        <!-- BACKDROP -->
         <div class="absolute inset-0 bg-black/40" (click)="close()"></div>
 
-        <!-- CONTENT -->
         <div
           class="relative w-full max-w-md rounded-t-3xl bg-light dark:bg-dark p-6 animate-[slideUp_250ms_ease-out] pb-12 shadow-[0px_-4px_10px_5px_rgb(0_0_0/10%)] dark:shadow-[0px_-4px_10px_5px_rgb(0_0_0/25%)]"
         >
@@ -53,9 +51,6 @@ export class ModalComponent {
   private overlayRef?: OverlayRef;
   private isOpen = false;
 
-  // -----------------------
-  // OPEN (NUEVO)
-  // -----------------------
   open() {
     if (this.isOpen) return;
 
@@ -70,9 +65,6 @@ export class ModalComponent {
     this.isOpen = true;
   }
 
-  // -----------------------
-  // CLOSE
-  // -----------------------
   close() {
     this.overlayRef?.dispose();
     this.overlayRef = undefined;

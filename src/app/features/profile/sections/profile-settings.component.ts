@@ -32,7 +32,6 @@ type Language = 'es' | 'en';
       <section
         class="border border-solid border-bone-800 dark:border-ink-200 rounded-lg p-4 flex flex-col gap-8"
       >
-        <!-- TAB -->
         <div class="flex flex-col md:flex-row gap-2 md:items-center">
           <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
             {{ t().defaultPage }}:
@@ -54,7 +53,6 @@ type Language = 'es' | 'en';
           />
         </div>
 
-        <!-- THEME -->
         <div class="flex flex-col md:flex-row gap-2 md:items-center">
           <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
             {{ t().theme }}:
@@ -76,7 +74,6 @@ type Language = 'es' | 'en';
           />
         </div>
 
-        <!-- LANGUAGE -->
         <div class="flex flex-col md:flex-row gap-2 md:items-center">
           <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
             {{ t().language }}:
@@ -99,7 +96,6 @@ type Language = 'es' | 'en';
         </div>
       </section>
 
-      <!-- MODAL TAB -->
       <app-modal #tabModal [title]="t().defaultPage" (onClose)="closeTabModal()">
         <app-segmented-tabs
           variant="list"
@@ -109,7 +105,6 @@ type Language = 'es' | 'en';
         />
       </app-modal>
 
-      <!-- MODAL THEME -->
       <app-modal #themeModal [title]="t().theme" (onClose)="closeThemeModal()">
         <app-segmented-tabs
           variant="list"
@@ -119,7 +114,6 @@ type Language = 'es' | 'en';
         />
       </app-modal>
 
-      <!-- MODAL LANGUAGE -->
       <app-modal #langModal [title]="t().language" (onClose)="closeLangModal()">
         <app-segmented-tabs
           variant="list"
@@ -188,10 +182,6 @@ export class ProfileSettingsComponent {
     this.currentLanguage.set(this.languageService.getLanguage());
   }
 
-  // -------------------
-  // MODAL CONTROL
-  // -------------------
-
   openTabModal() {
     this.tabModal.open();
   }
@@ -215,10 +205,6 @@ export class ProfileSettingsComponent {
   closeLangModal() {
     this.langModal.close();
   }
-
-  // -------------------
-  // STATE
-  // -------------------
 
   setDefaultTab(tab: TabType) {
     this.defaultTab.set(tab);

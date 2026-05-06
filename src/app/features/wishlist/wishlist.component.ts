@@ -65,16 +65,13 @@ type WishlistTab = 'pending' | 'downloaded';
       (touchstart)="onTouchStart($event)"
       (touchend)="onTouchEnd($event)"
     >
-      <app-page-header prefix="03/" title="WISHLIST" [showBack]="false" />
-
-      <div class="flex items-center justify-between gap-2 md:justify-end">
-
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 tracking-[0.06em] italic"
-        >
-          {{ wishlistSvc.total() }} {{ t().elements }}
-        </span>
-      </div>
+      <app-page-header
+        prefix="03/"
+        title="WISHLIST"
+        [showBack]="false"
+        [mobileOnly]="true"
+        [badge]="wishlistSvc.total() + ' ' + t().elements"
+      />
 
       <div class="[animation:slideDown_300ms_ease_both]">
         <app-segmented-tabs
@@ -166,7 +163,6 @@ export class WishlistComponent {
     const deltaX = touch.screenX - this.touchStartX;
     const deltaY = touch.screenY - this.touchStartY;
 
-    // Ignorar scroll vertical
     if (Math.abs(deltaY) > Math.abs(deltaX)) {
       return;
     }
