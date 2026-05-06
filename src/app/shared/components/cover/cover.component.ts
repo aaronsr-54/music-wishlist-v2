@@ -31,6 +31,7 @@ function hashVariant(name: string): number {
       <img
         [src]="coverUrl"
         [alt]="name"
+        loading="lazy"
         class="max-w-full aspect-square object-cover block"
         [ngClass]="rounded"
         [style.width]="imgWidth()"
