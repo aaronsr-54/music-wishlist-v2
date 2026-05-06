@@ -3,6 +3,21 @@ import { Observable, forkJoin, from, of } from 'rxjs';
 import { map, switchMap, catchError } from 'rxjs/operators';
 import { Track, TrackType } from '../../shared/models/track.model';
 import { ReleaseItem, AlbumTrack } from '../../shared/models/release-item.model';
+import { AlbumInfo } from '../services/preview.service';
+import {
+  DeezerTrack,
+  DeezerAlbum,
+  DeezerArtist,
+  DeezerTrackResponse,
+  DeezerAlbumResponse,
+  DeezerArtistResponse,
+  DArtistResponse,
+  DArtistTracksResponse,
+  DReleasesResponse,
+  DAlbumTracksResponse,
+  DTrackPreviewResponse,
+  DAlbumInfoResponse,
+} from '../../shared/models/deezer';
 
 interface SearchState {
   query: string;
@@ -33,28 +48,32 @@ export class SearchService {
 
     return forkJoin([songs$, albums$, artists$]).pipe(
       map(([songsRes, albumsRes, artistsRes]) => {
-        const tracks: Track[] = (songsRes.data ?? []).map((t: any) => ({
+        const songsResponse = songsRes as DeezerTrackResponse;
+        const albumsResponse = albumsRes as DeezerAlbumResponse;
+        const artistsResponse = artistsRes as DeezerArtistResponse;
+
+        const tracks: Track[] = (songsResponse.data ?? []).map((t: DeezerTrack) => ({
           id: String(t.id),
           name: t.title,
           artists: [t.artist?.name ?? ''],
           coverUrl: t.album?.cover_big ?? t.album?.cover_medium ?? '',
           type: 'track' as TrackType,
           uri: t.link ?? '',
-          artistId: t.artist?.id,
+          artistId: t.artist?.id ? String(t.artist.id) : undefined,
           previewUrl: t.preview ? `/api/preview?url=${encodeURIComponent(t.preview)}` : undefined,
         }));
 
-        const albums: Track[] = (albumsRes.data ?? []).map((a: any) => ({
+        const albums: Track[] = (albumsResponse.data ?? []).map((a: DeezerAlbum) => ({
           id: String(a.id),
           name: a.title,
           artists: [a.artist?.name ?? ''],
           coverUrl: a.cover_big ?? a.cover_medium ?? '',
           type: (a.record_type === 'single' ? 'ep' : 'album') as TrackType,
           uri: a.link ?? '',
-          artistId: a.artist?.id,
+          artistId: a.artist?.id ? String(a.artist.id) : undefined,
         }));
 
-        const artists: Track[] = (artistsRes.data ?? []).map((art: any) => ({
+        const artists: Track[] = (artistsResponse.data ?? []).map((art: DeezerArtist) => ({
           id: String(art.id),
           name: art.name,
           artists: [art.name],
@@ -92,22 +111,22 @@ export class SearchService {
     return from(
       fetch(`${this.apiUrl}/artist?id=${artistId}`).then((r) => r.json()),
     ).pipe(
-      map((res: any) => {
-        return (res.data ?? []).map((t: any) => ({
+      map((res: DArtistTracksResponse) => {
+        return (res.data ?? []).map((t: DeezerTrack) => ({
           id: String(t.id),
           name: t.title,
           artists: [t.artist?.name ?? ''],
           coverUrl: t.album?.cover_big ?? t.album?.cover_medium ?? '',
           type: 'track' as TrackType,
           uri: t.link ?? '',
-          artistId: t.artist?.id,
+          artistId: t.artist?.id ? String(t.artist.id) : undefined,
           previewUrl: t.preview ? `/api/preview?url=${encodeURIComponent(t.preview)}` : undefined,
         }));
       }),
     );
   }
 
-  getArtist(artistId: string): Observable<any> {
+  getArtist(artistId: string): Observable<DArtistResponse> {
     return from(
       fetch(`${this.apiUrl}/artist-info?id=${artistId}`).then((r) => r.json()),
     );
@@ -122,8 +141,8 @@ export class SearchService {
         r.json(),
       ),
     ).pipe(
-      map((res: any): ReleaseItem[] =>
-        (res.data ?? []).map((a: any) => ({
+      map((res: DReleasesResponse): ReleaseItem[] =>
+        (res.data ?? []).map((a: DeezerAlbum) => ({
           id: String(a.id),
           name: a.title,
           artist: artistName ?? '',
@@ -144,7 +163,7 @@ export class SearchService {
               r.json(),
             ),
           ).pipe(
-            map((tracksRes: any) => ({
+            map((tracksRes: DAlbumTracksResponse) => ({
               id: s.id,
               previewUrl: tracksRes.data?.[0]?.preview
                 ? `/api/preview?url=${encodeURIComponent(tracksRes.data[0].preview)}`
@@ -212,7 +231,7 @@ export class SearchService {
     return from(
       fetch(`${this.apiUrl}/track?id=${trackId}`).then((r) => r.json()),
     ).pipe(
-      map((res: any) => {
+      map((res: DTrackPreviewResponse) => {
         const previewUrl = res.preview;
         return previewUrl ? `/api/preview?url=${encodeURIComponent(previewUrl)}` : undefined;
       }),
@@ -224,8 +243,8 @@ export class SearchService {
     return from(
       fetch(`${this.apiUrl}/album-tracks?id=${albumId}`).then((r) => r.json()),
     ).pipe(
-      map((res: any) => {
-        return (res.data ?? []).map((t: any, index: number) => ({
+      map((res: DAlbumTracksResponse) => {
+        return (res.data ?? []).map((t: DeezerTrack, index: number) => ({
           id: String(t.id),
           title: t.title,
           duration: t.duration ?? 0,
@@ -239,11 +258,19 @@ export class SearchService {
     );
   }
 
-  getAlbum(albumId: string): Observable<any> {
+  getAlbum(albumId: string): Observable<{
+    id: string;
+    name: string;
+    artist: string;
+    artistId?: string;
+    coverUrl: string;
+    type: TrackType;
+    releaseDate: string;
+  } | null> {
     return from(
       fetch(`${this.apiUrl}/album?id=${albumId}`).then((r) => r.json()),
     ).pipe(
-      map((res: any) => ({
+      map((res: DAlbumInfoResponse) => ({
         id: String(res.id),
         name: res.title,
         artist: res.artist?.name ?? '',
