@@ -4,7 +4,6 @@ import {
   computed,
   effect,
   inject,
-  runInInjectionContext,
   signal,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -34,26 +33,24 @@ export class AuthService {
 
   readonly authState$ = authState(this.auth);
 
-  constructor() {
-    effect(() => {
-      const firebaseUser = this.firebaseUser();
-      if (firebaseUser) {
-        this.wishlistService.initListener(
-          firebaseUser.uid,
-          firebaseUser.email || '',
-        );
-        this.favoriteArtistsService.initListener(firebaseUser.uid);
-        this.wishlistShareService.initListeners(
-          firebaseUser.uid,
-          firebaseUser.email || '',
-        );
-      } else if (!this.demoMode()) {
-        this.wishlistService.stopListener();
-        this.favoriteArtistsService.stopListener();
-        this.wishlistShareService.stopListeners();
-      }
-    });
-  }
+  private authEffect = effect(() => {
+    const firebaseUser = this.firebaseUser();
+    if (firebaseUser) {
+      this.wishlistService.initListener(
+        firebaseUser.uid,
+        firebaseUser.email || '',
+      );
+      this.favoriteArtistsService.initListener(firebaseUser.uid);
+      this.wishlistShareService.initListeners(
+        firebaseUser.uid,
+        firebaseUser.email || '',
+      );
+    } else if (!this.demoMode()) {
+      this.wishlistService.stopListener();
+      this.favoriteArtistsService.stopListener();
+      this.wishlistShareService.stopListeners();
+    }
+  });
 
   currentUser = computed(() => {
     const firebaseUser = this.firebaseUser();
