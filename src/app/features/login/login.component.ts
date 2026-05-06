@@ -149,7 +149,7 @@ export class LoginComponent {
     this.error.set('');
     try {
       await this.auth.loginWithGoogle();
-    } catch (e: any) {
+    } catch (e: unknown) {
       this.error.set('Error al iniciar sesión. Inténtalo de nuevo.');
     } finally {
       this.loading.set(false);

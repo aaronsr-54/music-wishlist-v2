@@ -35,7 +35,7 @@ export interface PreviewState {
 @Injectable({ providedIn: 'root' })
 export class PreviewService {
   private audio: HTMLAudioElement | null = null;
-  private progressInterval: any = null;
+  private progressInterval: ReturnType<typeof setInterval> | null = null;
   private startTime: number = 0;
   private playlist: TrackMetadata[] = [];
   private playlistIndex: number = -1;

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, Type } from '@angular/core';
 import { Overlay } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 
@@ -6,7 +6,7 @@ import { ComponentPortal } from '@angular/cdk/portal';
 export class ModalService {
   private overlay = inject(Overlay);
 
-  open(component: any) {
+  open<T>(component: Type<T>) {
     const overlayRef = this.overlay.create({
       hasBackdrop: true,
       backdropClass: 'bg-black/40',
