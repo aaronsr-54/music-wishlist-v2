@@ -16,9 +16,9 @@ import { CommonModule } from '@angular/common';
         class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
       >
         <span class="text-ink-700 dark:text-bone-700 font-normal italic"
-          >{{ prefix }}</span
+          >{{ prefix() }}</span
         >
-        {{ title }}
+        {{ title() }}
       </span>
     </div>
   `,

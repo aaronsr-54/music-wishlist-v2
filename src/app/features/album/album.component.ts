@@ -40,7 +40,6 @@ interface AlbumDetail {
     CoverComponent,
     TypeChipComponent,
     SearchResultItemComponent,
-    SpinnerComponent,
     IconComponent,
     ButtonComponent,
     PageHeaderComponent,

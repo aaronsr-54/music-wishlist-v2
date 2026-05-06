@@ -48,7 +48,6 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
     SearchResultItemComponent,
     SpinnerComponent,
     ArtistCardComponent,
-    EmptyStateComponent,
     TypeFilterComponent,
     SearchInputComponent,
     SearchHeaderComponent,
