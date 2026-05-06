@@ -20,6 +20,7 @@ import { CardItemComponent } from '../../shared/components/card-item/card-item.c
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LanguageService } from '../../core/i18n/language.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-releases',
@@ -30,6 +31,7 @@ import { LanguageService } from '../../core/i18n/language.service';
     CardItemComponent,
     SpinnerComponent,
     EmptyStateComponent,
+    PageHeaderComponent,
   ],
   styles: `
     @keyframes scaleIn {
@@ -91,16 +93,7 @@ import { LanguageService } from '../../core/i18n/language.service';
     <div
       class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4 w-full [animation:fadeIn_300ms_ease_both]"
     >
-      <div class="flex items-center justify-between gap-2">
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] md:hidden"
-        >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
-            >01/</span
-          >
-          LANZAMIENTOS
-        </span>
-      </div>
+      <app-page-header prefix="01/" title="LANZAMIENTOS" [showBack]="false" />
 
       <div
         class="flex flex-col h-full pb-8"

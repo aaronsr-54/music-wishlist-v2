@@ -8,6 +8,7 @@ import {
   SegmentedTabOption,
 } from '../../shared/components/segmented-tabs/segmented-tabs.component';
 import { LanguageService } from '../../core/i18n/language.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 type WishlistTab = 'pending' | 'downloaded';
 
@@ -18,6 +19,7 @@ type WishlistTab = 'pending' | 'downloaded';
     SearchResultItemComponent,
     EmptyStateComponent,
     SegmentedTabsComponent,
+    PageHeaderComponent,
   ],
   styles: `
     @keyframes scaleIn {
@@ -62,15 +64,9 @@ type WishlistTab = 'pending' | 'downloaded';
       (touchstart)="onTouchStart($event)"
       (touchend)="onTouchEnd($event)"
     >
+      <app-page-header prefix="03/" title="WISHLIST" [showBack]="false" />
+
       <div class="flex items-center justify-between gap-2 md:justify-end">
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
-        >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic">
-            03/
-          </span>
-          WISHLIST
-        </span>
 
         <span
           class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 tracking-[0.06em] italic"

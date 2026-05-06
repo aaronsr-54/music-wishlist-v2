@@ -17,6 +17,8 @@ import { IconComponent } from '../../shared/icons/icon.component';
 import { LanguageService } from '../../core/i18n/language.service';
 import { Track, TrackType } from '../../shared/models/track.model';
 import { ButtonComponent } from '../../shared/components/button/button.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
 
 interface AlbumDetail {
   id: string;
@@ -39,6 +41,8 @@ interface AlbumDetail {
     SpinnerComponent,
     IconComponent,
     ButtonComponent,
+    PageHeaderComponent,
+    LoadingSpinnerComponent,
   ],
   styles: `
     @keyframes popIn {
@@ -83,36 +87,16 @@ interface AlbumDetail {
   `,
   template: `
     <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
-      <div class="flex items-center justify-between gap-2">
-        <button
-          class="bg-transparent text-ink-700 dark:text-bone-700 text-md cursor-pointer transition-colors duration-fast hover:text-ink dark:hover:text-bone lowercase"
-          (click)="goBack()"
-          [aria-label]="t().back"
-        >
-          ← {{ t().back }}
-        </button>
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase"
-        >
-          <span
-            class="text-ink-700 dark:text-bone-700 font-normal italic lowercase"
-            >02.b/</span
-          >
-          {{ album() ? t().album : t().album }}
-        </span>
-      </div>
+      <app-page-header
+        prefix="02/"
+        [title]="album() ? t().album : t().album"
+        [backLabel]="t().back"
+        (back)="goBack()"
+      />
 
       <div class="scroll-fade flex flex-col p-2 gap-12">
         @if (loading()) {
-          <div
-            class="flex flex-col items-center gap-4 py-10 px-5 text-ink-600 dark:text-bone-600 text-center"
-          >
-            <app-spinner size="md" />
-            <span
-              class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
-              >{{ t().loadingSongs }}</span
-            >
-          </div>
+          <app-loading-spinner [message]="t().loadingSongs" />
         } @else if (album(); as a) {
           <div
             class="flex gap-2 max-md:flex-col max-md:items-center md:gap-8 max-md:text-center mt-4"
