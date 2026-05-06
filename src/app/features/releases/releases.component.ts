@@ -145,7 +145,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
               >{{ t().loadingReleases }}</span
             >
           </div>
-        } @else if (filteredReleases().length === 0) {
+        } @else if (allReleases().length === 0) {
           <app-empty-state
             [icon]="favorites().length === 0 ? 'heart' : 'music-note'"
             [title]="
@@ -163,7 +163,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
             [class.opacity-0]="animatingMonth()"
           >
             @for (
-              item of filteredReleases();
+              item of allReleases();
               track item.id + ':' + item.type;
               let i = $index
             ) {
@@ -199,6 +199,9 @@ export class ReleasesComponent implements OnInit {
   loading = signal(false);
   animatingMonth = signal(false);
 
+  private releasesCache = new Map<string, ReleaseItem[]>();
+  private currentCacheKey = '';
+
   favorites = this.favoritesSvc.favorites;
 
   private touchStartX = 0;
@@ -221,34 +224,16 @@ export class ReleasesComponent implements OnInit {
     return !(selectedYear === currentYear && selectedMonth === currentMonth);
   });
 
-  filteredReleases = computed(() => {
-    const month = this.selectedMonth();
-    const year = this.selectedYear();
-
-    return this.allReleases()
-      .filter((release) => {
-        if (!release.releaseDate) return false;
-        const [releaseYear, releaseMonth] = release.releaseDate
-          .split('-')
-          .slice(0, 2)
-          .map(Number);
-        return releaseYear === year && releaseMonth - 1 === month;
-      })
-      .sort((a, b) => {
-        const dateA = new Date(a.releaseDate).getTime();
-        const dateB = new Date(b.releaseDate).getTime();
-        return dateB - dateA;
-      });
-  });
-
   isInWishlist(itemId: string): boolean {
     return this.wishlistSvc.entries().some((e) => e.trackId === itemId);
   }
 
   constructor() {
     effect(() => {
-      this.favorites();
-      this.loadReleases();
+      const year = this.selectedYear();
+      const month = this.selectedMonth();
+      const favorites = this.favorites();
+      this.loadReleases(year, month, favorites);
     });
   }
 
@@ -290,12 +275,23 @@ export class ReleasesComponent implements OnInit {
     this.selectedYear.set(year);
   }
 
-  private loadReleases() {
-    const favorites = this.favoritesSvc.favorites();
+  private loadReleases(year: number, month: number, favorites: { artistId: string; name: string }[]) {
+    const cacheKey = `${year}-${month}`;
 
     if (favorites.length === 0) {
       this.allReleases.set([]);
+      this.currentCacheKey = '';
       return;
+    }
+
+    if (this.releasesCache.has(cacheKey)) {
+      this.allReleases.set(this.releasesCache.get(cacheKey)!);
+      this.currentCacheKey = cacheKey;
+      return;
+    }
+
+    if (this.currentCacheKey && this.releasesCache.has(this.currentCacheKey)) {
+      this.allReleases.set(this.releasesCache.get(this.currentCacheKey)!);
     }
 
     this.loading.set(true);
@@ -319,7 +315,24 @@ export class ReleasesComponent implements OnInit {
         return true;
       });
 
-      this.allReleases.set(deduplicated);
+      const filteredForMonth = deduplicated.filter((release) => {
+        if (!release.releaseDate) return false;
+        const [releaseYear, releaseMonth] = release.releaseDate
+          .split('-')
+          .slice(0, 2)
+          .map(Number);
+        return releaseYear === year && releaseMonth - 1 === month;
+      });
+
+      const sorted = filteredForMonth.sort((a, b) => {
+        const dateA = new Date(a.releaseDate).getTime();
+        const dateB = new Date(b.releaseDate).getTime();
+        return dateB - dateA;
+      });
+
+      this.releasesCache.set(cacheKey, sorted);
+      this.currentCacheKey = cacheKey;
+      this.allReleases.set(sorted);
       this.loading.set(false);
     });
   }
