@@ -95,7 +95,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
     <div
       class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4 w-full [animation:fadeIn_300ms_ease_both]"
     >
-      <app-page-header prefix="01/" title="LANZAMIENTOS" [showBack]="false" />
+      <app-page-header prefix="01/" title="LANZAMIENTOS" [showBack]="false" [mobileOnly]="true" />
 
       <div
         class="flex flex-col h-full pb-8"
@@ -109,7 +109,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
             class="flex items-center justify-between gap-8 py-1 w-full md:w-80 md:mx-auto"
           >
             <button
-              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-lg md:text-[1.375rem] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               (click)="prevMonth()"
               [title]="t().prevMonth"
             >
@@ -127,7 +127,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
               >
             </span>
             <button
-              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-lg md:text-[1.375rem] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               [disabled]="!canGoToNextMonth()"
               (click)="nextMonth()"
               [title]="t().nextMonth"
@@ -143,7 +143,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
           >
             <app-spinner size="md" />
             <span
-              class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
+              class="text-sm md:text-lg italic"
               >{{ t().loadingReleases }}</span
             >
           </div>

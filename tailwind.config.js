@@ -2,18 +2,31 @@
 const accentLight = {
   track: '#cea219',
   album: '#0891b2',
-  ep: '#b45309',
+  ep: '#b40909',
+  artist: '#674c29',
 };
 
 const accentDark = {
   track: '#ffffc7',
   album: '#3aa7a3',
-  ep: '#a37871',
+  ep: '#9f4d40',
+  artist: '#D1B490',
 };
+
+const accentTypes = ['track', 'album', 'ep', 'artist'];
 
 export default {
   darkMode: 'class',
   content: ['./src/**/*.{html,ts}'],
+  safelist: [
+    ...accentTypes.flatMap((t) => [
+      `group-hover:text-accent-${t}`,
+      `group-hover:opacity-80`,
+      `!text-accent-${t}`,
+      `dark:group-hover:text-accent-dark-${t}`,
+      `dark:!text-accent-dark-${t}`,
+    ]),
+  ],
   theme: {
     extend: {
       colors: {

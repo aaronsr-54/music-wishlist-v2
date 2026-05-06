@@ -18,7 +18,7 @@ import { SpinnerComponent } from '../spinner/spinner.component';
       <app-spinner [size]="size()" />
       @if (message()) {
         <span
-          class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
+          class="text-sm md:text-lg italic"
           >{{ message() }}</span
         >
       }

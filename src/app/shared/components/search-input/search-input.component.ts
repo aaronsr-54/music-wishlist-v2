@@ -20,7 +20,7 @@ import { IconComponent } from '../../icons/icon.component';
     >
       <app-icon
         name="search"
-        class="text-ink-800 dark:text-bone-800 w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] shrink-0 "
+        class="text-ink-800 dark:text-bone-800 w-6 md:w-7 h-6 md:h-7 shrink-0 "
       />
       <input
         id="search-input"
@@ -28,20 +28,20 @@ import { IconComponent } from '../../icons/icon.component';
         [placeholder]="placeholder()"
         [ngModel]="query()"
         (ngModelChange)="onQuery($event)"
-        class="flex-1 bg-transparent border-none outline-none text-ink dark:text-bone font-display text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] font-normal placeholder:text-bone-800 placeholder:italic"
+        class="flex-1 bg-transparent border-none outline-none text-ink dark:text-bone font-display text-2xl md:text-[1.75rem] font-normal placeholder:text-bone-800 placeholder:italic"
         autocomplete="off"
         autocorrect="off"
         spellcheck="false"
       />
       @if (query()) {
         <button
-          class="bg-transparent border-none cursor-pointer text-ink-600 dark:text-bone-600 p-[0.25em] flex items-center rounded-full transition-colors duration-fast ease-smooth text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] hover:text-ink dark:hover:text-bone"
+          class="bg-transparent border-none cursor-pointer text-ink-600 dark:text-bone-600 p-[0.25em] flex items-center rounded-full transition-colors duration-fast ease-smooth text-sm md:text-lg hover:text-ink dark:hover:text-bone"
           (click)="onClear()"
           [attr.aria-label]="clearLabel()"
         >
           <app-icon
             name="close"
-            class="w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)]"
+            class="w-6 md:w-7 h-6 md:h-7"
           />
         </button>
       }

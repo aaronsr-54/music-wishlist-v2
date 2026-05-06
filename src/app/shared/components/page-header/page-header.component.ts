@@ -12,7 +12,10 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <div class="flex items-center justify-between gap-2">
+    <div
+      class="flex items-center justify-between gap-2"
+      [class.md:hidden]="mobileOnly()"
+    >
       @if (showBack()) {
         <button
           class="bg-transparent text-ink-700 dark:text-bone-700 text-md cursor-pointer transition-colors duration-fast hover:text-ink dark:hover:text-bone lowercase"
@@ -21,11 +24,10 @@ import { CommonModule } from '@angular/common';
         >
           ← {{ backLabel() }}
         </button>
-      } @else {
-        <span></span>
       }
       <span
-        class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase"
+        class="font-display text-xs md:text-base text-ink dark:text-bone font-bold tracking-[0.06em] uppercase"
+        [class.ml-auto]="showBack()"
       >
         <span
           class="text-ink-700 dark:text-bone-700 font-normal italic lowercase"
@@ -33,6 +35,13 @@ import { CommonModule } from '@angular/common';
         >
         {{ title() }}
       </span>
+      @if (badge()) {
+        <span
+          class="font-display text-xs md:text-base text-ink-700 dark:text-bone-700 tracking-[0.06em] italic"
+        >
+          {{ badge() }}
+        </span>
+      }
     </div>
   `,
 })
@@ -41,6 +50,8 @@ export class PageHeaderComponent {
   title = input('');
   backLabel = input('back');
   showBack = input(true);
+  mobileOnly = input(false);
+  badge = input<string | null>(null);
 
   back = output<void>();
 

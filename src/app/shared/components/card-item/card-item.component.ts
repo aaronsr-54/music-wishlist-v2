@@ -81,7 +81,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
           class="flex items-center justify-between text-ink-800 dark:text-bone-800"
         >
           <span
-            class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-600 dark:text-bone-600 flex gap-0.5 items-center"
+            class="font-display text-xs sm:text-sm md:text-base text-ink-600 dark:text-bone-600 flex gap-0.5 items-center"
           >
             <b class="font-bold not-italic text-ink-700 dark:text-bone-700">{{
               releaseItem().releaseDate | date: 'dd'
@@ -96,13 +96,13 @@ import { LanguageService } from '../../../core/i18n/language.service';
 
         <div class="flex flex-col gap-1">
           <span
-            class="card-name font-display text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-semibold text-ink-100 dark:text-bone-100 leading-none truncate max-w-full"
+            class="card-name font-display text-sm sm:text-base md:text-lg font-semibold text-ink-100 dark:text-bone-100 leading-none truncate max-w-full"
             [ngClass]="playingClass()"
           >
             {{ releaseItem().name }}
           </span>
           <span
-            class="card-artist text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-600 dark:text-bone-600 truncate max-w-full"
+            class="card-artist text-xs sm:text-sm md:text-base text-ink-600 dark:text-bone-600 truncate max-w-full"
             [ngClass]="playingClass()"
           >
             {{ releaseItem().artist }}
@@ -117,13 +117,13 @@ import { LanguageService } from '../../../core/i18n/language.service';
           @if (isAdded()) {
             <app-icon
               name="check"
-              class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]"
+              class="w-5 h-5 sm:w-6 sm:h-6"
             />
             <span class="flex-1">{{ t().added }}</span>
           } @else {
             <app-icon
               name="plus"
-              class="w-[clamp(1.25rem,3vw,1.5rem)] h-[clamp(1.25rem,3vw,1.5rem)]"
+              class="w-5 h-5 sm:w-6 sm:h-6"
             />
             <span class="flex-1">{{ t().save }}</span>
           }

@@ -34,7 +34,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
         <!-- SECCIÓN: Compartida con -->
         <div class="flex flex-col gap-4">
           <h3
-            class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-700 dark:text-bone-700 italic"
+            class="text-sm md:text-lg text-ink-700 dark:text-bone-700 italic"
           >
             {{ t().shareWith }}
           </h3>
@@ -77,7 +77,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
         @if (shareService.sharesReceived().length > 0) {
           <div class="flex flex-col gap-4">
             <h3
-              class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] text-ink-700 dark:text-bone-700 italic "
+              class="text-sm md:text-lg text-ink-700 dark:text-bone-700 italic "
             >
               {{ t().otherUsersWishlists }}
             </h3>

@@ -52,7 +52,7 @@ import { LanguageService } from '../../core/i18n/language.service';
         >
           <section class="flex flex-col gap-12">
             <!-- HERO -->
-            <div class="flex gap-4 mb-6 px-2 animate-fade-in">
+            <div class="flex gap-4 mb-6 px-2 [animation:fadeIn_0.4s_var(--ease-smooth)_forwards]">
               <app-avatar
                 [name]="user.displayName ?? user.email ?? 'Usuario'"
                 [size]="80"

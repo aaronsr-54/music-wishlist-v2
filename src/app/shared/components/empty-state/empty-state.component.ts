@@ -19,12 +19,12 @@ import { IconName } from '../../icons/icon-registry';
     }
     <div class="flex flex-col items-center justify-center">
       <p
-        class="font-body text-[clamp(1.375rem,1.2707rem+0.4049vw,1.625rem)] font-semibold uppercase text-ink dark:text-bone m-0"
+        class="font-body text-xl md:text-[1.625rem] font-semibold uppercase text-ink dark:text-bone m-0"
       >
         {{ title() }}
       </p>
       <p
-        class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] font-display text-ink-600 dark:text-bone-600 italic m-0 max-w-[240px]"
+        class="text-sm md:text-lg font-display text-ink-600 dark:text-bone-600 italic m-0 max-w-[240px]"
       >
         {{ subtitle() }}
       </p>
