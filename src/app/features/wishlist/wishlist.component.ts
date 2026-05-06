@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
@@ -15,6 +15,7 @@ type WishlistTab = 'pending' | 'downloaded';
 @Component({
   selector: 'app-wishlist',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     SearchResultItemComponent,
     EmptyStateComponent,

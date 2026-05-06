@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../../core/api/search.service';
@@ -18,6 +18,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
 @Component({
   selector: 'app-artist',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     CoverComponent,

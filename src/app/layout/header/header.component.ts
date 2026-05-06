@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Output, inject } from '@angular/core';
+import { Component, EventEmitter, Output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
 @Component({
   selector: 'app-header',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [AvatarComponent],
   template: `
     <header

@@ -5,6 +5,7 @@ import {
   OnDestroy,
   OnInit,
   signal,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -40,6 +41,7 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 @Component({
   selector: 'app-search',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,

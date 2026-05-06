@@ -6,6 +6,7 @@ import {
   TemplateRef,
   ViewChild,
   ViewContainerRef,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
@@ -14,6 +15,7 @@ import { TemplatePortal } from '@angular/cdk/portal';
 @Component({
   selector: 'app-modal',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   template: `
     <ng-template #modalTemplate>

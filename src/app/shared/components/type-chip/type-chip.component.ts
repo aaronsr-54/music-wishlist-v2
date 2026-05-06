@@ -1,4 +1,4 @@
-import { Component, Input, inject, computed } from '@angular/core';
+import { Component, Input, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { TrackType } from '../../models/track.model';
 import { LanguageService } from '../../../core/i18n/language.service';
 // @ts-ignore
@@ -25,6 +25,7 @@ const hexToRgba = (hex: string, alpha: number): string => {
 @Component({
   selector: 'app-type-chip',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span
       class="inline-block py-[2px] px-[4px] rounded-sm text-ink border dark:text-bone-100 font-body text-[clamp(0.625rem,0.5207rem+0.4049vw,0.875rem)] font-medium tracking-[0.04em] uppercase whitespace-nowrap"

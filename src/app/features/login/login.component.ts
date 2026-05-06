@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { VersionService } from '../../core/version/version.service';
 import { IconComponent } from '../../shared/icons/icon.component';
@@ -6,6 +6,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
 @Component({
   selector: 'app-login',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent],
   styles: `
     @keyframes dot-pulse {

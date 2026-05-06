@@ -1,8 +1,9 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-skeleton-row',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   styles: `
     @keyframes shimmer {
       0% { background-position: -200% 0; }
