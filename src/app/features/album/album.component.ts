@@ -312,7 +312,7 @@ export class AlbumComponent implements OnInit {
     }
   }
 
-  async toggle(track: any) {
+  async toggle(track: Track) {
     const entries = this.wishlistSvc.entries();
     const existing = entries.find((e) => e.trackId === track.id);
 

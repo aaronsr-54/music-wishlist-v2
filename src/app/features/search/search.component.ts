@@ -420,7 +420,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.router.navigate(['/album', albumId]);
   }
 
-  navigateToArtist(artist: any) {
+  navigateToArtist(artist: { artistId: string }) {
     this.router.navigate(['/artist', artist.artistId]);
   }
 
