@@ -30,6 +30,10 @@ import { Router } from '@angular/router';
 import { IconComponent } from '../../shared/icons/icon.component';
 import { formatFans } from '../../shared/utils/format-fans';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import { TypeFilterComponent, FilterType } from '../../shared/components/type-filter/type-filter.component';
+import { SearchInputComponent } from '../../shared/components/search-input/search-input.component';
+import { SearchHeaderComponent } from '../../shared/components/search-header/search-header.component';
+import { SearchEmptyStateComponent } from '../../shared/components/search-empty-state/search-empty-state.component';
 
 type SearchState = 'idle' | 'loading' | 'results' | 'empty';
 
@@ -42,8 +46,11 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
     SearchResultItemComponent,
     SpinnerComponent,
     ArtistCardComponent,
-    IconComponent,
     EmptyStateComponent,
+    TypeFilterComponent,
+    SearchInputComponent,
+    SearchHeaderComponent,
+    SearchEmptyStateComponent,
   ],
   styles: `
     .scroll-fade {
@@ -73,94 +80,30 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
   `,
   template: `
     <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
-      <div class="flex items-center justify-between gap-2">
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
-        >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
-            >02/</span
-          >
-          BUSCADOR
-        </span>
-      </div>
-
-      <div
-        class="flex items-center gap-2.5 py-4 border-b-[1.5px] border-bone-100 dark:border-ink-100 transition-[border-color] duration-fast ease-smooth"
-        [class.border-bone-600]="query()"
-      >
-        <app-icon
-          name="search"
-          class="text-ink-800 dark:text-bone-800 w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] shrink-0 "
-        />
-        <input
-          id="search-input"
-          type="text"
+      <app-search-header prefix="02/" title="BUSCADOR" />
+      <app-search-input
+          [query]="query()"
           [placeholder]="t().searchPlaceholder"
-          [ngModel]="query()"
-          (ngModelChange)="onQuery($event)"
-          class="flex-1 bg-transparent border-none outline-none text-ink dark:text-bone font-display text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] font-normal placeholder:text-bone-800 placeholder:italic"
-          autocomplete="off"
-          autocorrect="off"
-          spellcheck="false"
+          [clearLabel]="t().clear"
+          (queryChange)="onQuery($event)"
+          (clear)="clearQuery()"
         />
-        @if (query()) {
-          <button
-            class="bg-transparent border-none cursor-pointer text-ink-600 dark:text-bone-600 p-[0.25em] flex items-center rounded-full transition-colors duration-fast ease-smooth text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] hover:text-ink dark:hover:text-bone"
-            (click)="clearQuery()"
-            [aria-label]="t().clear"
-          >
-            <app-icon
-              name="close"
-              class="w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)]"
-            />
-          </button>
-        }
-      </div>
 
       @if (query()) {
-        <div
-          class="flex gap-2 overflow-x-auto [animation:slideDown_200ms_var(--ease)_both] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
-            [class.active]="selectedTypes().has('artist')"
-            (click)="toggleType('artist')"
-          >
-            {{ t().artists }}
-          </button>
-          <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
-            [class.active]="selectedTypes().has('track')"
-            (click)="toggleType('track')"
-          >
-            {{ t().songs }}
-          </button>
-          <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
-            [class.active]="selectedTypes().has('album')"
-            (click)="toggleType('album')"
-          >
-            {{ t().albums }}
-          </button>
-          <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
-            [class.!bg-bone]="selectedTypes().has('ep')"
-            (click)="toggleType('ep')"
-          >
-            {{ t().eps }}
-          </button>
-        </div>
+        <app-type-filter
+          [options]="typeFilterOptions()"
+          [selectedTypes]="selectedTypes()"
+          (toggle)="onTypeToggle($event)"
+        />
       }
 
       @switch (state()) {
         @case ('idle') {
-          <div class="scroll-fade">
-            <app-empty-state
-              icon="search"
-              [title]="t().startSearching"
-              [subtitle]="t().searchSubtitle"
-            />
-          </div>
+          <app-search-empty-state
+            variant="idle"
+            [title]="t().startSearching"
+            [subtitle]="t().searchSubtitle"
+          />
         }
         @case ('loading') {
           <div
@@ -209,12 +152,11 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
           }
         }
         @case ('empty') {
-          <div class="scroll-fade">
-            <app-empty-state
-              [title]="t().noResults"
-              [subtitle]="t().tryAnotherSearch"
-            />
-          </div>
+          <app-search-empty-state
+            variant="empty"
+            [title]="t().noResults"
+            [subtitle]="t().tryAnotherSearch"
+          />
         }
       }
 
@@ -254,6 +196,15 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   t = computed(() => this.languageService.t());
 
+  typeFilterOptions = computed(() => {
+    const labels = this.t();
+    return [
+      { value: 'artist' as FilterType, label: labels.artists },
+      { value: 'track' as FilterType, label: labels.songs },
+      { value: 'album' as FilterType, label: labels.albums },
+      { value: 'ep' as FilterType, label: labels.eps },
+    ];
+  });
   loading = signal(false);
   query = signal('');
   selectedTypes = signal<Set<TrackType>>(new Set());
@@ -351,6 +302,12 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.results.set([]);
     this.selectedTypes.set(new Set());
     this.search$.next('');
+  }
+
+  onTypeToggle(type: string) {
+    if (type === 'artist' || type === 'track' || type === 'album' || type === 'ep') {
+      this.toggleType(type as TrackType);
+    }
   }
 
   toggleType(type: TrackType) {
