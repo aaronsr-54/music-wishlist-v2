@@ -1,9 +1,10 @@
-import { Component, Input, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, Input, computed } from '@angular/core';
 import { NgStyle } from '@angular/common';
 
 @Component({
   selector: 'app-avatar',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgStyle],
   template: `
     <div

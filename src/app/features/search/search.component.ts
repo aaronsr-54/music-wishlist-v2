@@ -2,63 +2,72 @@ import {
   Component,
   computed,
   inject,
-  OnDestroy,
-  OnInit,
   signal,
+  ChangeDetectionStrategy,
+  CUSTOM_ELEMENTS_SCHEMA,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import {
-  Subject,
   debounceTime,
   distinctUntilChanged,
   switchMap,
   catchError,
   of,
-  Subscription,
+  tap,
 } from 'rxjs';
+
+import { register } from 'swiper/element/bundle';
+
 import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { FavoriteArtistsService } from '../../core/firebase/favorite-artists.service';
 import { AuthService } from '../../core/auth/auth.service';
-import { Track, TrackType } from '../../shared/models/track.model';
-import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { LanguageService } from '../../core/i18n/language.service';
+import { Track, TrackType } from '../../shared/models/track.model';
+import { formatFans } from '../../shared/utils/format-fans';
+
+import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { ArtistCardComponent } from '../../shared/components/artist-card/artist-card.component';
-import { Router } from '@angular/router';
-import { IconComponent } from '../../shared/icons/icon.component';
-import { formatFans } from '../../shared/utils/format-fans';
-import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
+import {
+  TypeFilterComponent,
+  FilterType,
+} from '../../shared/components/type-filter/type-filter.component';
+import { SearchInputComponent } from '../../shared/components/search-input/search-input.component';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { SearchEmptyStateComponent } from '../../shared/components/search-empty-state/search-empty-state.component';
 
-type SearchState = 'idle' | 'loading' | 'results' | 'empty';
+register();
 
 @Component({
   selector: 'app-search',
   standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
     SearchResultItemComponent,
     SpinnerComponent,
     ArtistCardComponent,
-    IconComponent,
-    EmptyStateComponent,
+    TypeFilterComponent,
+    SearchInputComponent,
+    PageHeaderComponent,
+    SearchEmptyStateComponent,
   ],
   styles: `
+    :host {
+      display: block;
+      height: 100%;
+    }
     .scroll-fade {
       flex: 1;
       overflow-y: auto;
       scrollbar-width: none;
-      padding-bottom: 2rem;
-      padding-top: 4px;
-      -webkit-mask-image: linear-gradient(
-        to bottom,
-        transparent 0%,
-        black 16px,
-        black 95%,
-        transparent 100%
-      );
+      padding: 4px 0 2rem;
       mask-image: linear-gradient(
         to bottom,
         transparent 0%,
@@ -70,182 +79,132 @@ type SearchState = 'idle' | 'loading' | 'results' | 'empty';
     .scroll-fade::-webkit-scrollbar {
       display: none;
     }
+    swiper-container {
+      display: block;
+      width: 100%;
+    }
+    swiper-slide {
+      width: 80px;
+      cursor: grabbing !important;
+    }
+    .artist-anim {
+      animation: fadeInRight 0.5s ease-out both;
+    }
+    @keyframes fadeInRight {
+      from {
+        opacity: 0;
+        transform: translateX(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
   `,
   template: `
-    <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
-      <div class="flex items-center justify-between gap-2">
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
-        >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
-            >02/</span
-          >
-          BUSCADOR
-        </span>
-      </div>
+    <div
+      class="flex flex-col justify-between h-full overflow-hidden p-0.5 pt-2"
+    >
+      <section class="flex flex-col gap-4 flex-1 min-h-0">
+        <app-page-header prefix="02/" title="BUSCADOR" [mobileOnly]="true" [showBack]="false" />
 
-      <div
-        class="flex items-center gap-2.5 py-4 border-b-[1.5px] border-bone-100 dark:border-ink-100 transition-[border-color] duration-fast ease-smooth"
-        [class.border-bone-600]="query()"
-      >
-        <app-icon
-          name="search"
-          class="text-ink-800 dark:text-bone-800 w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] shrink-0 "
-        />
-        <input
-          id="search-input"
-          type="text"
+        <app-search-input
+          [query]="query()"
           [placeholder]="t().searchPlaceholder"
-          [ngModel]="query()"
-          (ngModelChange)="onQuery($event)"
-          class="flex-1 bg-transparent border-none outline-none text-ink dark:text-bone font-display text-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] font-normal placeholder:text-bone-800 placeholder:italic"
-          autocomplete="off"
-          autocorrect="off"
-          spellcheck="false"
+          [clearLabel]="t().clear"
+          (queryChange)="onQuery($event)"
+          (clear)="clearQuery()"
         />
+
         @if (query()) {
-          <button
-            class="bg-transparent border-none cursor-pointer text-ink-600 dark:text-bone-600 p-[0.25em] flex items-center rounded-full transition-colors duration-fast ease-smooth text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] hover:text-ink dark:hover:text-bone"
-            (click)="clearQuery()"
-            [aria-label]="t().clear"
-          >
-            <app-icon
-              name="close"
-              class="w-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)] h-[clamp(1.5rem,1.3957rem+0.4049vw,1.75rem)]"
-            />
-          </button>
+          <app-type-filter
+            [options]="typeFilterOptions()"
+            [selectedTypes]="selectedTypes()"
+            (toggle)="toggleType($event)"
+          />
         }
-      </div>
 
-      @if (query()) {
-        <div
-          class="flex gap-2 overflow-x-auto [animation:slideDown_200ms_var(--ease)_both] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        >
-          <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
-            [class.active]="selectedTypes().has('artist')"
-            (click)="toggleType('artist')"
-          >
-            {{ t().artists }}
-          </button>
-          <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
-            [class.active]="selectedTypes().has('track')"
-            (click)="toggleType('track')"
-          >
-            {{ t().songs }}
-          </button>
-          <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
-            [class.active]="selectedTypes().has('album')"
-            (click)="toggleType('album')"
-          >
-            {{ t().albums }}
-          </button>
-          <button
-            class="px-3 py-1.5 rounded-[20px] border-[1.5px] border-ink-200 bg-transparent text-ink-100 dark:text-bone-600 font-display text-[clamp(0.8125rem,0.7082rem+0.4049vw,1.0625rem)] font-medium whitespace-nowrap cursor-pointer transition-[background,color,border-color] duration-fast ease-smooth hover:border-ink dark:hover:border-bone-600 hover:text-ink dark:hover:text-bone [&.active]:bg-ink [&.active]:border-ink [&.active]:text-bone [&.active]:dark:bg-bone [&.active]:dark:border-bone [&.active]:dark:text-ink"
-            [class.!bg-bone]="selectedTypes().has('ep')"
-            (click)="toggleType('ep')"
-          >
-            {{ t().eps }}
-          </button>
-        </div>
-      }
-
-      @switch (state()) {
-        @case ('idle') {
-          <div class="scroll-fade">
-            <app-empty-state
-              icon="search"
-              [title]="t().startSearching"
-              [subtitle]="t().searchSubtitle"
-            />
-          </div>
-        }
-        @case ('loading') {
-          <div
-            class="scroll-fade flex items-center justify-center min-h-[300px]"
-          >
+        @switch (state()) {
+          @case ('loading') {
             <div
-              class="flex flex-col items-center gap-4 py-10 px-5 text-ink-600 dark:text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]"
+              class="scroll-fade flex items-center justify-center min-h-[300px]"
             >
-              <app-spinner size="md" />
-              <span
-                class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
-                >Buscando...</span
+              <div
+                class="flex flex-col items-center gap-4 text-ink-600 dark:text-bone-600"
               >
+                <app-spinner size="md" />
+                <span class="italic text-sm">Buscando...</span>
+              </div>
             </div>
-          </div>
-        }
-        @case ('results') {
-          @if (filteredArtists().length > 0) {
+          }
+          @case ('results') {
             <div class="scroll-fade">
-              @for (artist of filteredArtists(); track artist.id) {
+              @for (item of filteredResults(); track item.id) {
                 <app-search-result-item
                   class="[animation:rowEnter_var(--dur-base)_var(--ease)_both]"
-                  [item]="artist"
-                  type="artist"
-                  [isAdded]="isAdded(artist.id, 'artist')"
+                  [item]="item"
+                  [type]="item.type"
+                  [isAdded]="isAdded(item.id, item.type)"
                   [showAddButton]="true"
+                  [showTypeChip]="showTypeChip()"
                   (onArtistClick)="goToArtist($event)"
-                  (onAddClick)="toggle($event)"
-                />
-              }
-            </div>
-          }
-          @if (filteredTracks().length > 0) {
-            <div class="scroll-fade">
-              @for (track of filteredTracks(); track track.id) {
-                <app-search-result-item
-                  class="[animation:rowEnter_var(--dur-base)_var(--ease)_both]"
-                  [item]="track"
-                  [type]="track.type"
-                  [isAdded]="isAdded(track.id)"
                   (onAlbumClick)="goToAlbum($event)"
-                  (onAddClick)="toggle($event)"
+                  (onAddClick)="toggleAction($event)"
                 />
               }
             </div>
           }
-        }
-        @case ('empty') {
-          <div class="scroll-fade">
-            <app-empty-state
+          @case ('empty') {
+            <app-search-empty-state
+              variant="empty"
               [title]="t().noResults"
               [subtitle]="t().tryAnotherSearch"
             />
-          </div>
+          }
+          @default {
+            <app-search-empty-state
+              variant="idle"
+              [title]="t().startSearching"
+              [subtitle]="t().searchSubtitle"
+            />
+          }
         }
-      }
+      </section>
 
       @if (!query() && favoriteArtists().length > 0) {
         <div
           class="py-3 pb-6 border-t border-bone-100 dark:border-ink-100 [animation:fadeIn_200ms_var(--ease)_both]"
         >
           <h3
-            class="font-display text-[clamp(0.6875rem,0.6093rem+0.3036vw,0.875rem)] font-bold text-ink-700 dark:text-bone-700 mt-0 mb-3 uppercase tracking-[0.06em] px-2"
+            class="font-display text-xs font-bold text-ink-700 dark:text-bone-700 mb-3 uppercase tracking-wider px-2"
           >
             {{ t().favoriteArtists }}
           </h3>
-          <div
-            class="flex gap-3 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden px-2 [-webkit-mask-image:linear-gradient(to_right,transparent_0%,black_10px,black_calc(100%-10px),transparent_100%)] [mask-image:linear-gradient(to_right,transparent_0%,black_10px,black_calc(100%-10px),transparent_100%)]"
+          <swiper-container
+            slides-per-view="auto"
+            space-between="12"
+            free-mode="true"
+            grab-cursor="true"
+            class="px-2"
           >
             @for (artist of favoriteArtists(); track artist.id) {
-              <app-artist-card
-                class="flex-[0_0_80px] min-w-[80px]"
-                [artist]="artist"
-                (onArtistClick)="navigateToArtist($event)"
-                (onRemoveFavorite)="removeFavorite($event)"
-              />
+              <swiper-slide>
+                <app-artist-card
+                  class="artist-anim"
+                  [artist]="artist"
+                  (click)="goToArtist(artist)"
+                  (onRemoveFavorite)="removeFavorite($event)"
+                />
+              </swiper-slide>
             }
-          </div>
+          </swiper-container>
         </div>
       }
     </div>
   `,
 })
-export class SearchComponent implements OnInit, OnDestroy {
-  private search = inject(SearchService);
+export class SearchComponent {
+  private searchSvc = inject(SearchService);
   private wishlistSvc = inject(WishlistService);
   private favoriteArtistsSvc = inject(FavoriteArtistsService);
   private authSvc = inject(AuthService);
@@ -253,184 +212,134 @@ export class SearchComponent implements OnInit, OnDestroy {
   private router = inject(Router);
 
   t = computed(() => this.languageService.t());
-
+  query = signal(this.searchSvc.getSavedSearchState()?.query || '');
+  selectedTypes = signal<Set<TrackType>>(
+    this.searchSvc.getSavedSearchState()?.selectedTypes || new Set(),
+  );
   loading = signal(false);
-  query = signal('');
-  selectedTypes = signal<Set<TrackType>>(new Set());
 
-  results = signal<Track[]>([]);
+  favoriteArtists = this.favoriteArtistsSvc.artists;
 
-  favoriteArtists = computed(() => this.favoriteArtistsSvc.artists());
-
-  artists = computed(() =>
-    this.results().filter((track) => track.type === 'artist'),
+  private results$ = toObservable(this.query).pipe(
+    debounceTime(300),
+    distinctUntilChanged(),
+    tap((q) => {
+      if (q.trim()) this.loading.set(true);
+    }),
+    switchMap((q) => {
+      const trimmed = q.trim();
+      if (!trimmed) return of([]);
+      return this.searchSvc.search(trimmed).pipe(
+        catchError(() => of([])),
+        tap(() => this.loading.set(false)),
+      );
+    }),
+    tap((res) => {
+      this.searchSvc.saveSearchState(this.query(), this.selectedTypes(), res);
+      this.loading.set(false);
+    }),
   );
 
-  tracks = computed(() =>
-    this.results().filter((track) => track.type !== 'artist'),
-  );
+  results = toSignal(this.results$, {
+    initialValue: this.searchSvc.getSavedSearchState()?.results || [],
+  });
 
-  filteredArtists = computed(() => {
+  filteredResults = computed(() => {
+    const res = this.results();
     const types = this.selectedTypes();
-    if (types.has('artist')) {
-      return this.artists();
-    }
-    return [];
+    if (types.size > 0) return res.filter((item) => types.has(item.type));
+    let artistCount = 0;
+    return res.filter((item) => {
+      if (item.type !== 'artist') return true;
+      return ++artistCount <= 3;
+    });
   });
 
-  filteredTracks = computed(() => {
-    const types = this.selectedTypes();
-    if (types.size === 0) return this.tracks();
-    if (types.has('artist')) return [];
-    return this.tracks().filter((track) => types.has(track.type));
+  showTypeChip = computed(() => this.selectedTypes().size !== 1);
+
+  state = computed(() => {
+    if (this.loading()) return 'loading';
+    if (!this.query().trim()) return 'idle';
+    return this.filteredResults().length > 0 ? 'results' : 'empty';
   });
 
-  state = computed<SearchState>(() => {
-    const q = this.query().trim();
-    const artists = this.filteredArtists();
-    const tracks = this.filteredTracks();
-    const loading = this.loading();
-
-    if (!q) return 'idle';
-    if (loading) return 'loading';
-    if (!artists.length && !tracks.length) return 'empty';
-
-    return 'results';
-  });
-
-  private search$ = new Subject<string>();
-  private sub?: Subscription;
-
-  ngOnInit() {
-    const savedState = this.search.getSavedSearchState();
-    if (savedState) {
-      this.query.set(savedState.query);
-      this.selectedTypes.set(savedState.selectedTypes);
-      this.results.set(savedState.results);
-    }
-
-    this.sub = this.search$
-      .pipe(
-        debounceTime(0),
-        distinctUntilChanged(),
-        switchMap((q) => {
-          const trimmed = q.trim();
-
-          if (!trimmed) {
-            this.clearQuery();
-            return of([]);
-          }
-
-          this.loading.set(true);
-
-          return this.search.search(trimmed).pipe(catchError(() => of([])));
-        }),
-      )
-      .subscribe((res) => {
-        this.results.set(res);
-        this.search.saveSearchState(
-          this.query(),
-          this.selectedTypes(),
-          this.results(),
-        );
-        this.loading.set(false);
-      });
-  }
-
-  ngOnDestroy() {
-    this.sub?.unsubscribe();
-  }
+  typeFilterOptions = computed(() => [
+    { value: 'artist' as FilterType, label: this.t().artists },
+    { value: 'track' as FilterType, label: this.t().songs },
+    { value: 'album' as FilterType, label: this.t().albums },
+    { value: 'ep' as FilterType, label: this.t().eps },
+  ]);
 
   onQuery(val: string) {
     this.query.set(val);
-    this.search$.next(val);
   }
 
   clearQuery() {
     this.query.set('');
-    this.results.set([]);
     this.selectedTypes.set(new Set());
-    this.search$.next('');
   }
 
-  toggleType(type: TrackType) {
-    const current = this.selectedTypes();
-    const updated = new Set(current);
-    if (updated.has(type)) {
-      updated.clear();
-    } else {
-      updated.clear();
-      updated.add(type);
-    }
+  toggleType(type: string) {
+    const typeVal = type as TrackType;
+    const updated = new Set(this.selectedTypes());
+    updated.has(typeVal)
+      ? updated.delete(typeVal)
+      : (updated.clear(), updated.add(typeVal));
     this.selectedTypes.set(updated);
-
-    this.search.saveSearchState(
-      this.query(),
-      this.selectedTypes(),
-      this.results(),
-    );
+    this.searchSvc.saveSearchState(this.query(), updated, this.results());
   }
 
-  isAdded(trackId: string, type?: TrackType): boolean {
-    if (type === 'artist') {
-      return this.favoriteArtistsSvc.artistIds().has(trackId);
-    }
-    return this.wishlistSvc.trackIds().has(trackId);
+  isAdded(id: string, type?: string): boolean {
+    return type === 'artist'
+      ? this.favoriteArtistsSvc.artistIds().has(id)
+      : this.wishlistSvc.trackIds().has(id);
   }
 
-  async toggle(track: Track) {
+  async toggleAction(track: Track) {
     const user = this.authSvc.currentUser();
     if (!user) return;
 
     if (track.type === 'artist') {
-      const artists = this.favoriteArtistsSvc.artists();
-      const existing = artists.find((a) => a.artistId === track.id);
-      if (existing && existing.id) {
+      const existing = this.favoriteArtistsSvc
+        .artists()
+        .find((a) => a.artistId === track.id);
+      if (existing?.id) {
         await this.favoriteArtistsSvc.remove(existing.id);
       } else {
-        let coverUrl = track.coverUrl;
-        if (!coverUrl || !coverUrl.trim()) {
-          try {
-            const artistData = await this.search
-              .getArtist(track.id)
-              .toPromise();
-            coverUrl =
-              artistData?.picture_big ?? artistData?.picture_medium ?? '';
-          } catch {}
-        }
-        await this.favoriteArtistsSvc.add(track.id, track.name, coverUrl, user);
+        const cover = track.coverUrl || (await this.fetchArtistImage(track.id));
+        await this.favoriteArtistsSvc.add(track.id, track.name, cover, user);
       }
     } else {
-      const entries = this.wishlistSvc.entries();
-      const existing = entries.find((e) => e.trackId === track.id);
-
-      if (existing && existing.id) {
-        await this.wishlistSvc.remove(existing.id);
-      } else {
-        await this.wishlistSvc.add(track, user);
-      }
+      const existing = this.wishlistSvc
+        .entries()
+        .find((e) => e.trackId === track.id);
+      existing?.id
+        ? await this.wishlistSvc.remove(existing.id)
+        : await this.wishlistSvc.add(track, user);
     }
   }
 
-  goToArtist(artist: Track) {
+  private async fetchArtistImage(id: string): Promise<string> {
+    try {
+      const data: any = await this.searchSvc.getArtist(id).toPromise();
+      return data?.picture_big || data?.picture_medium || '';
+    } catch {
+      return '';
+    }
+  }
+
+  removeFavorite(artistId: string) {
+    const item = this.favoriteArtistsSvc
+      .artists()
+      .find((a) => a.artistId === artistId);
+    if (item?.id) this.favoriteArtistsSvc.remove(item.id);
+  }
+
+  goToArtist(artist: any) {
     this.router.navigate(['/artist', artist.artistId || artist.id]);
   }
 
   goToAlbum(albumId: string) {
     this.router.navigate(['/album', albumId]);
   }
-
-  navigateToArtist(artist: any) {
-    this.router.navigate(['/artist', artist.artistId]);
-  }
-
-  removeFavorite(artistId: string) {
-    const artists = this.favoriteArtistsSvc.artists();
-    const existing = artists.find((a) => a.artistId === artistId);
-    if (existing && existing.id) {
-      this.favoriteArtistsSvc.remove(existing.id);
-    }
-  }
-
-  formatFans = formatFans;
 }

@@ -30,18 +30,6 @@ body {
   border-style: solid;
 }
 
-.animate-fade-in {
-  animation: fadeIn 0.4s var(--ease-smooth) forwards;
-}
-
-.animate-slide-in {
-  animation: slideIn 0.3s var(--ease-smooth) forwards;
-}
-
-.animate-pop-in {
-  animation: popIn 0.3s var(--ease-smooth) forwards;
-}
-
 @keyframes fadeIn {
   from {
     opacity: 0;

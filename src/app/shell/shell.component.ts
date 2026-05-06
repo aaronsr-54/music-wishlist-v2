@@ -196,7 +196,7 @@ export class ShellComponent {
     const saved = localStorage.getItem('defaultTab') as Tab | null;
     return saved && ['releases', 'search', 'wishlist'].includes(saved)
       ? saved
-      : 'releases';
+      : 'search';
   }
 
   goToProfile() {

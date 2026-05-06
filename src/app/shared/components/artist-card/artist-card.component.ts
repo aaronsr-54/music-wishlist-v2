@@ -1,10 +1,11 @@
-import { Component, input, output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { FavoriteArtist } from '../../../core/firebase/favorite-artists.service';
 import { IconComponent } from '../../icons/icon.component';
 
 @Component({
   selector: 'app-artist-card',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent],
   templateUrl: './artist-card.component.html',
   host: { class: 'flex flex-col' },

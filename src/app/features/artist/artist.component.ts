@@ -1,4 +1,11 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  OnInit,
+  signal,
+  computed,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../../core/api/search.service';
@@ -13,16 +20,19 @@ import { SpinnerComponent } from '../../shared/components/spinner/spinner.compon
 import { IconComponent } from '../../shared/icons/icon.component';
 import { formatFans } from '../../shared/utils/format-fans';
 import { LanguageService } from '../../core/i18n/language.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-artist',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     CoverComponent,
     SearchResultItemComponent,
     SpinnerComponent,
     IconComponent,
+    PageHeaderComponent,
   ],
   styles: `
     @keyframes popIn {
@@ -67,38 +77,22 @@ import { LanguageService } from '../../core/i18n/language.service';
   `,
   template: `
     <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
-      <div class="flex items-center justify-between gap-2">
-        <button
-          class="bg-transparent text-ink-700 dark:text-bone-700 text-md cursor-pointer transition-colors duration-fast hover:text-ink dark:hover:text-bone lowercase"
-          (click)="goBack()"
-          [aria-label]="t().back"
-        >
-          ← {{ t().back }}
-        </button>
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase"
-        >
-          <span
-            class="text-ink-700 dark:text-bone-700 font-normal italic lowercase"
-            >02.a/</span
-          >
-          {{ t().artist }}
-        </span>
-      </div>
+      <app-page-header
+        prefix="02.a/"
+        [title]="t().artist"
+        [backLabel]="t().back"
+        (back)="goBack()"
+      />
 
       <div class="scroll-fade flex flex-col p-4 py-2 gap-8">
         <div
           class="flex gap-2 max-md:flex-col max-md:items-center md:gap-8 max-md:text-center mt-4"
         >
           <div
-            class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-[150px] max-md:h-[150px]"
+            class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-full max-md:h-auto max-md:aspect-square shadow-ink/5 shadow-lg"
           >
             @if (artist(); as a) {
-              <app-cover
-                [name]="a.name"
-                [coverUrl]="a.picture_big"
-                [size]="200"
-              />
+              <app-cover [name]="a.name" [coverUrl]="a.picture_big" />
             }
           </div>
 
@@ -107,7 +101,7 @@ import { LanguageService } from '../../core/i18n/language.service';
               <div class="flex flex-col text-ink dark:text-bone">
                 <div class="flex items-center gap-4 mb-5">
                   <h1
-                    class="m-0 text-[clamp(2rem,1.166rem+3.2389vw,4rem)] font-bold font-display flex-1"
+                    class="m-0 text-[2rem] md:text-[4rem] font-bold font-display flex-1"
                   >
                     {{ a.name }}
                   </h1>
@@ -136,25 +130,23 @@ import { LanguageService } from '../../core/i18n/language.service';
                   @if (a.nb_fan !== undefined) {
                     <div class="flex flex-col gap-1">
                       <span
-                        class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 uppercase tracking-[0.5px]"
+                        class="font-display italic text-xs md:text-base text-ink-700 dark:text-bone-700 uppercase tracking-[0.5px]"
                         >{{ t().followers }}</span
                       >
-                      <span
-                        class="text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-bold"
-                        >{{ formatFans(a.nb_fan) }}</span
-                      >
+                      <span class="text-lg md:text-[1.375rem] font-bold">{{
+                        formatFans(a.nb_fan)
+                      }}</span>
                     </div>
                   }
                   @if (a.nb_album !== undefined) {
                     <div class="flex flex-col gap-1">
                       <span
-                        class="font-display italic text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 uppercase tracking-[0.5px]"
+                        class="font-display italic text-xs md:text-base text-ink-700 dark:text-bone-700 uppercase tracking-[0.5px]"
                         >{{ t().albums2 }}</span
                       >
-                      <span
-                        class="text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-bold"
-                        >{{ a.nb_album }}</span
-                      >
+                      <span class="text-lg md:text-[1.375rem] font-bold">{{
+                        a.nb_album
+                      }}</span>
                     </div>
                   }
                 </div>
@@ -165,7 +157,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 
         <div class="flex flex-col gap-4">
           <h2
-            class="font-body text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
+            class="font-body text-xs md:text-base text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
           >
             {{ t().popularSongs }}
           </h2>
@@ -175,14 +167,13 @@ import { LanguageService } from '../../core/i18n/language.service';
               class="flex flex-col items-center gap-4 py-10 px-5 text-ink-600 dark:text-bone-600 text-center [animation:fadeIn_300ms_var(--ease)_both]"
             >
               <app-spinner size="md" />
-              <span
-                class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
-                >{{ t().loadingSongs }}</span
-              >
+              <span class="text-sm md:text-lg italic">{{
+                t().loadingSongs
+              }}</span>
             </div>
           } @else if (tracks().length === 0) {
             <div
-              class="text-center py-10 px-5 text-ink-700 dark:text-bone-700 text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] [animation:fadeIn_300ms_var(--ease)_both]"
+              class="text-center py-10 px-5 text-ink-700 dark:text-bone-700 text-sm md:text-lg [animation:fadeIn_300ms_var(--ease)_both]"
             >
               {{ t().noSongsAvailable }}
             </div>

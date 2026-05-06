@@ -48,9 +48,7 @@ export class FavoriteArtistsService {
   initListener(uid: string): void {
     if (this.unsubscribe) return;
 
-    // Ejecutamos todo dentro del contexto de inyección para que Firebase esté "seguro"
     runInInjectionContext(this.injector, () => {
-      // Obtenemos AuthService aquí para evitar la dependencia circular (NG0200)
       const auth = inject(AuthService);
       this.isDemoMode = auth.demoMode();
 
@@ -59,7 +57,6 @@ export class FavoriteArtistsService {
         return;
       }
 
-      // Referencias de Firebase dentro del contexto
       const col = collection(this.firestore, 'favorite-artists');
       const q = query(
         col,
@@ -72,12 +69,10 @@ export class FavoriteArtistsService {
           (d) => ({ id: d.id, ...d.data() }) as FavoriteArtist,
         );
 
-        // Enriquecer artistas sin imagen
         artists = await Promise.all(
           artists.map(async (artist) => {
             if (!artist.image || !artist.image.trim()) {
               try {
-                // Usamos toPromise() como en tu código original
                 const data = await this.search
                   .getArtist(artist.artistId)
                   .toPromise();
@@ -140,7 +135,6 @@ export class FavoriteArtistsService {
       return;
     }
 
-    // Envolvemos addDoc en el contexto para evitar el warning
     return runInInjectionContext(this.injector, () => {
       const col = collection(this.firestore, 'favorite-artists');
       return addDoc(col, entry).then(() => {});
@@ -154,8 +148,6 @@ export class FavoriteArtistsService {
       this._artists.set(updated);
 
       if (updated.length >= 0) {
-        // Obtenemos el UID de los argumentos o del estado si es necesario
-        // Aquí asumimos que el estado actual tiene la info
         const storedUid = localStorage.getItem('last_uid') || '';
         const key = `favorite-artists-${storedUid}`;
         localStorage.setItem(key, JSON.stringify(updated));
@@ -163,7 +155,6 @@ export class FavoriteArtistsService {
       return;
     }
 
-    // Envolvemos deleteDoc en el contexto para evitar el warning
     return runInInjectionContext(this.injector, () => {
       const docRef = doc(this.firestore, 'favorite-artists', id);
       return deleteDoc(docRef);

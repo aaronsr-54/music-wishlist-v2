@@ -11,8 +11,8 @@ const BASE =
   'flex items-center justify-center cursor-pointer p-0 transition-[background,color,transform,opacity] duration-[160ms]';
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  add: `${BASE} border-none bg-transparent rounded-full shrink-0 text-ink-600 dark:text-bone-600 w-[clamp(2.25rem,5vw,2.75rem)] h-[clamp(2.25rem,5vw,2.75rem)] hover:bg-bone-700 dark:hover:bg-ink-200 hover:text-bone-100 active:scale-[0.82]`,
-  action: `${BASE} bg-transparent rounded-full border-[1.5px] border-ink-100 text-bone-600 w-[clamp(2rem,4.5vw,2.5rem)] h-[clamp(2rem,4.5vw,2.5rem)] hover:border-ink-400 dark:hover:border-bone-400 hover:text-bone hover:scale-110 active:scale-[0.88]`,
+  add: `${BASE} border-none bg-bone-400 dark:bg-ink-200/20 rounded-card shrink-0 text-ink-600 dark:text-bone-600 w-11 h-11 hover:bg-bone-700 dark:hover:bg-ink-200 hover:text-bone-100 active:scale-[0.82]`,
+  action: `${BASE} bg-transparent rounded-card border-[1.5px] border-ink-100 text-bone-600 w-8 md:w-10 h-8 md:h-10 hover:border-ink-400 dark:hover:border-bone-400 hover:text-bone hover:scale-110 active:scale-[0.88]`,
   cover: `${BASE} border-none bg-transparent relative shrink-0 rounded-sm disabled:cursor-not-allowed disabled:opacity-60 enabled:hover:opacity-80`,
 };
 

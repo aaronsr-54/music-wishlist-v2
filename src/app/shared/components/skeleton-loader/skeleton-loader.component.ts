@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 type LoaderType = 'rows' | 'text' | 'cover';
@@ -6,6 +6,7 @@ type LoaderType = 'rows' | 'text' | 'cover';
 @Component({
   selector: 'app-skeleton-loader',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule],
   styles: `
     @keyframes shimmer {

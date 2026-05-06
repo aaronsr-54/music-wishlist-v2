@@ -5,29 +5,35 @@ import {
   inject,
   signal,
   OnInit,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { forkJoin, of, from } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { SearchService } from '../../core/api/search.service';
 import { FavoritesService } from '../../core/firebase/favorites.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ReleaseItem } from '../../shared/models/release-item.model';
+import { TrackType } from '../../shared/models/track.model';
+import { DeezerAlbum, DReleasesResponse, DAlbumTracksResponse } from '../../shared/models/deezer';
 import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
 import { LanguageService } from '../../core/i18n/language.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 @Component({
   selector: 'app-releases',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     CardItemComponent,
     SpinnerComponent,
     EmptyStateComponent,
+    PageHeaderComponent,
   ],
   styles: `
     @keyframes scaleIn {
@@ -89,16 +95,7 @@ import { LanguageService } from '../../core/i18n/language.service';
     <div
       class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4 w-full [animation:fadeIn_300ms_ease_both]"
     >
-      <div class="flex items-center justify-between gap-2">
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] md:hidden"
-        >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic"
-            >01/</span
-          >
-          LANZAMIENTOS
-        </span>
-      </div>
+      <app-page-header prefix="01/" title="LANZAMIENTOS" [showBack]="false" [mobileOnly]="true" />
 
       <div
         class="flex flex-col h-full pb-8"
@@ -112,7 +109,7 @@ import { LanguageService } from '../../core/i18n/language.service';
             class="flex items-center justify-between gap-8 py-1 w-full md:w-80 md:mx-auto"
           >
             <button
-              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-lg md:text-[1.375rem] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               (click)="prevMonth()"
               [title]="t().prevMonth"
             >
@@ -130,7 +127,7 @@ import { LanguageService } from '../../core/i18n/language.service';
               >
             </span>
             <button
-              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-[clamp(1.125rem,1.0207rem+0.4049vw,1.375rem)] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
+              class="w-8 h-8 border-none bg-transparent text-ink dark:text-bone cursor-pointer text-lg md:text-[1.375rem] font-semibold transition-[color,transform] duration-fast ease-smooth p-0 flex items-center justify-center hover:text-ink-100 dark:hover:text-bone-100 hover:scale-[1.15] active:scale-90 disabled:opacity-20 disabled:cursor-not-allowed disabled:pointer-events-none"
               [disabled]="!canGoToNextMonth()"
               (click)="nextMonth()"
               [title]="t().nextMonth"
@@ -146,11 +143,11 @@ import { LanguageService } from '../../core/i18n/language.service';
           >
             <app-spinner size="md" />
             <span
-              class="text-[clamp(0.875rem,0.7707rem+0.4049vw,1.125rem)] italic"
+              class="text-sm md:text-lg italic"
               >{{ t().loadingReleases }}</span
             >
           </div>
-        } @else if (filteredReleases().length === 0) {
+        } @else if (allReleases().length === 0) {
           <app-empty-state
             [icon]="favorites().length === 0 ? 'heart' : 'music-note'"
             [title]="
@@ -168,7 +165,7 @@ import { LanguageService } from '../../core/i18n/language.service';
             [class.opacity-0]="animatingMonth()"
           >
             @for (
-              item of filteredReleases();
+              item of allReleases();
               track item.id + ':' + item.type;
               let i = $index
             ) {
@@ -194,6 +191,7 @@ export class ReleasesComponent implements OnInit {
   private authSvc = inject(AuthService);
   private languageService = inject(LanguageService);
   private router = inject(Router);
+  private apiUrl = 'https://music-wishlist-v2.vercel.app/api';
 
   t = computed(() => this.languageService.t());
 
@@ -204,10 +202,16 @@ export class ReleasesComponent implements OnInit {
   loading = signal(false);
   animatingMonth = signal(false);
 
+  private releasesCache = new Map<string, ReleaseItem[]>();
+  private currentCacheKey = '';
+  private readonly CACHE_KEY = 'releasesCache';
+  private readonly NO_RELEASES_KEY = 'noReleasesArtists';
+
   favorites = this.favoritesSvc.favorites;
 
   private touchStartX = 0;
   private readonly SWIPE_THRESHOLD = 50;
+  private noReleasesArtists = new Set<string>();
 
   monthNames = computed(() => [
     this.t().jan, this.t().feb, this.t().mar, this.t().apr, this.t().may, this.t().jun,
@@ -226,38 +230,41 @@ export class ReleasesComponent implements OnInit {
     return !(selectedYear === currentYear && selectedMonth === currentMonth);
   });
 
-  filteredReleases = computed(() => {
-    const month = this.selectedMonth();
-    const year = this.selectedYear();
-
-    return this.allReleases()
-      .filter((release) => {
-        if (!release.releaseDate) return false;
-        const [releaseYear, releaseMonth] = release.releaseDate
-          .split('-')
-          .slice(0, 2)
-          .map(Number);
-        return releaseYear === year && releaseMonth - 1 === month;
-      })
-      .sort((a, b) => {
-        const dateA = new Date(a.releaseDate).getTime();
-        const dateB = new Date(b.releaseDate).getTime();
-        return dateB - dateA;
-      });
-  });
-
-  isInWishlist(itemId: string): boolean {
-    return this.wishlistSvc.entries().some((e) => e.trackId === itemId);
-  }
-
   constructor() {
+    this.loadCacheFromSession();
     effect(() => {
-      this.favorites();
-      this.loadReleases();
+      const year = this.selectedYear();
+      const month = this.selectedMonth();
+      const favorites = this.favorites();
+      this.loadReleases(year, month, favorites);
     });
   }
 
   ngOnInit() {}
+
+  private loadCacheFromSession() {
+    try {
+      const cached = sessionStorage.getItem(this.CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        this.releasesCache = new Map(Object.entries(parsed));
+      }
+
+      const noReleases = sessionStorage.getItem(this.NO_RELEASES_KEY);
+      if (noReleases) {
+        const arr: string[] = JSON.parse(noReleases);
+        this.noReleasesArtists = new Set(arr);
+      }
+    } catch {}
+  }
+
+  private saveCacheToSession() {
+    try {
+      const cacheObj = Object.fromEntries(this.releasesCache);
+      sessionStorage.setItem(this.CACHE_KEY, JSON.stringify(cacheObj));
+      sessionStorage.setItem(this.NO_RELEASES_KEY, JSON.stringify([...this.noReleasesArtists]));
+    } catch {}
+  }
 
   prevMonth() {
     let month = this.selectedMonth() - 1;
@@ -295,27 +302,70 @@ export class ReleasesComponent implements OnInit {
     this.selectedYear.set(year);
   }
 
-  private loadReleases() {
-    const favorites = this.favoritesSvc.favorites();
+  isInWishlist(itemId: string): boolean {
+    return this.wishlistSvc.entries().some((e) => e.trackId === itemId);
+  }
+
+  private loadReleases(year: number, month: number, favorites: { artistId: string; name: string }[]) {
+    const cacheKey = `${year}-${month}`;
 
     if (favorites.length === 0) {
       this.allReleases.set([]);
+      this.currentCacheKey = '';
+      return;
+    }
+
+    if (this.releasesCache.has(cacheKey)) {
+      this.allReleases.set(this.releasesCache.get(cacheKey)!);
+      this.currentCacheKey = cacheKey;
+      return;
+    }
+
+    if (this.currentCacheKey && this.releasesCache.has(this.currentCacheKey)) {
+      this.allReleases.set(this.releasesCache.get(this.currentCacheKey)!);
+    }
+
+    const noReleaseKey = `${year}-${month}`;
+
+    if (this.noReleasesArtists.has(noReleaseKey)) {
+      this.allReleases.set([]);
+      this.loading.set(false);
       return;
     }
 
     this.loading.set(true);
 
-    const releaseObservables = favorites.map((fav) => {
-      return this.searchSvc.getArtistReleases(fav.artistId, fav.name).pipe(
-        catchError((err) => {
-          console.error(`Error loading releases for ${fav.name}:`, err);
-          return of([]);
-        }),
-      );
-    });
+    const artistObservables = favorites.map((fav) =>
+      from(
+        fetch(`${this.apiUrl}/artist-albums?id=${fav.artistId}`).then((r) =>
+          r.json(),
+        ),
+      ).pipe(
+        map((res: DReleasesResponse): { fav: { artistId: string; name: string }; releases: ReleaseItem[] } => ({
+          fav,
+          releases: (res.data ?? []).map((a: DeezerAlbum) => ({
+            id: String(a.id),
+            name: a.title,
+            artist: fav.name ?? '',
+            coverUrl: a.cover_big ?? a.cover_medium ?? '',
+            type: (a.record_type === 'single' ? 'single' : 'album') as TrackType,
+            releaseDate: a.release_date ?? '',
+            previewUrl: undefined,
+            artistId: a.artist?.id ? String(a.artist.id) : undefined,
+          })),
+        })),
+        catchError(() =>
+          of({
+            fav,
+            releases: [] as ReleaseItem[],
+          }),
+        ),
+      ),
+    );
 
-    forkJoin(releaseObservables).subscribe((results) => {
-      const allReleases = results.flat();
+    forkJoin(artistObservables).subscribe((results) => {
+      const allReleases = results.flatMap((r) => r.releases);
+
       const seen = new Set<string>();
       const deduplicated = allReleases.filter((r) => {
         const key = `${r.id}:${r.type}`;
@@ -324,8 +374,79 @@ export class ReleasesComponent implements OnInit {
         return true;
       });
 
-      this.allReleases.set(deduplicated);
-      this.loading.set(false);
+      const filteredForMonth = deduplicated.filter((release) => {
+        if (!release.releaseDate) return false;
+        const [releaseYear, releaseMonth] = release.releaseDate
+          .split('-')
+          .slice(0, 2)
+          .map(Number);
+        return releaseYear === year && releaseMonth - 1 === month;
+      });
+
+      if (filteredForMonth.length === 0) {
+        this.noReleasesArtists.add(noReleaseKey);
+        this.allReleases.set([]);
+        this.releasesCache.set(cacheKey, []);
+        this.currentCacheKey = cacheKey;
+        this.loading.set(false);
+        this.saveCacheToSession();
+        return;
+      }
+
+      const singles = filteredForMonth.filter((r) => r.type === 'single');
+      const albums = filteredForMonth.filter((r) => r.type !== 'single');
+
+      if (singles.length === 0) {
+        const sorted = filteredForMonth.sort((a, b) => {
+          const dateA = new Date(a.releaseDate).getTime();
+          const dateB = new Date(b.releaseDate).getTime();
+          return dateB - dateA;
+        });
+
+        this.releasesCache.set(cacheKey, sorted);
+        this.currentCacheKey = cacheKey;
+        this.allReleases.set(sorted);
+        this.loading.set(false);
+        this.saveCacheToSession();
+        return;
+      }
+
+      const previewCalls = singles.map((s) =>
+        from(
+          fetch(`${this.apiUrl}/album-tracks?id=${s.id}`).then((r) =>
+            r.json(),
+          ),
+        ).pipe(
+          map((tracksRes: DAlbumTracksResponse) => ({
+            id: s.id,
+            previewUrl: tracksRes.data?.[0]?.preview
+              ? `/api/preview?url=${encodeURIComponent(tracksRes.data[0].preview)}`
+              : undefined,
+          })),
+          catchError(() => of({ id: s.id, previewUrl: undefined })),
+        ),
+      );
+
+      forkJoin(previewCalls).subscribe((previews) => {
+        const previewMap = new Map(previews.map((p) => [p.id, p.previewUrl]));
+
+        const withPreviews = filteredForMonth.map((r) => ({
+          ...r,
+          previewUrl: previewMap.get(r.id),
+        }));
+
+        const sorted = withPreviews.sort((a, b) => {
+          const dateA = new Date(a.releaseDate).getTime();
+          const dateB = new Date(b.releaseDate).getTime();
+          return dateB - dateA;
+        });
+
+        this.releasesCache.set(cacheKey, sorted);
+        this.currentCacheKey = cacheKey;
+        this.allReleases.set(sorted);
+        this.loading.set(false);
+        this.saveCacheToSession();
+      });
     });
   }
 

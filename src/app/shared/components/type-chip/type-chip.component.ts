@@ -1,4 +1,9 @@
-import { Component, Input, inject, computed } from '@angular/core';
+import {
+  Component,
+  Input,
+  inject,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { TrackType } from '../../models/track.model';
 import { LanguageService } from '../../../core/i18n/language.service';
 // @ts-ignore
@@ -9,7 +14,7 @@ const createColorMap = (palette: Record<string, string>) => ({
   album: palette['album'],
   ep: palette['ep'],
   single: palette['track'],
-  artist: palette['track'],
+  artist: palette['artist'],
 });
 
 const COLORS_LIGHT = createColorMap(tailwindConfig.accentLight);
@@ -25,9 +30,10 @@ const hexToRgba = (hex: string, alpha: number): string => {
 @Component({
   selector: 'app-type-chip',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <span
-      class="inline-block py-[2px] px-[4px] rounded-sm text-ink border dark:text-bone-100 font-body text-[clamp(0.625rem,0.5207rem+0.4049vw,0.875rem)] font-medium tracking-[0.04em] uppercase whitespace-nowrap"
+      class="flex px-[6px] py-1 leading-none rounded-md text-ink border dark:text-bone font-display font-medium whitespace-nowrap text-xs"
       [style.borderColor]="color"
       [style.backgroundColor]="bgColorWithOpacity"
       >{{ label }}</span
@@ -50,6 +56,7 @@ export class TypeChipComponent {
       album: translations.album,
       ep: 'EP',
       single: 'Single',
+      artist: translations.artist,
     };
     return labels[this.type];
   }

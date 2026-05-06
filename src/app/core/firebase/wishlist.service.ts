@@ -31,12 +31,9 @@ export class WishlistService {
   private injector = inject(Injector);
   private shareService = inject(WishlistShareService);
 
-  // Señales privadas para almacenar los datos brutos de Firebase
   private _ownEntries = signal<WishlistEntry[]>([]);
   private _sharedEntries = signal<WishlistEntry[]>([]);
 
-  // Señal combinada y reactiva (Fuente de verdad para la UI)
-  // Reacciona automáticamente a cambios en las entradas o en el estado 'hidden' de los shares
   entries = computed(() => {
     const visibleOwnerEmails = this.shareService
       .sharesReceived()
@@ -54,7 +51,6 @@ export class WishlistService {
     );
   });
 
-  // Selectores derivados
   pending = computed(() => this.entries().filter((e) => !e.downloaded));
   downloaded = computed(() => this.entries().filter((e) => e.downloaded));
   trackIds = computed(() => new Set(this.entries().map((e) => e.trackId)));
@@ -66,8 +62,6 @@ export class WishlistService {
   initListener(uid: string, email: string): void {
     if (this.unsubscribe.length > 0) return;
 
-    // Usamos el injector para obtener AuthService SOLO cuando se llama a esta función
-    // Esto evita que Angular se bloquee al intentar crear los servicios
     const auth = this.injector.get(AuthService);
     this.isDemoMode = auth.demoMode();
 
@@ -76,8 +70,6 @@ export class WishlistService {
       return;
     }
 
-    // El resto del código de Firebase debe ir dentro de runInInjectionContext
-    // para que AngularFire no se queje del contexto de inyección.
     runInInjectionContext(this.injector, () => {
       const col = collection(this.firestore, 'wishlist');
 

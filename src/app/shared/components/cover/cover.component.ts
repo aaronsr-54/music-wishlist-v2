@@ -1,4 +1,4 @@
-import { Component, Input, computed, signal } from '@angular/core';
+import { Component, Input, computed, signal, ChangeDetectionStrategy } from '@angular/core';
 import { NgClass } from '@angular/common';
 
 const VARIANTS = [
@@ -24,12 +24,14 @@ function hashVariant(name: string): number {
 @Component({
   selector: 'app-cover',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [NgClass],
   template: `
     @if (coverUrl && !imgError()) {
       <img
         [src]="coverUrl"
         [alt]="name"
+        loading="lazy"
         class="max-w-full aspect-square object-cover block"
         [ngClass]="rounded"
         [style.width]="imgWidth()"

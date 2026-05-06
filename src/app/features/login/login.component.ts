@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { VersionService } from '../../core/version/version.service';
 import { IconComponent } from '../../shared/icons/icon.component';
@@ -6,6 +6,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
 @Component({
   selector: 'app-login',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent],
   styles: `
     @keyframes dot-pulse {
@@ -89,7 +90,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
         style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 80ms"
       >
         <h1
-          class="font-display text-[clamp(68px,10vw,88px)] font-bold leading-[0.8] m-0 tracking-[-0.03em] text-ink dark:text-bone"
+          class="font-display text-[68px] md:text-[88px] font-bold leading-[0.8] m-0 tracking-[-0.03em] text-ink dark:text-bone"
         >
           Music <span class="font-extralight italic ml-[-7px]">Wishlist</span>.
         </h1>
@@ -123,7 +124,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
             } @else {
               <app-icon
                 name="google"
-                class="w-[clamp(1.125rem,2.5vw,1.375rem)] h-[clamp(1.125rem,2.5vw,1.375rem)] fill-bone dark:fill-ink"
+                class="w-[1.125rem] md:w-[1.375rem] h-[1.125rem] md:h-[1.375rem] fill-bone dark:fill-ink"
               />
               Continuar con Google
             }
@@ -149,7 +150,7 @@ export class LoginComponent {
     this.error.set('');
     try {
       await this.auth.loginWithGoogle();
-    } catch (e: any) {
+    } catch (e: unknown) {
       this.error.set('Error al iniciar sesión. Inténtalo de nuevo.');
     } finally {
       this.loading.set(false);

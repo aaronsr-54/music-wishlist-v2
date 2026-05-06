@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { IconComponent } from '../../shared/icons/icon.component';
 
 @Component({
   selector: 'app-tab-bar',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [IconComponent],
   template: `
     <nav
@@ -21,7 +22,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
       >
         <app-icon
           name="music-note"
-          class="w-[clamp(1.5rem,3.5vw,2rem)] h-[clamp(1.5rem,3.5vw,2rem)]"
+          class="w-6 md:w-8 h-6 md:h-8"
         />
         @if (activeTab === 'releases') {
           <span class="font-display font-bold">LANZAMIENTOS</span>
@@ -39,7 +40,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
       >
         <app-icon
           name="search"
-          class="w-[clamp(1.5rem,3.5vw,2rem)] h-[clamp(1.5rem,3.5vw,2rem)]"
+          class="w-6 md:w-8 h-6 md:h-8"
         />
         @if (activeTab === 'search') {
           <span class="font-display font-bold">BUSCADOR</span>
@@ -57,7 +58,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
       >
         <app-icon
           name="heart"
-          class="w-[clamp(1.5rem,3.5vw,2rem)] h-[clamp(1.5rem,3.5vw,2rem)]"
+          class="w-6 md:w-8 h-6 md:h-8"
         />
         @if (activeTab === 'wishlist') {
           <span class="font-display font-bold">WHISLIST</span>

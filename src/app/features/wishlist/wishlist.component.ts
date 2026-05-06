@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
@@ -8,16 +8,19 @@ import {
   SegmentedTabOption,
 } from '../../shared/components/segmented-tabs/segmented-tabs.component';
 import { LanguageService } from '../../core/i18n/language.service';
+import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 
 type WishlistTab = 'pending' | 'downloaded';
 
 @Component({
   selector: 'app-wishlist',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     SearchResultItemComponent,
     EmptyStateComponent,
     SegmentedTabsComponent,
+    PageHeaderComponent,
   ],
   styles: `
     @keyframes scaleIn {
@@ -62,22 +65,13 @@ type WishlistTab = 'pending' | 'downloaded';
       (touchstart)="onTouchStart($event)"
       (touchend)="onTouchEnd($event)"
     >
-      <div class="flex items-center justify-between gap-2 md:justify-end">
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase md:hidden"
-        >
-          <span class="text-ink-700 dark:text-bone-700 font-normal italic">
-            03/
-          </span>
-          WISHLIST
-        </span>
-
-        <span
-          class="font-display text-[clamp(0.75rem,0.6457rem+0.4049vw,1rem)] text-ink-700 dark:text-bone-700 tracking-[0.06em] italic"
-        >
-          {{ wishlistSvc.total() }} {{ t().elements }}
-        </span>
-      </div>
+      <app-page-header
+        prefix="03/"
+        title="WISHLIST"
+        [showBack]="false"
+        [mobileOnly]="true"
+        [badge]="wishlistSvc.total() + ' ' + t().elements"
+      />
 
       <div class="[animation:slideDown_300ms_ease_both]">
         <app-segmented-tabs
@@ -169,7 +163,6 @@ export class WishlistComponent {
     const deltaX = touch.screenX - this.touchStartX;
     const deltaY = touch.screenY - this.touchStartY;
 
-    // Ignorar scroll vertical
     if (Math.abs(deltaY) > Math.abs(deltaX)) {
       return;
     }
