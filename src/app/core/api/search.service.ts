@@ -30,6 +30,11 @@ export class SearchService {
   private apiUrl = 'https://music-wishlist-v2.vercel.app/api';
   private savedState = signal<SearchState | null>(null);
 
+  private albumCache = new Map<string, any>();
+  private albumTracksCache = new Map<string, AlbumTrack[]>();
+  private artistCache = new Map<string, any>();
+  private artistTracksCache = new Map<string, Track[]>();
+
   search(q: string): Observable<Track[]> {
     const term = encodeURIComponent(q);
     const searchTerm = q.toLowerCase();
@@ -108,11 +113,15 @@ export class SearchService {
   }
 
   getArtistTracks(artistId: string): Observable<Track[]> {
+    if (this.artistTracksCache.has(artistId)) {
+      return of(this.artistTracksCache.get(artistId)!);
+    }
+
     return from(
       fetch(`${this.apiUrl}/artist?id=${artistId}`).then((r) => r.json()),
     ).pipe(
       map((res: DArtistTracksResponse) => {
-        return (res.data ?? []).map((t: DeezerTrack) => ({
+        const tracks = (res.data ?? []).map((t: DeezerTrack) => ({
           id: String(t.id),
           name: t.title,
           artists: [t.artist?.name ?? ''],
@@ -122,13 +131,24 @@ export class SearchService {
           artistId: t.artist?.id ? String(t.artist.id) : undefined,
           previewUrl: t.preview ? `/api/preview?url=${encodeURIComponent(t.preview)}` : undefined,
         }));
+        this.artistTracksCache.set(artistId, tracks);
+        return tracks;
       }),
     );
   }
 
   getArtist(artistId: string): Observable<DArtistResponse> {
+    if (this.artistCache.has(artistId)) {
+      return of(this.artistCache.get(artistId));
+    }
+
     return from(
       fetch(`${this.apiUrl}/artist-info?id=${artistId}`).then((r) => r.json()),
+    ).pipe(
+      map((res) => {
+        this.artistCache.set(artistId, res);
+        return res;
+      }),
     );
   }
 
@@ -240,11 +260,15 @@ export class SearchService {
   }
 
   getAlbumTracks(albumId: string): Observable<AlbumTrack[]> {
+    if (this.albumTracksCache.has(albumId)) {
+      return of(this.albumTracksCache.get(albumId)!);
+    }
+
     return from(
       fetch(`${this.apiUrl}/album-tracks?id=${albumId}`).then((r) => r.json()),
     ).pipe(
       map((res: DAlbumTracksResponse) => {
-        return (res.data ?? []).map((t: DeezerTrack, index: number) => ({
+        const tracks = (res.data ?? []).map((t: DeezerTrack, index: number) => ({
           id: String(t.id),
           title: t.title,
           duration: t.duration ?? 0,
@@ -253,6 +277,8 @@ export class SearchService {
             ? `/api/preview?url=${encodeURIComponent(t.preview)}`
             : undefined,
         }));
+        this.albumTracksCache.set(albumId, tracks);
+        return tracks;
       }),
       catchError(() => of([])),
     );
@@ -267,18 +293,26 @@ export class SearchService {
     type: TrackType;
     releaseDate: string;
   } | null> {
+    if (this.albumCache.has(albumId)) {
+      return of(this.albumCache.get(albumId));
+    }
+
     return from(
       fetch(`${this.apiUrl}/album?id=${albumId}`).then((r) => r.json()),
     ).pipe(
-      map((res: DAlbumInfoResponse) => ({
-        id: String(res.id),
-        name: res.title,
-        artist: res.artist?.name ?? '',
-        artistId: res.artist?.id ? String(res.artist.id) : undefined,
-        coverUrl: res.cover_big ?? res.cover_medium ?? '',
-        type: (res.record_type === 'ep' || res.record_type === 'single' ? 'ep' : 'album') as TrackType,
-        releaseDate: res.release_date ?? '',
-      })),
+      map((res: DAlbumInfoResponse) => {
+        const album = {
+          id: String(res.id),
+          name: res.title,
+          artist: res.artist?.name ?? '',
+          artistId: res.artist?.id ? String(res.artist.id) : undefined,
+          coverUrl: res.cover_big ?? res.cover_medium ?? '',
+          type: (res.record_type === 'ep' || res.record_type === 'single' ? 'ep' : 'album') as TrackType,
+          releaseDate: res.release_date ?? '',
+        };
+        this.albumCache.set(albumId, album);
+        return album;
+      }),
       catchError(() => of(null)),
     );
   }
