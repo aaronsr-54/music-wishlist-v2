@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -28,6 +28,7 @@ type WishlistEntryExtended = WishlistEntry & {
 @Component({
   selector: 'app-search-result-item',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   animations: [fadeInOut()],
   imports: [
     DatePipe,
@@ -50,7 +51,7 @@ type WishlistEntryExtended = WishlistEntry & {
           <app-cover [coverUrl]="coverUrl()" [name]="title()" [size]="56" />
 
           <div class="flex-1 flex flex-col gap-[3px] min-w-0">
-            <span class="title">
+            <span class="search-result-title">
               {{ title() }}
             </span>
 
@@ -58,7 +59,7 @@ type WishlistEntryExtended = WishlistEntry & {
               class="flex items-baseline gap-2 leading-none text-ink-800 dark:text-bone-800"
             >
               @if (trackItem().fanCount) {
-                <span class="meta">
+                <span class="search-result-meta">
                   <b>{{ formatFans(trackItem().fanCount ?? 0) }}</b>
                   fan{{ trackItem().fanCount !== 1 ? 's' : '' }}
                 </span>
@@ -85,7 +86,7 @@ type WishlistEntryExtended = WishlistEntry & {
           >
             <app-icon
               [name]="isAdded() ? 'heart-filled' : 'heart'"
-              class="action-icon"
+              class="search-result-action-icon"
             />
           </button>
         }
@@ -139,7 +140,7 @@ type WishlistEntryExtended = WishlistEntry & {
               class="flex items-center gap-2 leading-none text-ink-800 dark:text-bone-800"
             >
               <span
-                class="meta whitespace-nowrap overflow-hidden text-ellipsis transition-colors duration-fast"
+                class="search-result-meta whitespace-nowrap overflow-hidden text-ellipsis transition-colors duration-fast"
                 [ngClass]="accentClasses()"
               >
                 {{ subtitle() }}
@@ -185,7 +186,7 @@ type WishlistEntryExtended = WishlistEntry & {
           @if (isWishlist()) {
             @if (wishlistStatus() === 'pending') {
               <button appBtn variant="action" (click)="markDownloaded($event)">
-                <app-icon name="check" class="wishlist-action-icon" />
+                <app-icon name="check" class="search-result-wishlist-action-icon" />
               </button>
 
               <button
@@ -194,7 +195,7 @@ type WishlistEntryExtended = WishlistEntry & {
                 [danger]="true"
                 (click)="removeWishlistItem($event)"
               >
-                <app-icon name="close" class="wishlist-action-icon" />
+                <app-icon name="close" class="search-result-wishlist-action-icon" />
               </button>
             } @else {
               <button
@@ -202,7 +203,7 @@ type WishlistEntryExtended = WishlistEntry & {
                 variant="action"
                 (click)="unmarkDownloaded($event)"
               >
-                <app-icon name="chevron-left" class="wishlist-action-icon" />
+                <app-icon name="chevron-left" class="search-result-wishlist-action-icon" />
               </button>
 
               <button
@@ -211,7 +212,7 @@ type WishlistEntryExtended = WishlistEntry & {
                 [danger]="true"
                 (click)="removeWishlistItem($event)"
               >
-                <app-icon name="trash" class="wishlist-action-icon" />
+                <app-icon name="trash" class="search-result-wishlist-action-icon" />
               </button>
             }
           } @else if (showAddButton()) {
@@ -221,39 +222,13 @@ type WishlistEntryExtended = WishlistEntry & {
               [added]="isAdded()"
               (click)="onAdd(trackItem(), $event)"
             >
-              <app-icon [name]="addButtonIcon()" class="action-icon" />
+              <app-icon [name]="addButtonIcon()" class="search-result-action-icon" />
             </button>
           }
         </div>
       </div>
     }
   `,
-  styles: [
-    `
-      .title {
-        @apply font-display text-[clamp(1rem,0.8957rem+0.4049vw,1.25rem)]
-        font-semibold text-ink-100 dark:text-bone-100
-        leading-none whitespace-nowrap overflow-hidden text-ellipsis
-        h-[clamp(1.125rem,0.9686rem+0.6073vw,1.5rem)];
-      }
-
-      .meta {
-        @apply text-[clamp(0.8125rem,0.6822rem+0.5061vw,1.125rem)]
-        text-ink-600 dark:text-bone-600;
-      }
-
-      .action-icon {
-        @apply w-[clamp(1.25rem,3vw,1.5rem)]
-        h-[clamp(1.25rem,3vw,1.5rem)];
-      }
-
-      .wishlist-action-icon {
-        @apply w-[clamp(1rem,2.5vw,1.25rem)]
-        h-[clamp(1rem,2.5vw,1.25rem)]
-        text-ink dark:text-bone;
-      }
-    `,
-  ],
 })
 export class SearchResultItemComponent {
   private preview = inject(PreviewService);

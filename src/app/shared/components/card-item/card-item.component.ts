@@ -1,4 +1,4 @@
-import { Component, computed, input, output, inject } from '@angular/core';
+import { Component, computed, input, output, inject, ChangeDetectionStrategy } from '@angular/core';
 import { DatePipe, NgClass } from '@angular/common';
 import { ReleaseItem } from '../../models/release-item.model';
 import { CoverComponent } from '../cover/cover.component';
@@ -10,6 +10,7 @@ import { LanguageService } from '../../../core/i18n/language.service';
 @Component({
   selector: 'app-card-item',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     DatePipe,
     NgClass,
