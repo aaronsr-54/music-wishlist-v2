@@ -9,13 +9,15 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { forkJoin, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { forkJoin, of, from } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { SearchService } from '../../core/api/search.service';
 import { FavoritesService } from '../../core/firebase/favorites.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { AuthService } from '../../core/auth/auth.service';
 import { ReleaseItem } from '../../shared/models/release-item.model';
+import { TrackType } from '../../shared/models/track.model';
+import { DeezerAlbum, DReleasesResponse, DAlbumTracksResponse } from '../../shared/models/deezer';
 import { CardItemComponent } from '../../shared/components/card-item/card-item.component';
 import { SpinnerComponent } from '../../shared/components/spinner/spinner.component';
 import { EmptyStateComponent } from '../../shared/components/empty-state/empty-state.component';
@@ -189,6 +191,7 @@ export class ReleasesComponent implements OnInit {
   private authSvc = inject(AuthService);
   private languageService = inject(LanguageService);
   private router = inject(Router);
+  private apiUrl = 'https://music-wishlist-v2.vercel.app/api';
 
   t = computed(() => this.languageService.t());
 
@@ -201,6 +204,8 @@ export class ReleasesComponent implements OnInit {
 
   private releasesCache = new Map<string, ReleaseItem[]>();
   private currentCacheKey = '';
+
+  private noReleasesArtists = new Set<string>();
 
   favorites = this.favoritesSvc.favorites;
 
@@ -296,17 +301,37 @@ export class ReleasesComponent implements OnInit {
 
     this.loading.set(true);
 
-    const releaseObservables = favorites.map((fav) => {
-      return this.searchSvc.getArtistReleases(fav.artistId, fav.name).pipe(
-        catchError((err) => {
-          console.error(`Error loading releases for ${fav.name}:`, err);
-          return of([]);
-        }),
-      );
-    });
+    const artistObservables = favorites.map((fav) =>
+      from(
+        fetch(`${this.apiUrl}/artist-albums?id=${fav.artistId}`).then((r) =>
+          r.json(),
+        ),
+      ).pipe(
+        map((res: DReleasesResponse): { fav: { artistId: string; name: string }; releases: ReleaseItem[] } => ({
+          fav,
+          releases: (res.data ?? []).map((a: DeezerAlbum) => ({
+            id: String(a.id),
+            name: a.title,
+            artist: fav.name ?? '',
+            coverUrl: a.cover_big ?? a.cover_medium ?? '',
+            type: (a.record_type === 'single' ? 'single' : 'album') as TrackType,
+            releaseDate: a.release_date ?? '',
+            previewUrl: undefined,
+            artistId: a.artist?.id ? String(a.artist.id) : undefined,
+          })),
+        })),
+        catchError(() =>
+          of({
+            fav,
+            releases: [] as ReleaseItem[],
+          }),
+        ),
+      ),
+    );
 
-    forkJoin(releaseObservables).subscribe((results) => {
-      const allReleases = results.flat();
+    forkJoin(artistObservables).subscribe((results) => {
+      const allReleases = results.flatMap((r) => r.releases);
+
       const seen = new Set<string>();
       const deduplicated = allReleases.filter((r) => {
         const key = `${r.id}:${r.type}`;
@@ -324,16 +349,67 @@ export class ReleasesComponent implements OnInit {
         return releaseYear === year && releaseMonth - 1 === month;
       });
 
-      const sorted = filteredForMonth.sort((a, b) => {
-        const dateA = new Date(a.releaseDate).getTime();
-        const dateB = new Date(b.releaseDate).getTime();
-        return dateB - dateA;
-      });
+      if (filteredForMonth.length === 0) {
+        this.noReleasesArtists.add(`${year}-${month}`);
+        this.allReleases.set([]);
+        this.releasesCache.set(cacheKey, []);
+        this.currentCacheKey = cacheKey;
+        this.loading.set(false);
+        return;
+      }
 
-      this.releasesCache.set(cacheKey, sorted);
-      this.currentCacheKey = cacheKey;
-      this.allReleases.set(sorted);
-      this.loading.set(false);
+      const singles = filteredForMonth.filter((r) => r.type === 'single');
+      const albums = filteredForMonth.filter((r) => r.type !== 'single');
+
+      if (singles.length === 0) {
+        const sorted = filteredForMonth.sort((a, b) => {
+          const dateA = new Date(a.releaseDate).getTime();
+          const dateB = new Date(b.releaseDate).getTime();
+          return dateB - dateA;
+        });
+
+        this.releasesCache.set(cacheKey, sorted);
+        this.currentCacheKey = cacheKey;
+        this.allReleases.set(sorted);
+        this.loading.set(false);
+        return;
+      }
+
+      const previewCalls = singles.map((s) =>
+        from(
+          fetch(`${this.apiUrl}/album-tracks?id=${s.id}`).then((r) =>
+            r.json(),
+          ),
+        ).pipe(
+          map((tracksRes: DAlbumTracksResponse) => ({
+            id: s.id,
+            previewUrl: tracksRes.data?.[0]?.preview
+              ? `/api/preview?url=${encodeURIComponent(tracksRes.data[0].preview)}`
+              : undefined,
+          })),
+          catchError(() => of({ id: s.id, previewUrl: undefined })),
+        ),
+      );
+
+      forkJoin(previewCalls).subscribe((previews) => {
+        const previewMap = new Map(previews.map((p) => [p.id, p.previewUrl]));
+
+        const withPreviews = filteredForMonth.map((r) => ({
+          ...r,
+          previewUrl: previewMap.get(r.id),
+        }));
+
+        const sorted = withPreviews.sort((a, b) => {
+          const dateA = new Date(a.releaseDate).getTime();
+          const dateB = new Date(b.releaseDate).getTime();
+          return dateB - dateA;
+        });
+
+        this.releasesCache.set(cacheKey, sorted);
+        this.currentCacheKey = cacheKey;
+        this.allReleases.set(sorted);
+        this.loading.set(false);
+      });
     });
   }
 
