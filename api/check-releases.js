@@ -1,14 +1,12 @@
 // firebase-admin NOT used here — avoids gRPC/OpenSSL issues on Vercel.
-// Cron uses a service-account JWT->OAuth token for Firestore REST API.
-// Debug uses the user's own ID token (Firestore security rules enforce userId isolation).
+// User's Firebase ID token used directly for Firestore REST API.
+// Firestore security rule required:
+//   match /artist-releases-cache/{document} { allow read, write: if request.auth != null; }
 
-import crypto from 'node:crypto';
 import webpush from 'web-push';
 
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
-const CLIENT_EMAIL = process.env.FIREBASE_CLIENT_EMAIL;
-const PRIVATE_KEY = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-const FIREBASE_API_KEY = 'AIzaSyDIIW0YmNtS0WMcSyQa8l5ntv89C7SWlUo';
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
 const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 
 webpush.setVapidDetails(
@@ -23,7 +21,7 @@ const RECORD_TYPE_MAP = {
   single: 'Single',
 };
 
-// ── Auth helpers ──────────────────────────────────────────────
+// ── Auth ──────────────────────────────────────────────────────
 
 async function getUidFromToken(idToken) {
   const res = await fetch(
@@ -40,42 +38,8 @@ async function getUidFromToken(idToken) {
   return users[0].localId;
 }
 
-/** Get a short-lived OAuth2 access token for the Firebase service account. */
-async function getFirebaseToken() {
-  const now = Math.floor(Date.now() / 1000);
-  const header = { alg: 'RS256', typ: 'JWT' };
-  const claimSet = {
-    iss: CLIENT_EMAIL,
-    scope: 'https://www.googleapis.com/auth/datastore https://www.googleapis.com/auth/cloud-platform',
-    aud: 'https://oauth2.googleapis.com/token',
-    iat: now,
-    exp: now + 3600,
-  };
-  const encode = (obj) =>
-    Buffer.from(JSON.stringify(obj)).toString('base64url');
-  const message = `${encode(header)}.${encode(claimSet)}`;
-  const sig = crypto.sign('RSA-SHA256', Buffer.from(message), PRIVATE_KEY);
-  const assertion = `${message}.${sig.toString('base64url')}`;
-
-  const r = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion,
-    }),
-  });
-  if (!r.ok) {
-    const body = await r.text();
-    throw new Error(`OAuth2 token error ${r.status}: ${body}`);
-  }
-  const data = await r.json();
-  return data.access_token;
-}
-
 // ── Firestore REST helpers ────────────────────────────────────
 
-/** Build a Firestore Document proto from a plain JS object. */
 function toDoc(value) {
   const fields = Object.fromEntries(
     Object.entries(value).map(([k, v]) => [k, toValue(v)]),
@@ -103,31 +67,6 @@ function toValue(val) {
   return { stringValue: String(val) };
 }
 
-/** Fetch all documents from a collection (max 300). */
-async function listAll(collection, token) {
-  const out = [];
-  let pageToken = '';
-  do {
-    const params = new URLSearchParams({ pageSize: '300' });
-    if (pageToken) params.set('pageToken', pageToken);
-    const r = await fetch(
-      `${FIRESTORE_BASE}/${collection}?${params}`,
-      { headers: { Authorization: `Bearer ${token}` } },
-    );
-    if (!r.ok) {
-      const body = await r.text();
-      throw new Error(`Firestore list ${collection} error ${r.status}: ${body}`);
-    }
-    const data = await r.json();
-    for (const doc of data.documents ?? []) {
-      out.push({ id: doc.name.split('/').pop(), fields: doc.fields });
-    }
-    pageToken = data.nextPageToken ?? '';
-  } while (pageToken);
-  return out;
-}
-
-/** Fetch documents filtered by a field equality. Returns raw REST documents with parsed fields. */
 async function listWhere(collection, fieldPath, op, value, token) {
   const structuredQuery = {
     from: [{ collectionId: collection }],
@@ -167,7 +106,6 @@ async function listWhere(collection, fieldPath, op, value, token) {
   return docs;
 }
 
-/** Read a single document. Returns fields or null if not found. */
 async function getDoc(path, token) {
   const r = await fetch(`${FIRESTORE_BASE}/${path}`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -181,7 +119,6 @@ async function getDoc(path, token) {
   return { id: data.name.split('/').pop(), fields: data.fields };
 }
 
-/** Write (create or update) a document. */
 async function setDoc(path, data, token) {
   const r = await fetch(`${FIRESTORE_BASE}/${path}`, {
     method: 'PATCH',
@@ -197,7 +134,6 @@ async function setDoc(path, data, token) {
   }
 }
 
-/** Delete a document (ignore 404). */
 async function deleteDoc(path, token) {
   const r = await fetch(`${FIRESTORE_BASE}/${path}`, {
     method: 'DELETE',
@@ -209,7 +145,6 @@ async function deleteDoc(path, token) {
   }
 }
 
-/** Convert Firestore fields back to a plain object (shallow). */
 function fromFields(fields) {
   const obj = {};
   for (const [k, v] of Object.entries(fields)) {
@@ -245,9 +180,9 @@ async function fetchArtistAlbums(artistId) {
   return data.data ?? [];
 }
 
-// ── Runner for a single user (called from UI with ID token) ────
+// ── Runner ────────────────────────────────────────────────────
 
-async function runForSingleUser(uid, idToken, fbToken) {
+async function run(uid, idToken) {
   const subDoc = await getDoc(`push-subscriptions/${uid}`, idToken);
   if (!subDoc) {
     return { notified: 0, results: [], error: 'No push subscription found.' };
@@ -268,18 +203,18 @@ async function runForSingleUser(uid, idToken, fbToken) {
 
     const latestIds = albums.map((a) => String(a.id));
     const cacheRef = `artist-releases-cache/${favorite.artistId}`;
-    const cacheDoc = await getDoc(cacheRef, fbToken);
+    const cacheDoc = await getDoc(cacheRef, idToken);
     const cachedIds = cacheDoc ? (cacheDoc.fields?.albumIds?.arrayValue?.values ?? []).map((v) => v.stringValue).filter(Boolean) : null;
 
     if (cachedIds === null) {
-      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, fbToken);
+      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, idToken);
       continue;
     }
 
     const newAlbums = albums.filter((a) => !cachedIds.includes(String(a.id)));
     if (newAlbums.length > 0) {
       newReleasesByArtist[favorite.artistId] = newAlbums;
-      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, fbToken);
+      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, idToken);
     }
   }
 
@@ -310,7 +245,7 @@ async function runForSingleUser(uid, idToken, fbToken) {
         artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: true });
       } catch (err) {
         if (err.statusCode === 404 || err.statusCode === 410) {
-          await deleteDoc(`push-subscriptions/${uid}`, fbToken);
+          await deleteDoc(`push-subscriptions/${uid}`, idToken);
         }
         artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: false, error: err.message });
       }
@@ -320,82 +255,6 @@ async function runForSingleUser(uid, idToken, fbToken) {
   }
 
   return { notified, results };
-}
-
-// ── Runner for all users (called from cron with service account) ──
-
-async function runForAllUsers(token) {
-  const subsDocs = await listAll('push-subscriptions', token);
-  if (!subsDocs.length) return { notified: 0 };
-
-  const favoritesByUser = {};
-  for (const subDoc of subsDocs) {
-    const uid = subDoc.id;
-    const favDocs = await listWhere('favorite-artists', 'addedByUid', 'EQUAL', uid, token);
-    favoritesByUser[uid] = favDocs.map((d) => fromFields(d.fields));
-  }
-
-  const allArtistIds = new Set();
-  for (const favorites of Object.values(favoritesByUser)) {
-    favorites.forEach((a) => allArtistIds.add(a.artistId));
-  }
-
-  const newReleasesByArtist = {};
-  for (const artistId of allArtistIds) {
-    const albums = await fetchArtistAlbums(artistId);
-    if (!albums.length) continue;
-
-    const latestIds = albums.map((a) => String(a.id));
-    const cacheRef = `artist-releases-cache/${artistId}`;
-    const cacheDoc = await getDoc(cacheRef, token);
-    const cachedIds = cacheDoc ? (cacheDoc.fields?.albumIds?.arrayValue?.values ?? []).map((v) => v.stringValue).filter(Boolean) : null;
-
-    if (cachedIds === null) {
-      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, token);
-      continue;
-    }
-
-    const newAlbums = albums.filter((a) => !cachedIds.includes(String(a.id)));
-    if (newAlbums.length > 0) {
-      newReleasesByArtist[artistId] = newAlbums;
-      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, token);
-    }
-  }
-
-  let notified = 0;
-  for (const subDoc of subsDocs) {
-    const uid = subDoc.id;
-    const { subscription } = fromFields(subDoc.fields);
-    const userFavorites = favoritesByUser[uid] ?? [];
-
-    for (const favorite of userFavorites) {
-      const newAlbums = newReleasesByArtist[favorite.artistId];
-      if (!newAlbums?.length) continue;
-
-      for (const album of newAlbums) {
-        const releaseType = RECORD_TYPE_MAP[album.record_type?.toLowerCase()] ?? 'Album';
-        const coverUrl = album.cover_xl ?? album.cover_big ?? album.cover_medium ?? '';
-        const payload = JSON.stringify({
-          title: album.title,
-          artist: favorite.name,
-          releaseType,
-          coverUrl,
-          albumId: String(album.id),
-        });
-
-        try {
-          await webpush.sendNotification(subscription, payload);
-          notified++;
-        } catch (err) {
-          if (err.statusCode === 404 || err.statusCode === 410) {
-            await deleteDoc(`push-subscriptions/${uid}`, token);
-          }
-        }
-      }
-    }
-  }
-
-  return { notified };
 }
 
 // ── Handler ───────────────────────────────────────────────────
@@ -409,15 +268,14 @@ export default async (req, res) => {
   try {
     const token = authHeader.slice(7);
 
+    // CRON_SECRET path — requires Firestore security rules that allow
+    // service-level access. Currently not supported — use the user token path.
     if (token === process.env.CRON_SECRET) {
-      const fbToken = await getFirebaseToken();
-      const result = await runForAllUsers(fbToken);
-      return res.status(200).json(result);
+      return res.status(501).json({ error: 'Cron path not yet available' });
     }
 
     const uid = await getUidFromToken(token);
-    const fbToken = await getFirebaseToken();
-    const result = await runForSingleUser(uid, token, fbToken);
+    const result = await run(uid, token);
     return res.status(200).json(result);
   } catch (error) {
     console.error('check-releases error:', error);
