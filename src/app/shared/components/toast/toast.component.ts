@@ -75,10 +75,10 @@ export class ToastService {
         <div
           class="p-3 w-full bg-light dark:bg-dark text-ink dark:text-bone [&.error]:text-red-600 [&.error]:dark:text-red-400 font-display italic shadow-lg rounded-card flex gap-2 border border-solid border-ink-200 pointer-events-auto transition-all duration-300"
           [ngClass]="{
-            'animate-slideInUp': !toast.isRemoving,
+            'animate-slideInDown': !toast.isRemoving,
             'md:animate-slideInRight': !toast.isRemoving,
-            'animate-slideOutDown': toast.isRemoving,
-            'md:animate-slideOutRight': toast.isRemoving
+            'animate-slideOutUp': toast.isRemoving,
+            'md:animate-slideOutLeft': toast.isRemoving
           }"
           [class.error]="toast.type === 'error'"
           role="alert"

@@ -84,24 +84,29 @@ export default {
           from: { opacity: '0', transform: 'translateX(100%)' },
           to: { opacity: '1', transform: 'translateX(0)' },
         },
-        slideInUp: {
-          from: { opacity: '0', transform: 'translateY(100%)' },
+        slideInDown: {
+          from: { opacity: '0', transform: 'translateY(-100%)' },
           to: { opacity: '1', transform: 'translateY(0)' },
         },
         slideOutRight: {
           from: { opacity: '1', transform: 'translateX(0)' },
           to: { opacity: '0', transform: 'translateX(100%)' },
         },
-        slideOutDown: {
+        slideOutLeft: {
+          from: { opacity: '1', transform: 'translateX(0)' },
+          to: { opacity: '0', transform: 'translateX(-100%)' },
+        },
+        slideOutUp: {
           from: { opacity: '1', transform: 'translateY(0)' },
-          to: { opacity: '0', transform: 'translateY(100%)' },
+          to: { opacity: '0', transform: 'translateY(-100%)' },
         },
       },
       animation: {
         slideInRight: 'slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        slideInUp: 'slideInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        slideInDown: 'slideInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         slideOutRight: 'slideOutRight 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        slideOutDown: 'slideOutDown 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        slideOutLeft: 'slideOutLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        slideOutUp: 'slideOutUp 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
       },
       screens: {
         'md': '768px',
