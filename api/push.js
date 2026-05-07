@@ -1,26 +1,44 @@
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
+// firebase-admin NOT used here — avoids gRPC/OpenSSL issues on Vercel.
+// User's own ID token authenticates directly against Firestore REST API.
+// Security rules enforce userId isolation.
 
-let _db = null;
+const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
+// Already public in the Angular bundle:
+const FIREBASE_API_KEY = 'AIzaSyDIIW0YmNtS0WMcSyQa8l5ntv89C7SWlUo';
+const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 
-function initAdmin() {
-  if (getApps().length > 0) return;
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
+async function getUidFromToken(idToken) {
+  const res = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    }
+  );
+  if (!res.ok) throw new Error('Token verification failed');
+  const { users } = await res.json();
+  if (!users?.[0]) throw new Error('User not found');
+  return users[0].localId;
 }
 
-function getDb() {
-  if (!_db) {
-    _db = getFirestore();
-    _db.settings({ preferRest: true });
+function toFirestoreValue(val) {
+  if (val === null || val === undefined) return { nullValue: null };
+  if (typeof val === 'string') return { stringValue: val };
+  if (typeof val === 'number') {
+    return Number.isInteger(val) ? { integerValue: String(val) } : { doubleValue: val };
   }
-  return _db;
+  if (typeof val === 'boolean') return { booleanValue: val };
+  if (typeof val === 'object') {
+    return {
+      mapValue: {
+        fields: Object.fromEntries(
+          Object.entries(val).map(([k, v]) => [k, toFirestoreValue(v)])
+        ),
+      },
+    };
+  }
+  return { stringValue: String(val) };
 }
 
 export default async (req, res) => {
@@ -38,19 +56,33 @@ export default async (req, res) => {
     return res.status(400).json({ error: 'Missing action' });
   }
 
+  const idToken = authHeader.slice(7);
+
   try {
-    initAdmin();
-    const uid = (await getAuth().verifyIdToken(authHeader.slice(7))).uid;
-    const db = getDb();
-    const docRef = db.collection('push-subscriptions').doc(uid);
+    const uid = await getUidFromToken(idToken);
+    const docUrl = `${FIRESTORE_BASE}/push-subscriptions/${uid}`;
 
     if (action === 'subscribe') {
       if (!subscription?.endpoint) {
         return res.status(400).json({ error: 'Missing subscription' });
       }
-      await docRef.set({ subscription, updatedAt: Date.now() });
+      const r = await fetch(docUrl, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+        body: JSON.stringify({
+          fields: {
+            subscription: toFirestoreValue(subscription),
+            updatedAt: { integerValue: String(Date.now()) },
+          },
+        }),
+      });
+      if (!r.ok) throw new Error(`Firestore PATCH failed: ${await r.text()}`);
     } else {
-      await docRef.delete();
+      const r = await fetch(docUrl, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (!r.ok && r.status !== 404) throw new Error(`Firestore DELETE failed: ${await r.text()}`);
     }
 
     return res.status(200).json({ ok: true });
