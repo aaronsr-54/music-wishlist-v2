@@ -247,7 +247,7 @@ async function fetchArtistAlbums(artistId) {
 
 // ── Runner for a single user (called from UI with ID token) ────
 
-async function runForSingleUser(uid, idToken) {
+async function runForSingleUser(uid, idToken, fbToken) {
   const subDoc = await getDoc(`push-subscriptions/${uid}`, idToken);
   if (!subDoc) {
     return { notified: 0, results: [], error: 'No push subscription found.' };
@@ -268,18 +268,18 @@ async function runForSingleUser(uid, idToken) {
 
     const latestIds = albums.map((a) => String(a.id));
     const cacheRef = `artist-releases-cache/${favorite.artistId}`;
-    const cacheDoc = await getDoc(cacheRef, idToken);
+    const cacheDoc = await getDoc(cacheRef, fbToken);
     const cachedIds = cacheDoc ? (cacheDoc.fields?.albumIds?.arrayValue?.values ?? []).map((v) => v.stringValue).filter(Boolean) : null;
 
     if (cachedIds === null) {
-      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, idToken);
+      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, fbToken);
       continue;
     }
 
     const newAlbums = albums.filter((a) => !cachedIds.includes(String(a.id)));
     if (newAlbums.length > 0) {
       newReleasesByArtist[favorite.artistId] = newAlbums;
-      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, idToken);
+      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, fbToken);
     }
   }
 
@@ -310,7 +310,7 @@ async function runForSingleUser(uid, idToken) {
         artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: true });
       } catch (err) {
         if (err.statusCode === 404 || err.statusCode === 410) {
-          await deleteDoc(`push-subscriptions/${uid}`, idToken);
+          await deleteDoc(`push-subscriptions/${uid}`, fbToken);
         }
         artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: false, error: err.message });
       }
@@ -416,7 +416,8 @@ export default async (req, res) => {
     }
 
     const uid = await getUidFromToken(token);
-    const result = await runForSingleUser(uid, token);
+    const fbToken = await getFirebaseToken();
+    const result = await runForSingleUser(uid, token, fbToken);
     return res.status(200).json(result);
   } catch (error) {
     console.error('check-releases error:', error);
