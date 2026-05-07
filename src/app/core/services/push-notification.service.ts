@@ -73,57 +73,6 @@ export class PushNotificationService {
     }
   }
 
-  async sendTestNotification(): Promise<void> {
-    if (!this.isSupported) return;
-    const reg = await navigator.serviceWorker.ready;
-
-    const samples = [
-      {
-        releaseType: 'Album',
-        emoji: '💿',
-        artist: 'Walls',
-        title: 'El Día que me Olvides',
-        albumId: '867800362',
-        cover:
-          'https://cdn-images.dzcdn.net/images/cover/f29c539e2320c512788d17a3b2707872/1000x1000-000000-80-0-0.jpg',
-      },
-      {
-        releaseType: 'EP',
-        emoji: '🎧',
-        artist: 'Walls',
-        title: 'LNDP',
-        albumId: '334746547',
-        cover:
-          'https://cdn-images.dzcdn.net/images/cover/2f4fd28b440e2300f4526125d1b58c92/1000x1000-000000-80-0-0.jpg',
-      },
-      {
-        releaseType: 'Single',
-        emoji: '🎵',
-        artist: 'Walls',
-        title: 'Vulnerable (feat. Dani Fernández)',
-        albumId: '855783832',
-        cover:
-          'https://cdn-images.dzcdn.net/images/cover/684e2057aeb8f9cec53a0fb090bc8780/1000x1000-000000-80-0-0.jpg',
-      },
-    ];
-
-    for (let i = 0; i < samples.length; i++) {
-      const s = samples[i];
-      await new Promise<void>((resolve) => setTimeout(resolve, i * 1200));
-      reg.showNotification(`${s.emoji} ¡${toBold(s.artist)} ha sacado nuevo ${toBold(s.releaseType)}!`, {
-        body: s.title,
-        icon: s.cover,
-        image: s.cover,
-        badge: '/favicon.png',
-        data: { albumId: s.albumId },
-        actions: [
-          { action: 'add', title: '+ Wishlist' },
-          { action: 'view', title: 'Ver release' },
-        ],
-      } as NotificationOptions);
-    }
-  }
-
   async unsubscribe(): Promise<void> {
     if (!this.isSupported) return;
     this.loading.set(true);
@@ -152,18 +101,6 @@ export class PushNotificationService {
       this.loading.set(false);
     }
   }
-}
-
-function toBold(text: string): string {
-  return text.replace(/[A-Za-z0-9]/g, (c) =>
-    String.fromCodePoint(
-      c.charCodeAt(0) >= 48 && c.charCodeAt(0) <= 57
-        ? 0x1d7ce + (c.charCodeAt(0) - 48)
-        : c.charCodeAt(0) >= 65 && c.charCodeAt(0) <= 90
-          ? 0x1d400 + (c.charCodeAt(0) - 65)
-          : 0x1d41a + (c.charCodeAt(0) - 97),
-    ),
-  );
 }
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {

@@ -122,15 +122,7 @@ type Language = 'es' | 'en';
               >
                 {{ pushSvc.isSubscribed() ? t().disableNotifications : t().enableNotifications }}
               </button>
-              @if (pushSvc.isSubscribed()) {
-                <button
-                  class="px-3 py-2 rounded-lg bg-bone dark:bg-ink-200 dark:text-bone text-sm uppercase font-bold"
-                  title="Enviar notificación de prueba"
-                  (click)="sendTestNotification()"
-                >
-                  Test
-                </button>
-              }
+              
             </div>
           }
         </div>
@@ -300,7 +292,4 @@ export class ProfileSettingsComponent {
     }
   }
 
-  async sendTestNotification() {
-    await this.pushSvc.sendTestNotification();
   }
-}
