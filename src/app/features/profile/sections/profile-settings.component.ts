@@ -12,6 +12,8 @@ import { SegmentedTabsComponent } from '../../../shared/components/segmented-tab
 import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { ThemeService } from '../../../core/theme/theme.service';
 import { LanguageService } from '../../../core/i18n/language.service';
+import { PushNotificationService } from '../../../core/services/push-notification.service';
+import { ToastService } from '../../../shared/components/toast/toast.component';
 
 type TabType = 'releases' | 'search' | 'wishlist';
 type Theme = 'light' | 'dark' | 'system';
@@ -94,6 +96,33 @@ type Language = 'es' | 'en';
             (valueChange)="setLanguage($event)"
           />
         </div>
+
+        <div class="flex flex-col md:flex-row gap-2 md:items-center">
+          <span class="md:min-w-36 italic text-ink-700 dark:text-bone-700">
+            {{ t().notifications }}:
+          </span>
+
+          @if (!pushSvc.isSupported) {
+            <span class="text-sm text-ink-600 dark:text-bone-600 italic">
+              {{ t().notificationsNotSupported }}
+            </span>
+          } @else if (notificationsBlocked()) {
+            <span class="text-sm text-ink-600 dark:text-bone-600 italic">
+              {{ t().notificationsBlocked }}
+            </span>
+          } @else {
+            <button
+              class="w-full md:flex-1 px-4 py-2 rounded-lg font-bold uppercase transition-colors"
+              [class]="pushSvc.isSubscribed()
+                ? 'bg-accent text-bone dark:bg-accent dark:text-bone'
+                : 'bg-bone dark:bg-ink-200 dark:text-bone'"
+              [disabled]="pushSvc.loading()"
+              (click)="toggleNotifications()"
+            >
+              {{ pushSvc.isSubscribed() ? t().disableNotifications : t().enableNotifications }}
+            </button>
+          }
+        </div>
       </section>
 
       <app-modal #tabModal [title]="t().defaultPage" (onClose)="closeTabModal()">
@@ -128,6 +157,8 @@ type Language = 'es' | 'en';
 export class ProfileSettingsComponent {
   private themeService = inject(ThemeService);
   private languageService = inject(LanguageService);
+  pushSvc = inject(PushNotificationService);
+  private toast = inject(ToastService);
 
   @ViewChild('tabModal', { static: true }) tabModal!: ModalComponent;
   @ViewChild('themeModal', { static: true }) themeModal!: ModalComponent;
@@ -138,6 +169,12 @@ export class ProfileSettingsComponent {
   currentLanguage = signal<Language>('es');
 
   t = computed(() => this.languageService.t());
+
+  notificationsBlocked = computed(
+    () =>
+      this.pushSvc.isSupported &&
+      this.pushSvc.permissionState() === 'denied'
+  );
 
   tabOptions = computed(() => [
     { value: 'releases' as const, label: this.t().releases },
@@ -234,5 +271,21 @@ export class ProfileSettingsComponent {
   onLangChange(value: string) {
     this.setLanguage(value as Language);
     this.closeLangModal();
+  }
+
+  async toggleNotifications() {
+    if (this.pushSvc.isSubscribed()) {
+      await this.pushSvc.unsubscribe();
+      this.toast.success(this.t().toastNotificationsDisabled);
+    } else {
+      const result = await this.pushSvc.subscribe();
+      if (result === 'granted') {
+        this.toast.success(this.t().toastNotificationsEnabled);
+      } else if (result === 'denied') {
+        this.toast.error(this.t().toastNotificationsDenied);
+      } else {
+        this.toast.error(this.t().toastError);
+      }
+    }
   }
 }

@@ -268,6 +268,10 @@ export class AlbumComponent {
     this.route.paramMap.pipe(map((params) => params.get('id'))),
   );
 
+  private autoAdd = toSignal(
+    this.route.queryParamMap.pipe(map((params) => params.get('add') === 'true')),
+  );
+
   albumType = computed(() => {
     const a = this.album();
     if (!a) return 'album' as TrackType;
@@ -293,6 +297,16 @@ export class AlbumComponent {
       const id = this.albumId();
       if (id) {
         this.loadAlbum(id);
+      }
+    });
+
+    // Auto-add to wishlist when navigated from a push notification action
+    effect(() => {
+      const shouldAdd = this.autoAdd();
+      const album = this.album();
+      const loading = this.loading();
+      if (shouldAdd && album && !loading && !this.isAlbumInWishlist()) {
+        this.toggleWishlist();
       }
     });
   }
