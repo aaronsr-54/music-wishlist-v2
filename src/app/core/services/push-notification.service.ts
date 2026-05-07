@@ -91,7 +91,7 @@ export class PushNotificationService {
     const token = await user.getIdToken();
     return firstValueFrom(
       this.http.post<{ notified: number; results: ReleaseCheckResult[] }>(
-        '/api/check-releases-debug',
+        '/api/check-releases',
         {},
         { headers: { Authorization: `Bearer ${token}` } },
       ),
