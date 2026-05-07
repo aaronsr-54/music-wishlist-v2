@@ -132,6 +132,7 @@ async function setDoc(path, data, token) {
     const body = await r.text();
     throw new Error(`Firestore set ${path} error ${r.status}: ${body}`);
   }
+  console.log(`[check-releases] setDoc success: ${path}`);
 }
 
 async function deleteDoc(path, token) {
@@ -199,24 +200,33 @@ async function run(uid, idToken) {
   const newReleasesByArtist = {};
   for (const favorite of favorites) {
     const albums = await fetchArtistAlbums(favorite.artistId);
-    if (!albums.length) continue;
+    if (!albums.length) {
+      console.log(`[check-releases] No albums from Deezer for artist ${favorite.artistId}`);
+      continue;
+    }
 
     const latestIds = albums.map((a) => String(a.id));
     const cacheRef = `artist-releases-cache/${favorite.artistId}`;
     const cacheDoc = await getDoc(cacheRef, idToken);
     const cachedIds = cacheDoc ? (cacheDoc.fields?.albumIds?.arrayValue?.values ?? []).map((v) => v.stringValue).filter(Boolean) : null;
 
+    console.log(`[check-releases] artist=${favorite.name} cacheRef=${cacheRef} cachedIds=${JSON.stringify(cachedIds)} latestIdsCount=${latestIds.length}`);
+
     if (cachedIds === null) {
+      console.log(`[check-releases] Cache miss - populating cache for ${favorite.name}`);
       await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, idToken);
       continue;
     }
 
     const newAlbums = albums.filter((a) => !cachedIds.includes(String(a.id)));
+    console.log(`[check-releases] newAlbums count: ${newAlbums.length}`);
     if (newAlbums.length > 0) {
       newReleasesByArtist[favorite.artistId] = newAlbums;
       await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, idToken);
     }
   }
+
+  console.log(`[check-releases] newReleasesByArtist: ${JSON.stringify(Object.keys(newReleasesByArtist))}`);
 
   const results = [];
   let notified = 0;
@@ -224,6 +234,8 @@ async function run(uid, idToken) {
   for (const favorite of favorites) {
     const newAlbums = newReleasesByArtist[favorite.artistId];
     if (!newAlbums?.length) continue;
+
+    console.log(`[check-releases] Sending ${newAlbums.length} notifications for ${favorite.name}`);
 
     const artistResults = { artist: favorite.name, artistId: favorite.artistId, albums: [] };
 
@@ -242,8 +254,10 @@ async function run(uid, idToken) {
       try {
         await webpush.sendNotification(subscription, payload);
         notified++;
+        console.log(`[check-releases] Notification sent for ${album.title}`);
         artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: true });
       } catch (err) {
+        console.error(`[check-releases] Push error for ${album.title}: ${err.statusCode} ${err.message}`);
         if (err.statusCode === 404 || err.statusCode === 410) {
           await deleteDoc(`push-subscriptions/${uid}`, idToken);
         }
@@ -254,6 +268,7 @@ async function run(uid, idToken) {
     results.push(artistResults);
   }
 
+  console.log(`[check-releases] Final: notified=${notified} resultsCount=${results.length}`);
   return { notified, results };
 }
 
