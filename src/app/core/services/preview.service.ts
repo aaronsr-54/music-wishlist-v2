@@ -109,10 +109,7 @@ export class PreviewService {
       this.startProgressInterval();
     };
 
-    this.audio.play().catch(() => {
-      this.toastService.error('No se puede reproducir el preview');
-      this.stop();
-    });
+    this.audio.play();
 
     this.state.update((s) => ({
       ...s,
