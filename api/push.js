@@ -4,11 +4,16 @@ import { getAuth } from 'firebase-admin/auth';
 
 function initAdmin() {
   if (getApps().length > 0) return;
+  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
+  console.log('[push] env check — projectId:', !!process.env.FIREBASE_PROJECT_ID,
+    'clientEmail:', !!process.env.FIREBASE_CLIENT_EMAIL,
+    'privateKey present:', !!privateKey,
+    'privateKey starts correctly:', privateKey?.startsWith('-----BEGIN'));
   initializeApp({
     credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+      privateKey,
     }),
   });
 }
@@ -45,7 +50,7 @@ export default async (req, res) => {
 
     return res.status(200).json({ ok: true });
   } catch (error) {
-    console.error('push error:', error);
+    console.error('push error:', error.message ?? error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };
