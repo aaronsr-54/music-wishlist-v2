@@ -110,7 +110,7 @@ export class PushNotificationService {
     for (let i = 0; i < samples.length; i++) {
       const s = samples[i];
       await new Promise<void>((resolve) => setTimeout(resolve, i * 1200));
-      reg.showNotification(`${s.emoji} Nuevo ${s.releaseType} de ${s.artist}`, {
+      reg.showNotification(`${s.emoji} ¡${toBold(s.artist)} ha sacado nuevo ${toBold(s.releaseType)}!`, {
         body: s.title,
         icon: s.cover,
         image: s.cover,
@@ -152,6 +152,18 @@ export class PushNotificationService {
       this.loading.set(false);
     }
   }
+}
+
+function toBold(text: string): string {
+  return text.replace(/[A-Za-z0-9]/g, (c) =>
+    String.fromCodePoint(
+      c.charCodeAt(0) >= 48 && c.charCodeAt(0) <= 57
+        ? 0x1d7ce + (c.charCodeAt(0) - 48)
+        : c.charCodeAt(0) >= 65 && c.charCodeAt(0) <= 90
+          ? 0x1d400 + (c.charCodeAt(0) - 65)
+          : 0x1d41a + (c.charCodeAt(0) - 97),
+    ),
+  );
 }
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
