@@ -2,6 +2,8 @@ import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import webpush from 'web-push';
 
+let _db = null;
+
 function initAdmin() {
   if (getApps().length > 0) return;
   initializeApp({
@@ -11,6 +13,14 @@ function initAdmin() {
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
   });
+}
+
+function getDb() {
+  if (!_db) {
+    _db = getFirestore();
+    _db.settings({ preferRest: true });
+  }
+  return _db;
 }
 
 webpush.setVapidDetails(
@@ -43,7 +53,7 @@ export default async (req, res) => {
 
   try {
     initAdmin();
-    const db = getFirestore();
+    const db = getDb();
 
     // Load all push subscriptions
     const subsSnapshot = await db.collection('push-subscriptions').get();

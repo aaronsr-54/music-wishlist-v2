@@ -2,20 +2,25 @@ import { initializeApp, cert, getApps } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 
+let _db = null;
+
 function initAdmin() {
   if (getApps().length > 0) return;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n');
-  console.log('[push] env check — projectId:', !!process.env.FIREBASE_PROJECT_ID,
-    'clientEmail:', !!process.env.FIREBASE_CLIENT_EMAIL,
-    'privateKey present:', !!privateKey,
-    'privateKey starts correctly:', privateKey?.startsWith('-----BEGIN'));
   initializeApp({
     credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
     }),
   });
+}
+
+function getDb() {
+  if (!_db) {
+    _db = getFirestore();
+    _db.settings({ preferRest: true });
+  }
+  return _db;
 }
 
 export default async (req, res) => {
@@ -36,7 +41,7 @@ export default async (req, res) => {
   try {
     initAdmin();
     const uid = (await getAuth().verifyIdToken(authHeader.slice(7))).uid;
-    const db = getFirestore();
+    const db = getDb();
     const docRef = db.collection('push-subscriptions').doc(uid);
 
     if (action === 'subscribe') {
