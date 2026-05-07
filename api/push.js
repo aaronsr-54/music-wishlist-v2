@@ -50,7 +50,8 @@ export default async (req, res) => {
 
     return res.status(200).json({ ok: true });
   } catch (error) {
-    console.error('push error:', error.message ?? error);
-    return res.status(500).json({ error: 'Internal server error' });
+    const msg = error.message ?? String(error);
+    console.error('push error:', msg);
+    return res.status(500).json({ error: msg });
   }
 };
