@@ -147,7 +147,7 @@ interface AlbumDetail {
                   >
                     {{ a.name }}
                   </h1>
-                  @if (tracks.length > 1) {
+                  @if (tracks().length > 1) {
                     <button
                       appBtn
                       variant="add"
@@ -189,7 +189,7 @@ interface AlbumDetail {
                   </span>
                 </div>
 
-                @if (tracks.length > 1) {
+                @if (tracks().length > 1) {
                   <button
                     appBtn
                     variant="add"

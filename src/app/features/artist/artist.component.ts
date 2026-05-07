@@ -8,7 +8,7 @@ import {
   DestroyRef,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CommonModule } from '@angular/common';
+import { Location, CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
@@ -307,6 +307,7 @@ import { ArtistCacheService } from '../../core/services/artist-cache.service';
 export class ArtistComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private location = inject(Location);
   private searchSvc = inject(SearchService);
   private wishlistSvc = inject(WishlistService);
   private favoriteArtistsSvc = inject(FavoriteArtistsService);
@@ -477,7 +478,7 @@ export class ArtistComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate(['']);
+    this.location.back();
   }
 
   async toggleReleaseWishlist(e: Event, release: ReleaseItem) {

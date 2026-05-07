@@ -14,6 +14,7 @@ import { ProfileSectionComponent } from '../../../shared/components/profile-sect
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
 import { EmailAutocompleteComponent } from '../../../shared/components/email-autocomplete/email-autocomplete.component';
 import { LanguageService } from '../../../core/i18n/language.service';
+import { ToastService } from '../../../shared/components/toast/toast.component';
 
 @Component({
   selector: 'app-profile-shared',
@@ -124,6 +125,7 @@ export class ProfileSharedComponent {
   private auth = inject(AuthService);
   shareService = inject(WishlistShareService);
   private languageService = inject(LanguageService);
+  private toastService = inject(ToastService);
 
   loading = signal(false);
 
@@ -143,6 +145,9 @@ export class ProfileSharedComponent {
         user.displayName || user.email || 'Usuario',
         user.photoURL || null,
       );
+      this.toastService.success(this.t().toastWishlistShared);
+    } catch {
+      this.toastService.error(this.t().toastError);
     } finally {
       this.loading.set(false);
     }
@@ -157,6 +162,9 @@ export class ProfileSharedComponent {
       if (!user) return;
 
       await this.shareService.unshare(share.id!, user.uid);
+      this.toastService.success(this.t().toastWishlistUnshared);
+    } catch {
+      this.toastService.error(this.t().toastError);
     } finally {
       this.loading.set(false);
     }
@@ -168,6 +176,11 @@ export class ProfileSharedComponent {
     this.loading.set(true);
     try {
       await this.shareService.toggleHidden(share);
+      this.toastService.success(
+        share.hidden ? this.t().toastSharedVisible : this.t().toastSharedHidden,
+      );
+    } catch {
+      this.toastService.error(this.t().toastError);
     } finally {
       this.loading.set(false);
     }

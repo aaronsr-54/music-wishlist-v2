@@ -152,9 +152,9 @@ export class WishlistService {
         const col = collection(this.firestore, 'wishlist');
         await addDoc(col, entry);
       }
-      this.toastService.success('Añadido a la wishlist');
+      this.toastService.success(this.lang.t().toastAddedToWishlist);
     } catch {
-      this.toastService.error('Ha ocurrido un error');
+      this.toastService.error(this.lang.t().toastError);
     }
   }
 
@@ -189,9 +189,9 @@ export class WishlistService {
         const col = collection(this.firestore, 'wishlist');
         await addDoc(col, entry);
       }
-      this.toastService.success('Añadido a la wishlist');
+      this.toastService.success(this.lang.t().toastAddedToWishlist);
     } catch {
-      this.toastService.error('Ha ocurrido un error');
+      this.toastService.error(this.lang.t().toastError);
     }
   }
 
@@ -209,9 +209,9 @@ export class WishlistService {
       } else {
         await deleteDoc(doc(this.firestore, 'wishlist', id));
       }
-      this.toastService.success('Eliminado de la wishlist');
+      this.toastService.success(this.lang.t().toastRemovedFromWishlist);
     } catch {
-      this.toastService.error('Ha ocurrido un error');
+      this.toastService.error(this.lang.t().toastError);
     }
   }
 
@@ -231,9 +231,9 @@ export class WishlistService {
       } else {
         await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: true });
       }
-      this.toastService.success('Marcado como listo');
+      this.toastService.success(this.lang.t().toastMarkedReady);
     } catch {
-      this.toastService.error('Ha ocurrido un error');
+      this.toastService.error(this.lang.t().toastError);
     }
   }
 
@@ -253,9 +253,9 @@ export class WishlistService {
       } else {
         await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: false });
       }
-      this.toastService.success('Marcado como pendiente');
+      this.toastService.success(this.lang.t().toastMarkedPending);
     } catch {
-      this.toastService.error('Ha ocurrido un error');
+      this.toastService.error(this.lang.t().toastError);
     }
   }
 }

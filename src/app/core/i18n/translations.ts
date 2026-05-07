@@ -82,6 +82,10 @@ export const translations = {
     toastError: 'Ha ocurrido un error',
     toastPreviewError: 'No se puede reproducir el preview',
     toastSettingsSaved: 'Preferencias guardadas',
+    toastWishlistShared: 'Wishlist compartida',
+    toastWishlistUnshared: 'Compartición eliminada',
+    toastSharedVisible: 'Wishlist visible',
+    toastSharedHidden: 'Wishlist oculta',
   },
   en: {
     defaultPage: 'Home page',
@@ -166,6 +170,10 @@ export const translations = {
     toastError: 'An error occurred',
     toastPreviewError: 'Cannot play preview',
     toastSettingsSaved: 'Settings saved',
+    toastWishlistShared: 'Wishlist shared',
+    toastWishlistUnshared: 'Share removed',
+    toastSharedVisible: 'Wishlist visible',
+    toastSharedHidden: 'Wishlist hidden',
   },
 } as const;
 
