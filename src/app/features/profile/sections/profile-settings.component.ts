@@ -111,16 +111,27 @@ type Language = 'es' | 'en';
               {{ t().notificationsBlocked }}
             </span>
           } @else {
-            <button
-              class="w-full md:flex-1 px-4 py-2 rounded-lg font-bold uppercase transition-colors"
-              [class]="pushSvc.isSubscribed()
-                ? 'bg-accent text-bone dark:bg-accent dark:text-bone'
-                : 'bg-bone dark:bg-ink-200 dark:text-bone'"
-              [disabled]="pushSvc.loading()"
-              (click)="toggleNotifications()"
-            >
-              {{ pushSvc.isSubscribed() ? t().disableNotifications : t().enableNotifications }}
-            </button>
+            <div class="flex gap-2 w-full md:flex-1">
+              <button
+                class="flex-1 px-4 py-2 rounded-lg font-bold uppercase transition-colors"
+                [class]="pushSvc.isSubscribed()
+                  ? 'bg-accent text-bone dark:bg-accent dark:text-bone'
+                  : 'bg-bone dark:bg-ink-200 dark:text-bone'"
+                [disabled]="pushSvc.loading()"
+                (click)="toggleNotifications()"
+              >
+                {{ pushSvc.isSubscribed() ? t().disableNotifications : t().enableNotifications }}
+              </button>
+              @if (pushSvc.isSubscribed()) {
+                <button
+                  class="px-3 py-2 rounded-lg bg-bone dark:bg-ink-200 dark:text-bone text-sm uppercase font-bold"
+                  title="Enviar notificación de prueba"
+                  (click)="sendTestNotification()"
+                >
+                  Test
+                </button>
+              }
+            </div>
           }
         </div>
       </section>
@@ -287,5 +298,9 @@ export class ProfileSettingsComponent {
         this.toast.error(this.t().toastError);
       }
     }
+  }
+
+  async sendTestNotification() {
+    await this.pushSvc.sendTestNotification();
   }
 }

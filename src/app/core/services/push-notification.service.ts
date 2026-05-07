@@ -37,19 +37,20 @@ export class PushNotificationService {
   async subscribe(): Promise<'granted' | 'denied' | 'error'> {
     if (!this.isSupported || this.auth.demoMode()) return 'error';
     this.loading.set(true);
+    let sub: PushSubscription | null = null;
     try {
       const permission = await Notification.requestPermission();
       this.permissionState.set(permission);
       if (permission !== 'granted') return 'denied';
 
       const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.subscribe({
+      sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(environment.vapidPublicKey),
       });
 
       const user = this.auth.currentUser();
-      if (!user) return 'error';
+      if (!user) throw new Error('No user');
       const token = await user.getIdToken();
 
       await firstValueFrom(
@@ -59,11 +60,28 @@ export class PushNotificationService {
       );
       this.isSubscribed.set(true);
       return 'granted';
-    } catch {
+    } catch (err) {
+      console.error('[PushNotification] subscribe error:', err);
+      if (sub) await sub.unsubscribe().catch(() => {});
       return 'error';
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async sendTestNotification(): Promise<void> {
+    if (!this.isSupported) return;
+    const reg = await navigator.serviceWorker.ready;
+    await reg.showNotification('Nuevo release · Test', {
+      body: 'The Weeknd · Álbum',
+      icon: '/favicon.png',
+      badge: '/favicon.png',
+      data: { albumId: '302127' },
+      actions: [
+        { action: 'add', title: 'Agregar a wishlist' },
+        { action: 'view', title: 'Ver release' },
+      ],
+    } as NotificationOptions);
   }
 
   async unsubscribe(): Promise<void> {
