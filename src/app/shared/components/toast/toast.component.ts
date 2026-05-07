@@ -27,7 +27,7 @@ export class ToastService {
 
   show(message: string, type: ToastType = 'info'): void {
     const id = Date.now();
-    const toast: Toast = { id, message, type };
+    const toast: Toast = { id, message, type, isRemoving: false };
     this._toasts.update((t) => [...t, toast]);
     this.appRef.tick();
 
@@ -73,10 +73,13 @@ export class ToastService {
     >
       @for (toast of toasts(); track toast.id) {
         <div
-          class="p-3 w-full bg-light dark:bg-dark text-ink dark:text-bone [&.error]:text-red-600 [&.error]:dark:text-red-400 font-display italic shadow-lg rounded-card flex gap-2 border border-solid border-ink-200 pointer-events-auto"
-          [class]="!toast.isRemoving
-            ? 'animate-slideInUp md:animate-slideInRight'
-            : 'animate-slideOutDown md:animate-slideOutRight'"
+          class="p-3 w-full bg-light dark:bg-dark text-ink dark:text-bone [&.error]:text-red-600 [&.error]:dark:text-red-400 font-display italic shadow-lg rounded-card flex gap-2 border border-solid border-ink-200 pointer-events-auto transition-all duration-300"
+          [ngClass]="{
+            'animate-slideInUp': !toast.isRemoving,
+            'md:animate-slideInRight': !toast.isRemoving,
+            'animate-slideOutDown': toast.isRemoving,
+            'md:animate-slideOutRight': toast.isRemoving
+          }"
           [class.error]="toast.type === 'error'"
           role="alert"
         >
