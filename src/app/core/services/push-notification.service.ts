@@ -54,9 +54,13 @@ export class PushNotificationService {
       const token = await user.getIdToken();
 
       await firstValueFrom(
-        this.http.post('/api/push', { action: 'subscribe', subscription: sub.toJSON() }, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        this.http.post(
+          '/api/push',
+          { action: 'subscribe', subscription: sub.toJSON() },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        ),
       );
       this.isSubscribed.set(true);
       return 'granted';
@@ -77,26 +81,29 @@ export class PushNotificationService {
       {
         releaseType: 'Album',
         emoji: '💿',
-        artist: 'The Weeknd',
-        title: 'Hurry Up Tomorrow',
-        albumId: '302127',
-        cover: 'https://e-cdns-images.dzcdn.net/images/cover/2e018122cb56986277102d2041a592c8/1000x1000-000000-80-0-0.jpg',
+        artist: 'Walls',
+        title: 'El Día que me Olvides',
+        albumId: '867800362',
+        cover:
+          'https://cdn-images.dzcdn.net/images/cover/f29c539e2320c512788d17a3b2707872/1000x1000-000000-80-0-0.jpg',
       },
       {
         releaseType: 'EP',
         emoji: '🎧',
-        artist: 'Billie Eilish',
-        title: 'Guitar Songs',
-        albumId: '123456',
-        cover: 'https://e-cdns-images.dzcdn.net/images/cover/c2b03f0a7b2af3f89c99cdf02e7a1d48/1000x1000-000000-80-0-0.jpg',
+        artist: 'Walls',
+        title: 'LNDP',
+        albumId: '334746547',
+        cover:
+          'https://cdn-images.dzcdn.net/images/cover/2f4fd28b440e2300f4526125d1b58c92/1000x1000-000000-80-0-0.jpg',
       },
       {
         releaseType: 'Single',
         emoji: '🎵',
-        artist: 'Kendrick Lamar',
-        title: 'luther',
-        albumId: '789012',
-        cover: 'https://e-cdns-images.dzcdn.net/images/cover/2a5b47ab5ae5f3413ec3eaada94ca700/1000x1000-000000-80-0-0.jpg',
+        artist: 'Walls',
+        title: 'Vulnerable (feat. Dani Fernández)',
+        albumId: '855783832',
+        cover:
+          'https://cdn-images.dzcdn.net/images/cover/684e2057aeb8f9cec53a0fb090bc8780/1000x1000-000000-80-0-0.jpg',
       },
     ];
 
@@ -129,9 +136,13 @@ export class PushNotificationService {
       if (user && !this.auth.demoMode()) {
         const token = await user.getIdToken();
         await firstValueFrom(
-          this.http.post('/api/push', { action: 'unsubscribe' }, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
+          this.http.post(
+            '/api/push',
+            { action: 'unsubscribe' },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          ),
         );
       }
       this.isSubscribed.set(false);
@@ -145,9 +156,7 @@ export class PushNotificationService {
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const rawData = atob(base64);
   return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
 }
