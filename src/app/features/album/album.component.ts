@@ -153,12 +153,12 @@ interface AlbumDetail {
                       variant="add"
                       [added]="isAlbumInWishlist()"
                       (click)="toggleWishlist()"
-                      class="hidden md:block"
+                      class="hidden md:block leading-none"
                     >
                       @if (isAlbumInWishlist()) {
-                        <app-icon name="check" class="w-5 h-5 " />
+                        <app-icon name="check" class="w-5 h-5" />
                       } @else {
-                        <app-icon name="plus" class="w-5 h-5 " />
+                        <app-icon name="plus" class="w-5 h-5" />
                       }
                     </button>
                   }
@@ -195,7 +195,7 @@ interface AlbumDetail {
                     variant="add"
                     [added]="isAlbumInWishlist()"
                     (click)="toggleWishlist()"
-                    class="md:hidden mx-auto"
+                    class="md:hidden mx-auto leading-none"
                   >
                     @if (isAlbumInWishlist()) {
                       <app-icon name="check" class="w-5 h-5 " />

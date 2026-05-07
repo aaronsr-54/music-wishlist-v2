@@ -254,10 +254,7 @@ type WishlistEntryExtended = WishlistEntry & {
               [added]="isAdded()"
               (click)="onAdd(trackItem(), $event)"
             >
-              <app-icon
-                [name]="addButtonIcon()"
-                class="w-6 h-6 md:w-6 md:h-6"
-              />
+              <app-icon [name]="addButtonIcon()" class="w-5 h-5" />
             </button>
           }
         </div>
