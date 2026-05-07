@@ -72,18 +72,49 @@ export class PushNotificationService {
   async sendTestNotification(): Promise<void> {
     if (!this.isSupported) return;
     const reg = await navigator.serviceWorker.ready;
-    const coverUrl = 'https://e-cdns-images.dzcdn.net/images/cover/2e018122cb56986277102d2041a592c8/1000x1000-000000-80-0-0.jpg';
-    await reg.showNotification('💿 Nuevo Album de The Weeknd', {
-      body: 'Hurry Up Tomorrow',
-      icon: coverUrl,
-      image: coverUrl,
-      badge: '/favicon.png',
-      data: { albumId: '302127' },
-      actions: [
-        { action: 'add', title: '+ Wishlist' },
-        { action: 'view', title: 'Ver release' },
-      ],
-    } as NotificationOptions);
+
+    const samples = [
+      {
+        releaseType: 'Album',
+        emoji: '💿',
+        artist: 'The Weeknd',
+        title: 'Hurry Up Tomorrow',
+        albumId: '302127',
+        cover: 'https://e-cdns-images.dzcdn.net/images/cover/2e018122cb56986277102d2041a592c8/1000x1000-000000-80-0-0.jpg',
+      },
+      {
+        releaseType: 'EP',
+        emoji: '🎧',
+        artist: 'Billie Eilish',
+        title: 'Guitar Songs',
+        albumId: '123456',
+        cover: 'https://e-cdns-images.dzcdn.net/images/cover/c2b03f0a7b2af3f89c99cdf02e7a1d48/1000x1000-000000-80-0-0.jpg',
+      },
+      {
+        releaseType: 'Single',
+        emoji: '🎵',
+        artist: 'Kendrick Lamar',
+        title: 'luther',
+        albumId: '789012',
+        cover: 'https://e-cdns-images.dzcdn.net/images/cover/2a5b47ab5ae5f3413ec3eaada94ca700/1000x1000-000000-80-0-0.jpg',
+      },
+    ];
+
+    for (let i = 0; i < samples.length; i++) {
+      const s = samples[i];
+      await new Promise<void>((resolve) => setTimeout(resolve, i * 1200));
+      reg.showNotification(`${s.emoji} Nuevo ${s.releaseType} de ${s.artist}`, {
+        body: s.title,
+        icon: s.cover,
+        image: s.cover,
+        badge: '/favicon.png',
+        data: { albumId: s.albumId },
+        actions: [
+          { action: 'add', title: '+ Wishlist' },
+          { action: 'view', title: 'Ver release' },
+        ],
+      } as NotificationOptions);
+    }
   }
 
   async unsubscribe(): Promise<void> {
