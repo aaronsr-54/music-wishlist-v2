@@ -2,6 +2,35 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist/music-wishlist-v2/browser",
   "installCommand": "npm install",
+  "headers": [
+    {
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/index.html",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(?:js|css|woff|ttf|otf|svg|png|jpg|gif|ico))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/:path*" },
     { "source": "/:path((?!.*\\.(?:js|css|woff|ttf|otf|svg|png|jpg|gif|ico|json|map)).*)", "destination": "/index.html" }

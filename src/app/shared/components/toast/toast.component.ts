@@ -16,6 +16,7 @@ export interface Toast {
   message: string;
   type: ToastType;
   isRemoving?: boolean;
+  action?: { label: string; fn: () => void };
 }
 
 @Injectable({ providedIn: 'root' })
@@ -54,6 +55,17 @@ export class ToastService {
 
   info(message: string): void {
     this.show(message, 'info');
+  }
+
+  showWithAction(
+    message: string,
+    action: { label: string; fn: () => void },
+    type: ToastType = 'info'
+  ): void {
+    const id = Date.now();
+    const toast: Toast = { id, message, type, isRemoving: false, action };
+    this._toasts.update((t) => [...t, toast]);
+    this.appRef.tick();
   }
 }
 
@@ -129,7 +141,7 @@ export class ToastService {
     >
       @for (toast of toasts(); track toast.id) {
         <div
-          class="p-3 w-full bg-light dark:bg-dark text-ink dark:text-bone [&.error]:text-red-600 [&.error]:dark:text-red-400 font-display italic shadow-lg rounded-card flex gap-2 border border-solid border-ink-200 pointer-events-auto transition-all duration-300 toast-item"
+          class="p-3 w-full bg-light dark:bg-dark text-ink dark:text-bone [&.error]:text-red-600 [&.error]:dark:text-red-400 font-display italic shadow-lg rounded-card flex gap-2 items-center border border-solid border-ink-200 pointer-events-auto transition-all duration-300 toast-item"
           [class.toast-entering]="!toast.isRemoving"
           [class.toast-exiting]="toast.isRemoving"
           [class.error]="toast.type === 'error'"
@@ -145,6 +157,14 @@ export class ToastService {
             }
           </span>
           <span>{{ toast.message }}</span>
+          @if (toast.action) {
+            <button
+              (click)="toast.action!.fn()"
+              class="ml-auto text-sm font-bold underline hover:opacity-75 transition-opacity"
+            >
+              {{ toast.action.label }}
+            </button>
+          }
         </div>
       }
     </div>
