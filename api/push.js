@@ -23,19 +23,29 @@ export default async (req, res) => {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
+  const { action, subscription } = req.body ?? {};
+  if (action !== 'subscribe' && action !== 'unsubscribe') {
+    return res.status(400).json({ error: 'Missing action' });
+  }
+
   try {
     initAdmin();
-    const auth = getAuth();
-    const token = authHeader.slice(7);
-    const decoded = await auth.verifyIdToken(token);
-    const uid = decoded.uid;
-
+    const uid = (await getAuth().verifyIdToken(authHeader.slice(7))).uid;
     const db = getFirestore();
-    await db.collection('push-subscriptions').doc(uid).delete();
+    const docRef = db.collection('push-subscriptions').doc(uid);
+
+    if (action === 'subscribe') {
+      if (!subscription?.endpoint) {
+        return res.status(400).json({ error: 'Missing subscription' });
+      }
+      await docRef.set({ subscription, updatedAt: Date.now() });
+    } else {
+      await docRef.delete();
+    }
 
     return res.status(200).json({ ok: true });
   } catch (error) {
-    console.error('unsubscribe error:', error);
+    console.error('push error:', error);
     return res.status(500).json({ error: 'Internal server error' });
   }
 };

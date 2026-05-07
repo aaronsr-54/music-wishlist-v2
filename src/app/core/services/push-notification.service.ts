@@ -53,7 +53,7 @@ export class PushNotificationService {
       const token = await user.getIdToken();
 
       await firstValueFrom(
-        this.http.post('/api/push/subscribe', { subscription: sub.toJSON() }, {
+        this.http.post('/api/push', { action: 'subscribe', subscription: sub.toJSON() }, {
           headers: { Authorization: `Bearer ${token}` },
         })
       );
@@ -78,7 +78,7 @@ export class PushNotificationService {
       if (user && !this.auth.demoMode()) {
         const token = await user.getIdToken();
         await firstValueFrom(
-          this.http.post('/api/push/unsubscribe', {}, {
+          this.http.post('/api/push', { action: 'unsubscribe' }, {
             headers: { Authorization: `Bearer ${token}` },
           })
         );
