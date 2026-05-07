@@ -70,31 +70,55 @@ export class ToastService {
       animation: slideInDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     .toast-item.toast-exiting {
-      animation: slideOutUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      animation: slideOutUp 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     }
     @media (min-width: 768px) {
       .toast-item.toast-entering {
         animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
       .toast-item.toast-exiting {
-        animation: slideOutLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        animation: slideOutLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1);
       }
     }
     @keyframes slideInDown {
-      from { opacity: 0; transform: translateY(-100%); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     @keyframes slideOutUp {
-      from { opacity: 1; transform: translateY(0); }
-      to { opacity: 0; transform: translateY(-100%); }
+      from {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateY(-100%);
+      }
     }
     @keyframes slideInRight {
-      from { opacity: 0; transform: translateX(100%); }
-      to { opacity: 1; transform: translateX(0); }
+      from {
+        opacity: 0;
+        transform: translateX(-100%);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
     @keyframes slideOutLeft {
-      from { opacity: 1; transform: translateX(0); }
-      to { opacity: 0; transform: translateX(-100%); }
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(-100%);
+      }
     }
   `,
   template: `
