@@ -19,15 +19,22 @@ self.addEventListener('install', (event) => {
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
+    caches.keys().then(async (cacheNames) => {
+      const isUpdate = cacheNames.some((name) => name !== CACHE_NAME);
+      await Promise.all(
         cacheNames
           .filter((name) => name !== CACHE_NAME)
           .map((name) => caches.delete(name))
       );
+      await self.clients.claim();
+      if (isUpdate) {
+        const clientList = await self.clients.matchAll({ type: 'window' });
+        clientList.forEach((client) =>
+          client.postMessage({ type: 'NEW_VERSION_AVAILABLE' })
+        );
+      }
     })
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -49,6 +56,44 @@ self.addEventListener('fetch', (event) => {
           return caches.match('/index.html');
         }
       });
+    })
+  );
+});
+
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+  const data = event.data.json();
+  event.waitUntil(
+    self.registration.showNotification(data.title, {
+      body: `${data.artist} · ${data.releaseType}`,
+      icon: data.coverUrl,
+      image: data.coverUrl,
+      badge: '/favicon.png',
+      data: { albumId: data.albumId },
+      actions: [
+        { action: 'add', title: 'Agregar a wishlist' },
+        { action: 'view', title: 'Ver release' },
+      ],
+    })
+  );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const { albumId } = event.notification.data;
+  const url =
+    event.action === 'add'
+      ? `/album/${albumId}?add=true`
+      : `/album/${albumId}`;
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((list) => {
+      for (const client of list) {
+        if ('focus' in client) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      return clients.openWindow(url);
     })
   );
 });
