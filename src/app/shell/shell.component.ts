@@ -137,7 +137,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
 
       <app-tab-bar
         [activeTab]="activeTab()"
-        (tabChange)="activeTab.set($event)"
+        (tabChange)="onTabChange($event)"
       />
 
       @if (hasActivePreview()) {
@@ -188,7 +188,9 @@ export class ShellComponent {
 
     effect(() => {
       this.activeTab();
-      this.router.navigate(['']);
+      if (!this.hasChildRoute()) {
+        this.router.navigate(['']);
+      }
     });
   }
 
@@ -205,5 +207,15 @@ export class ShellComponent {
 
   onNavTabChange(value: string) {
     this.activeTab.set(value as Tab);
+    if (this.hasChildRoute()) {
+      this.router.navigate(['']);
+    }
+  }
+
+  onTabChange(value: Tab) {
+    this.activeTab.set(value);
+    if (this.hasChildRoute()) {
+      this.router.navigate(['']);
+    }
   }
 }

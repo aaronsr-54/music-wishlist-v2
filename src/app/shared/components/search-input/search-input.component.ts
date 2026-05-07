@@ -15,8 +15,8 @@ import { IconComponent } from '../../icons/icon.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex items-center gap-2.5 py-4 border-b border-solid border-bone-100 dark:border-ink-100 transition-[border-color] duration-fast ease-smooth"
-      [class.border-bone-600]="query()"
+      class="flex items-center gap-2.5 py-4 border-b border-solid border-ink-100 [&.active]:border-ink-800 [&.active]:dark:border-bone-800 transition-[border-color] duration-fast ease-smooth"
+      [class.active]="query()"
     >
       <app-icon
         name="search"

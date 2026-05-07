@@ -1,12 +1,15 @@
 import {
   Component,
   inject,
-  OnInit,
   signal,
   computed,
   ChangeDetectionStrategy,
+  effect,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { map } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { SearchService } from '../../core/api/search.service';
 import { WishlistService } from '../../core/firebase/wishlist.service';
@@ -27,6 +30,7 @@ import { Track, TrackType } from '../../shared/models/track.model';
 import { ButtonComponent } from '../../shared/components/button/button.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { LoadingSpinnerComponent } from '../../shared/components/loading-spinner/loading-spinner.component';
+import { ReleaseItem } from '../../shared/models/release-item.model';
 
 interface AlbumDetail {
   id: string;
@@ -143,19 +147,21 @@ interface AlbumDetail {
                   >
                     {{ a.name }}
                   </h1>
-                  <button
-                    appBtn
-                    variant="add"
-                    [added]="isAlbumInWishlist()"
-                    (click)="toggleWishlist()"
-                    class="hidden md:block"
-                  >
-                    @if (isAlbumInWishlist()) {
-                      <app-icon name="check" class="w-5 h-5 " />
-                    } @else {
-                      <app-icon name="plus" class="w-5 h-5 " />
-                    }
-                  </button>
+                  @if (tracks.length > 1) {
+                    <button
+                      appBtn
+                      variant="add"
+                      [added]="isAlbumInWishlist()"
+                      (click)="toggleWishlist()"
+                      class="hidden md:block"
+                    >
+                      @if (isAlbumInWishlist()) {
+                        <app-icon name="check" class="w-5 h-5 " />
+                      } @else {
+                        <app-icon name="plus" class="w-5 h-5 " />
+                      }
+                    </button>
+                  }
                 </div>
 
                 <div
@@ -183,19 +189,21 @@ interface AlbumDetail {
                   </span>
                 </div>
 
-                <button
-                  appBtn
-                  variant="add"
-                  [added]="isAlbumInWishlist()"
-                  (click)="toggleWishlist()"
-                  class="md:hidden mx-auto"
-                >
-                  @if (isAlbumInWishlist()) {
-                    <app-icon name="check" class="w-5 h-5 " />
-                  } @else {
-                    <app-icon name="plus" class="w-5 h-5 " />
-                  }
-                </button>
+                @if (tracks.length > 1) {
+                  <button
+                    appBtn
+                    variant="add"
+                    [added]="isAlbumInWishlist()"
+                    (click)="toggleWishlist()"
+                    class="md:hidden mx-auto"
+                  >
+                    @if (isAlbumInWishlist()) {
+                      <app-icon name="check" class="w-5 h-5 " />
+                    } @else {
+                      <app-icon name="plus" class="w-5 h-5 " />
+                    }
+                  </button>
+                }
               </div>
             </div>
           </div>
@@ -211,7 +219,9 @@ interface AlbumDetail {
               <div class="flex flex-col">
                 @for (track of trackList(); track track.id; let i = $index) {
                   <app-search-result-item
-                    [style.animation]="'trackRight 450ms cubic-bezier(0.16,1,0.3,1) both'"
+                    [style.animation]="
+                      'trackRight 450ms cubic-bezier(0.16,1,0.3,1) both'
+                    "
                     [style.animation-delay]="i * 30 + 'ms'"
                     [item]="track"
                     type="track"
@@ -237,9 +247,10 @@ interface AlbumDetail {
     </div>
   `,
 })
-export class AlbumComponent implements OnInit {
+export class AlbumComponent {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private location = inject(Location);
   private searchSvc = inject(SearchService);
   private wishlistSvc = inject(WishlistService);
   private authSvc = inject(AuthService);
@@ -252,6 +263,10 @@ export class AlbumComponent implements OnInit {
   album = signal<AlbumDetail | null>(null);
   tracks = signal<AlbumTrack[]>([]);
   loading = signal(true);
+
+  private albumId = toSignal(
+    this.route.paramMap.pipe(map((params) => params.get('id'))),
+  );
 
   trackList = computed(() => {
     const albumData = this.album();
@@ -267,11 +282,11 @@ export class AlbumComponent implements OnInit {
     }));
   });
 
-  ngOnInit() {
-    this.route.paramMap.subscribe((params) => {
-      const albumId = params.get('id');
-      if (albumId) {
-        this.loadAlbum(albumId);
+  constructor() {
+    effect(() => {
+      const id = this.albumId();
+      if (id) {
+        this.loadAlbum(id);
       }
     });
   }
@@ -290,6 +305,13 @@ export class AlbumComponent implements OnInit {
     this.searchSvc.getAlbumTracks(albumId).subscribe({
       next: (tracks) => {
         this.tracks.set(tracks);
+
+        if (tracks.length === 1) {
+          this.album.update((a) =>
+            a ? { ...a, type: 'single' as TrackType } : a,
+          );
+        }
+
         this.loading.set(false);
       },
       error: () => {
@@ -322,16 +344,16 @@ export class AlbumComponent implements OnInit {
     if (existing && existing.id) {
       await this.wishlistSvc.remove(existing.id);
     } else {
-      await this.wishlistSvc.add(
-        {
-          id: currentAlbum.id,
-          name: currentAlbum.name,
-          artist: currentAlbum.artist,
-          coverUrl: currentAlbum.coverUrl,
-          type: currentAlbum.type,
-        } as any,
-        user,
-      );
+      const releaseItem: ReleaseItem = {
+        id: currentAlbum.id,
+        name: currentAlbum.name,
+        artist: currentAlbum.artist,
+        coverUrl: currentAlbum.coverUrl,
+        type: currentAlbum.type,
+        releaseDate: currentAlbum.releaseDate,
+        ...(currentAlbum.artistId ? { artistId: currentAlbum.artistId } : {}),
+      };
+      await this.wishlistSvc.addRelease(releaseItem, user);
     }
   }
 
@@ -383,12 +405,12 @@ export class AlbumComponent implements OnInit {
   formatDuration = formatDuration;
 
   goBack() {
-    this.router.navigate(['']);
+    this.location.back();
   }
 
   goToArtist(artistId: string | undefined) {
     if (artistId) {
-      this.router.navigate(['/artist', artistId]);
+      this.router.navigate(['/', 'artist', artistId]);
     }
   }
 }

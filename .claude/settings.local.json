@@ -106,7 +106,11 @@
       "Bash(Select-String -Pattern \"error|warning\" -Context 2)",
       "Bash(Remove-Item *)",
       "Bash(Write-Output \"Server should be ready\")",
-      "Bash(timeout 45 bash -c 'until curl -s http://localhost:4201 > /dev/null 2>&1; do sleep 1; done; echo \"Dev server ready\"')"
+      "Bash(timeout 45 bash -c 'until curl -s http://localhost:4201 > /dev/null 2>&1; do sleep 1; done; echo \"Dev server ready\"')",
+      "Bash(findstr /I \"4200\\\\|4201\\\\|4202\")",
+      "Bash(npm --version)",
+      "Bash(start *)",
+      "Bash(Get-ChildItem *)"
     ]
   }
 }

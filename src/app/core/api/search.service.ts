@@ -112,9 +112,10 @@ export class SearchService {
     );
   }
 
-  getArtistTracks(artistId: string): Observable<Track[]> {
+  getArtistTracks(artistId: string, limit?: number): Observable<Track[]> {
     if (this.artistTracksCache.has(artistId)) {
-      return of(this.artistTracksCache.get(artistId)!);
+      const cached = this.artistTracksCache.get(artistId)!;
+      return of(limit ? cached.slice(0, limit) : cached);
     }
 
     return from(
@@ -132,7 +133,7 @@ export class SearchService {
           previewUrl: t.preview ? `/api/preview?url=${encodeURIComponent(t.preview)}` : undefined,
         }));
         this.artistTracksCache.set(artistId, tracks);
-        return tracks;
+        return limit ? tracks.slice(0, limit) : tracks;
       }),
     );
   }
@@ -167,7 +168,7 @@ export class SearchService {
           name: a.title,
           artist: artistName ?? '',
           coverUrl: a.cover_big ?? a.cover_medium ?? '',
-          type: (a.record_type === 'single' ? 'single' : 'album') as TrackType,
+          type: this.mapRecordType(a.record_type),
           releaseDate: a.release_date ?? '',
           previewUrl: undefined,
           artistId: a.artist?.id ? String(a.artist.id) : undefined,
@@ -204,6 +205,35 @@ export class SearchService {
         );
       }),
     );
+  }
+
+  getArtistAlbums(artistId: string, artistName: string): Observable<ReleaseItem[]> {
+    return this.getArtistReleases(artistId, artistName).pipe(
+      map((releases) => releases.filter((r) => r.type === 'album')),
+    );
+  }
+
+  getArtistEPs(artistId: string, artistName: string): Observable<ReleaseItem[]> {
+    return this.getArtistReleases(artistId, artistName).pipe(
+      map((releases) => releases.filter((r) => r.type === 'ep')),
+    );
+  }
+
+  getArtistSingles(artistId: string, artistName: string): Observable<ReleaseItem[]> {
+    return this.getArtistReleases(artistId, artistName).pipe(
+      map((releases) => releases.filter((r) => r.type === 'single')),
+    );
+  }
+
+  private mapRecordType(recordType?: string): TrackType {
+    switch (recordType) {
+      case 'single':
+        return 'single';
+      case 'ep':
+        return 'ep';
+      default:
+        return 'album';
+    }
   }
 
   saveSearchState(
