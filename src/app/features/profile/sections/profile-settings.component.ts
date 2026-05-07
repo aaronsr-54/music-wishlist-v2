@@ -122,7 +122,15 @@ type Language = 'es' | 'en';
               >
                 {{ pushSvc.isSubscribed() ? t().disableNotifications : t().enableNotifications }}
               </button>
-              
+              @if (pushSvc.isSubscribed()) {
+                <button
+                  class="px-3 py-2 rounded-lg bg-bone dark:bg-ink-200 dark:text-bone text-sm uppercase font-bold"
+                  [disabled]="checkingReleases()"
+                  (click)="checkReleases()"
+                >
+                  {{ checkingReleases() ? '…' : 'Check' }}
+                </button>
+              }
             </div>
           }
         </div>
@@ -162,6 +170,7 @@ export class ProfileSettingsComponent {
   private languageService = inject(LanguageService);
   pushSvc = inject(PushNotificationService);
   private toast = inject(ToastService);
+  checkingReleases = signal(false);
 
   @ViewChild('tabModal', { static: true }) tabModal!: ModalComponent;
   @ViewChild('themeModal', { static: true }) themeModal!: ModalComponent;
@@ -289,6 +298,26 @@ export class ProfileSettingsComponent {
       } else {
         this.toast.error(this.t().toastError);
       }
+    }
+  }
+
+  async checkReleases() {
+    this.checkingReleases.set(true);
+    try {
+      const { notified, results } = await this.pushSvc.debugCheckReleases();
+      if (notified > 0) {
+        const details = results
+          .map((r) => `${r.artist}: ${r.albums.map((a) => a.title).join(', ')}`)
+          .join(' | ');
+        this.toast.success(`Notificaciones enviadas (${notified}): ${details}`);
+      } else {
+        this.toast.success('Sin novedades — no hay nuevos releases.');
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error al verificar releases';
+      this.toast.error(msg);
+    } finally {
+      this.checkingReleases.set(false);
     }
   }
 

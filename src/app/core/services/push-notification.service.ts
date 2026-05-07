@@ -4,6 +4,18 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { environment } from '../../../environments/environment';
 
+export interface ReleaseCheckResult {
+  artist: string;
+  artistId: string;
+  albums: {
+    id: number;
+    title: string;
+    recordType: string;
+    sent: boolean;
+    error?: string;
+  }[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class PushNotificationService {
   private http = inject(HttpClient);
@@ -71,6 +83,19 @@ export class PushNotificationService {
     } finally {
       this.loading.set(false);
     }
+  }
+
+  async debugCheckReleases(): Promise<{ notified: number; results: ReleaseCheckResult[] }> {
+    const user = this.auth.currentUser();
+    if (!user) throw new Error('No user');
+    const token = await user.getIdToken();
+    return firstValueFrom(
+      this.http.post<{ notified: number; results: ReleaseCheckResult[] }>(
+        '/api/check-releases-debug',
+        {},
+        { headers: { Authorization: `Bearer ${token}` } },
+      ),
+    );
   }
 
   async unsubscribe(): Promise<void> {
