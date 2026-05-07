@@ -60,18 +60,21 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
+const RELEASE_EMOJI = { Album: '💿', EP: '🎧', Single: '🎵' };
+
 self.addEventListener('push', (event) => {
   if (!event.data) return;
   const data = event.data.json();
+  const emoji = RELEASE_EMOJI[data.releaseType] ?? '🎵';
   event.waitUntil(
-    self.registration.showNotification(data.title, {
-      body: `${data.artist} · ${data.releaseType}`,
+    self.registration.showNotification(`${emoji} Nuevo ${data.releaseType} de ${data.artist}`, {
+      body: data.title,
       icon: data.coverUrl,
       image: data.coverUrl,
       badge: '/favicon.png',
       data: { albumId: data.albumId },
       actions: [
-        { action: 'add', title: 'Agregar a wishlist' },
+        { action: 'add', title: '+ Wishlist' },
         { action: 'view', title: 'Ver release' },
       ],
     })

@@ -72,13 +72,15 @@ export class PushNotificationService {
   async sendTestNotification(): Promise<void> {
     if (!this.isSupported) return;
     const reg = await navigator.serviceWorker.ready;
-    await reg.showNotification('Nuevo release · Test', {
-      body: 'The Weeknd · Álbum',
-      icon: '/favicon.png',
+    const coverUrl = 'https://e-cdns-images.dzcdn.net/images/cover/2e018122cb56986277102d2041a592c8/1000x1000-000000-80-0-0.jpg';
+    await reg.showNotification('💿 Nuevo Album de The Weeknd', {
+      body: 'Hurry Up Tomorrow',
+      icon: coverUrl,
+      image: coverUrl,
       badge: '/favicon.png',
       data: { albumId: '302127' },
       actions: [
-        { action: 'add', title: 'Agregar a wishlist' },
+        { action: 'add', title: '+ Wishlist' },
         { action: 'view', title: 'Ver release' },
       ],
     } as NotificationOptions);
