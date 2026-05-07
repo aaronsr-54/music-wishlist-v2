@@ -21,6 +21,7 @@ import { User } from '@angular/fire/auth';
 import { SearchService } from '../api/search.service';
 import { AuthService } from '../auth/auth.service';
 import { ToastService } from '../../shared/components/toast/toast.component';
+import { LanguageService } from '../i18n/language.service';
 
 export interface FavoriteArtist {
   id?: string;
@@ -38,6 +39,7 @@ export class FavoriteArtistsService {
   private search = inject(SearchService);
   private injector = inject(Injector);
   private toastService = inject(ToastService);
+  private lang = inject(LanguageService);
 
   private _artists = signal<FavoriteArtist[]>([]);
   artists = this._artists.asReadonly();
@@ -141,9 +143,9 @@ export class FavoriteArtistsService {
           return addDoc(col, entry);
         });
       }
-      this.toastService.success('Añadido a favoritos');
+      this.toastService.success(this.lang.t().toastFavoriteAdded);
     } catch {
-      this.toastService.error('Ha ocurrido un error');
+      this.toastService.error(this.lang.t().toastError);
     }
   }
 
@@ -165,9 +167,9 @@ export class FavoriteArtistsService {
           return deleteDoc(docRef);
         });
       }
-      this.toastService.success('Eliminado de favoritos');
+      this.toastService.success(this.lang.t().toastFavoriteRemoved);
     } catch {
-      this.toastService.error('Ha ocurrido un error');
+      this.toastService.error(this.lang.t().toastError);
     }
   }
 }

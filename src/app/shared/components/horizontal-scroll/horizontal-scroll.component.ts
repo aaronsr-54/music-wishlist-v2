@@ -28,7 +28,7 @@ import { CommonModule } from '@angular/common';
         overflow-x: auto;
         overflow-y: hidden;
         -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
+        scroll-snap-type: x proximity;
         padding-inline: 12px;
       }
       .scroll-container::-webkit-scrollbar {
@@ -72,7 +72,7 @@ import { CommonModule } from '@angular/common';
     `,
   ],
   template: `
-    <div #scrollContainer class="scroll-container" (scroll)="checkVisibility()">
+    <div #scrollContainer class="scroll-container" (scroll)="onScroll()">
       <ng-content />
     </div>
   `,
@@ -81,6 +81,8 @@ export class HorizontalScrollComponent implements AfterViewInit {
   @Input() visibleThreshold = 0.6;
 
   visibleIndices = signal<number[]>([]);
+
+  private rafPending = false;
 
   ngAfterViewInit() {
     requestAnimationFrame(() => {
@@ -92,7 +94,20 @@ export class HorizontalScrollComponent implements AfterViewInit {
 
   @HostListener('window:resize')
   onResize() {
-    this.checkVisibility();
+    this.scheduleVisibilityCheck();
+  }
+
+  onScroll() {
+    this.scheduleVisibilityCheck();
+  }
+
+  private scheduleVisibilityCheck() {
+    if (this.rafPending) return;
+    this.rafPending = true;
+    requestAnimationFrame(() => {
+      this.rafPending = false;
+      this.checkVisibility();
+    });
   }
 
   checkVisibility() {

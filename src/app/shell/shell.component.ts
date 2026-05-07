@@ -82,25 +82,17 @@ type Tab = 'releases' | 'search' | 'wishlist';
         <section
           class="desktop-content flex-1 overflow-y-auto p-4 rounded-xl border border-bone-800 dark:border-ink-200 shadow-[0_2px_12px_4px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)] h-full [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10"
         >
-          @switch (activeTab()) {
-            @case ('releases') {
-              @if (hasChildRoute()) {
-                <router-outlet />
-              } @else {
+          @if (hasChildRoute()) {
+            <router-outlet />
+          } @else {
+            @switch (activeTab()) {
+              @case ('releases') {
                 <app-releases />
               }
-            }
-            @case ('search') {
-              @if (hasChildRoute()) {
-                <router-outlet />
-              } @else {
+              @case ('search') {
                 <app-search />
               }
-            }
-            @case ('wishlist') {
-              @if (hasChildRoute()) {
-                <router-outlet />
-              } @else {
+              @case ('wishlist') {
                 <app-wishlist />
               }
             }
@@ -122,25 +114,17 @@ type Tab = 'releases' | 'search' | 'wishlist';
         class="z-10 mobile-content flex-1 overflow-hidden px-4"
         [class.has-preview]="hasActivePreview()"
       >
-        @switch (activeTab()) {
-          @case ('releases') {
-            @if (hasChildRoute()) {
-              <router-outlet />
-            } @else {
+        @if (hasChildRoute()) {
+          <router-outlet />
+        } @else {
+          @switch (activeTab()) {
+            @case ('releases') {
               <app-releases />
             }
-          }
-          @case ('search') {
-            @if (hasChildRoute()) {
-              <router-outlet />
-            } @else {
+            @case ('search') {
               <app-search />
             }
-          }
-          @case ('wishlist') {
-            @if (hasChildRoute()) {
-              <router-outlet />
-            } @else {
+            @case ('wishlist') {
               <app-wishlist />
             }
           }
