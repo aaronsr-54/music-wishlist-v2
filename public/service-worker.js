@@ -60,7 +60,7 @@ self.addEventListener('fetch', (event) => {
   );
 });
 
-const RELEASE_EMOJI = { Album: '💿', EP: '🎧', Single: '🎵' };
+const RELEASE_EMOJI = { Álbum: '💿', EP: '🎧', Canción: '🎵' };
 
 self.addEventListener('push', (event) => {
   if (!event.data) return;

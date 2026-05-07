@@ -131,7 +131,7 @@ export const translations = {
     albums2: 'Albums',
     popularSongs: 'Popular songs',
     track: 'Song',
-    album: 'Album',
+    album: 'Álbum',
     added: 'Added',
     select: 'Select',
     searchPlaceholder: 'Search songs, albums...',

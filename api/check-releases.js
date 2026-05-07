@@ -16,9 +16,9 @@ webpush.setVapidDetails(
 );
 
 const RECORD_TYPE_MAP = {
-  album: 'Album',
+  album: 'Álbum',
   ep: 'EP',
-  single: 'Single',
+  single: 'Canción',
 };
 
 // ── Auth ──────────────────────────────────────────────────────
@@ -250,7 +250,7 @@ async function run(uid, idToken, clientId) {
     const artistResults = { artist: favorite.name, artistId: favorite.artistId, albums: [] };
 
     for (const album of newAlbums) {
-      const releaseType = RECORD_TYPE_MAP[album.record_type?.toLowerCase()] ?? 'Album';
+      const releaseType = RECORD_TYPE_MAP[album.record_type?.toLowerCase()] ?? 'Álbum';
       const coverUrl = album.cover_xl ?? album.cover_big ?? album.cover_medium ?? '';
 
       const payload = JSON.stringify({
