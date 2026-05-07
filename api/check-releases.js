@@ -174,11 +174,21 @@ function fromValue(v) {
 
 // ── Deezer ────────────────────────────────────────────────────
 
+const RELEASE_WINDOW_DAYS = Number(process.env.RELEASE_WINDOW_DAYS ?? 1);
+
 async function fetchArtistAlbums(artistId) {
   const res = await fetch(`https://api.deezer.com/artist/${artistId}/albums?limit=50`);
   if (!res.ok) return [];
   const data = await res.json();
   return data.data ?? [];
+}
+
+function isWithinWindow(releaseDateStr, days) {
+  if (!releaseDateStr) return false;
+  const releaseDate = new Date(releaseDateStr);
+  if (isNaN(releaseDate.getTime())) return false;
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  return releaseDate >= cutoff;
 }
 
 // ── Runner ────────────────────────────────────────────────────
@@ -205,24 +215,24 @@ async function run(uid, idToken) {
       continue;
     }
 
-    const latestIds = albums.map((a) => String(a.id));
     const cacheRef = `artist-releases-cache/${favorite.artistId}`;
     const cacheDoc = await getDoc(cacheRef, idToken);
-    const cachedIds = cacheDoc ? (cacheDoc.fields?.albumIds?.arrayValue?.values ?? []).map((v) => v.stringValue).filter(Boolean) : null;
+    const notifiedIds = cacheDoc ? (cacheDoc.fields?.albumIds?.arrayValue?.values ?? []).map((v) => v.stringValue).filter(Boolean) : [];
 
-    console.log(`[check-releases] artist=${favorite.name} cacheRef=${cacheRef} cachedIds=${JSON.stringify(cachedIds)} latestIdsCount=${latestIds.length}`);
+    console.log(`[check-releases] artist=${favorite.name} cacheRef=${cacheRef} notifiedIds count=${notifiedIds.length} RELEASE_WINDOW_DAYS=${RELEASE_WINDOW_DAYS}`);
 
-    if (cachedIds === null) {
-      console.log(`[check-releases] Cache miss - populating cache for ${favorite.name}`);
-      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, idToken);
-      continue;
-    }
+    const albumsToNotify = albums.filter((a) => {
+      const isNew = isWithinWindow(a.release_date, RELEASE_WINDOW_DAYS);
+      const alreadyNotified = notifiedIds.includes(String(a.id));
+      console.log(`[check-releases]   album=${a.title} release_date=${a.release_date} isNew=${isNew} alreadyNotified=${alreadyNotified}`);
+      return isNew && !alreadyNotified;
+    });
 
-    const newAlbums = albums.filter((a) => !cachedIds.includes(String(a.id)));
-    console.log(`[check-releases] newAlbums count: ${newAlbums.length}`);
-    if (newAlbums.length > 0) {
-      newReleasesByArtist[favorite.artistId] = newAlbums;
-      await setDoc(cacheRef, { albumIds: latestIds, checkedAt: Date.now() }, idToken);
+    console.log(`[check-releases] albumsToNotify count: ${albumsToNotify.length}`);
+    if (albumsToNotify.length > 0) {
+      newReleasesByArtist[favorite.artistId] = albumsToNotify;
+      const updatedNotifiedIds = [...new Set([...notifiedIds, ...albumsToNotify.map((a) => String(a.id))])];
+      await setDoc(cacheRef, { albumIds: updatedNotifiedIds, checkedAt: Date.now() }, idToken);
     }
   }
 
