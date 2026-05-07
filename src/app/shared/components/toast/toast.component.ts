@@ -58,8 +58,7 @@ export class ToastService {
     class: 'block',
   },
   template: `
-    <!-- DESKTOP -->
-    <div class="toast-stack hidden md:flex" aria-live="polite" aria-atomic="true">
+    <div class="toast-stack bg-light dark:bg-dark" aria-live="polite" aria-atomic="true">
       @for (toast of toasts(); track toast.id) {
         <div
           class="toast-item"
@@ -81,42 +80,31 @@ export class ToastService {
         </div>
       }
     </div>
-
-    <!-- MOBILE -->
-    <div class="toast-stack-mobile md:hidden" aria-live="polite" aria-atomic="true">
-      @for (toast of toasts(); track toast.id) {
-        <div
-          class="toast-item-mobile"
-          [class.toast-success]="toast.type === 'success'"
-          [class.toast-error]="toast.type === 'error'"
-          [class.toast-info]="toast.type === 'info'"
-          role="alert"
-        >
-          <span class="toast-icon-mobile">
-            @if (toast.type === 'success') {
-              <app-icon name="check" class="text-current" />
-            } @else if (toast.type === 'error') {
-              <app-icon name="close" class="text-current" />
-            } @else {
-              <app-icon name="info" class="text-current" />
-            }
-          </span>
-          <span class="toast-message-mobile">{{ toast.message }}</span>
-        </div>
-      }
-    </div>
   `,
   styles: `
     .toast-stack {
       position: fixed;
-      bottom: 1.5rem;
-      right: 1.5rem;
-      z-index: 9999;
+      z-index: 999;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
       pointer-events: none;
+      bottom: 1.5rem;
+      right: 1.5rem;
     }
+
+    @media (max-width: 767px) {
+      .toast-stack {
+        bottom: 5.5rem;
+        left: 0.5rem;
+        right: 0.5rem;
+        padding: 0.5rem;
+        box-shadow: 0px -4px 10px 5px rgb(0 0 0 / 10%);
+        border-radius: 0.75rem 0.75rem 0 0;
+        gap: 0.25rem;
+      }
+    }
+
     .toast-item {
       display: flex;
       align-items: center;
@@ -129,6 +117,17 @@ export class ToastService {
       animation: toastIn 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
       pointer-events: auto;
     }
+
+    @media (max-width: 767px) {
+      .toast-item {
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-sm, 0.375rem);
+        font-size: 0.8125rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        animation: toastInMobile 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
+      }
+    }
+
     .toast-success {
       background: #065f46;
       color: #d1fae5;
@@ -144,11 +143,35 @@ export class ToastService {
       color: #bfdbfe;
       border: 1px solid #60a5fa;
     }
+
     .toast-icon {
       width: 1.125rem;
       height: 1.125rem;
       flex-shrink: 0;
     }
+
+    @media (max-width: 767px) {
+      .toast-icon {
+        width: 1rem;
+        height: 1rem;
+      }
+    }
+
+    .toast-message {
+      line-height: 1.4;
+    }
+
+    @media (max-width: 767px) {
+      .toast-message {
+        line-height: 1.2;
+        flex: 1;
+        min-width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
     @keyframes toastIn {
       from {
         opacity: 0;
@@ -159,44 +182,7 @@ export class ToastService {
         transform: translateX(0);
       }
     }
-    .toast-stack-mobile {
-      position: fixed;
-      bottom: 5.5rem;
-      left: 0;
-      right: 0;
-      z-index: 999;
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      padding: 0.5rem 0.5rem;
-      pointer-events: none;
-    }
-    .toast-item-mobile {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.5rem 0.75rem;
-      border-radius: var(--radius-sm, 0.375rem);
-      font-size: 0.75rem;
-      font-weight: 500;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
-      animation: toastInMobile 250ms cubic-bezier(0.4, 0, 0.2, 1) both;
-      pointer-events: auto;
-      margin: 0 0.5rem;
-    }
-    .toast-icon-mobile {
-      width: 1rem;
-      height: 1rem;
-      flex-shrink: 0;
-    }
-    .toast-message-mobile {
-      line-height: 1.2;
-      flex: 1;
-      min-width: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+
     @keyframes toastInMobile {
       from {
         opacity: 0;
