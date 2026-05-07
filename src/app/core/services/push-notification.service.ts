@@ -95,7 +95,10 @@ export class PushNotificationService {
     }
   }
 
-  async debugCheckReleases(): Promise<{ notified: number; results: ReleaseCheckResult[] }> {
+  async debugCheckReleases(): Promise<{
+    notified: number;
+    results: ReleaseCheckResult[];
+  }> {
     const user = this.auth.currentUser();
     if (!user) throw new Error('No user');
     const token = await user.getIdToken();
