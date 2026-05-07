@@ -1,32 +1,29 @@
-import { Injectable, inject } from '@angular/core';
-import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
+import { Injectable, inject, NgZone } from '@angular/core';
 import { ToastService } from '../../shared/components/toast/toast.component';
-import { filter } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UpdateService {
-  private swUpdate = inject(SwUpdate);
   private toast = inject(ToastService);
+  private zone = inject(NgZone);
 
   constructor() {
-    if (!this.swUpdate.isEnabled) return;
+    if (!('serviceWorker' in navigator)) return;
 
-    this.swUpdate.versionUpdates
-      .pipe(filter((e): e is VersionReadyEvent => e.type === 'VERSION_READY'))
-      .subscribe(() => {
-        this.toast.showWithAction(
-          'Nueva versión disponible',
-          {
-            label: 'Actualizar',
-            fn: () =>
-              this.swUpdate
-                .activateUpdate()
-                .then(() => document.location.reload()),
-          },
-          'info'
-        );
-      });
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data?.type === 'NEW_VERSION_AVAILABLE') {
+        this.zone.run(() => {
+          this.toast.showWithAction(
+            'Nueva versión disponible',
+            {
+              label: 'Actualizar',
+              fn: () => document.location.reload(),
+            },
+            'info'
+          );
+        });
+      }
+    });
   }
 }
