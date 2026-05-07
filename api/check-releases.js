@@ -193,7 +193,7 @@ function isWithinWindow(releaseDateStr, days) {
 
 // ── Runner ────────────────────────────────────────────────────
 
-async function run(uid, idToken) {
+async function run(uid, idToken, clientId) {
   const subDoc = await getDoc(`push-subscriptions/${uid}`, idToken);
   if (!subDoc) {
     return { notified: 0, results: [], error: 'No push subscription found.' };
@@ -215,7 +215,7 @@ async function run(uid, idToken) {
       continue;
     }
 
-    const cacheRef = `artist-releases-cache/${favorite.artistId}`;
+    const cacheRef = `artist-releases-cache/${clientId}_${favorite.artistId}`;
     const cacheDoc = await getDoc(cacheRef, idToken);
     const notifiedIds = cacheDoc ? (cacheDoc.fields?.albumIds?.arrayValue?.values ?? []).map((v) => v.stringValue).filter(Boolean) : [];
 
@@ -300,7 +300,8 @@ export default async (req, res) => {
     }
 
     const uid = await getUidFromToken(token);
-    const result = await run(uid, token);
+    const clientId = req.body?.clientId ?? 'unknown';
+    const result = await run(uid, token, clientId);
     return res.status(200).json(result);
   } catch (error) {
     console.error('check-releases error:', error);

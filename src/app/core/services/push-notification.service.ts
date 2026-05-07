@@ -46,6 +46,16 @@ export class PushNotificationService {
     }
   }
 
+  private getClientId(): string {
+    const KEY = 'mw-client-id';
+    let id = localStorage.getItem(KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(KEY, id);
+    }
+    return id;
+  }
+
   async subscribe(): Promise<'granted' | 'denied' | 'error'> {
     if (!this.isSupported || this.auth.demoMode()) return 'error';
     this.loading.set(true);
@@ -92,7 +102,7 @@ export class PushNotificationService {
     return firstValueFrom(
       this.http.post<{ notified: number; results: ReleaseCheckResult[] }>(
         '/api/check-releases',
-        {},
+        { clientId: this.getClientId() },
         { headers: { Authorization: `Bearer ${token}` } },
       ),
     );
