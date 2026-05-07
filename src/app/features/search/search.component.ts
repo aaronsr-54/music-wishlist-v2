@@ -39,6 +39,7 @@ import {
 import { SearchInputComponent } from '../../shared/components/search-input/search-input.component';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { SearchEmptyStateComponent } from '../../shared/components/search-empty-state/search-empty-state.component';
+import { HorizontalScrollComponent } from '../../shared/components/horizontal-scroll/horizontal-scroll.component';
 
 register();
 
@@ -57,6 +58,7 @@ register();
     SearchInputComponent,
     PageHeaderComponent,
     SearchEmptyStateComponent,
+    HorizontalScrollComponent,
   ],
   styles: `
     :host {
@@ -79,14 +81,6 @@ register();
     .scroll-fade::-webkit-scrollbar {
       display: none;
     }
-    swiper-container {
-      display: block;
-      width: 100%;
-    }
-    swiper-slide {
-      width: 80px;
-      cursor: grabbing !important;
-    }
     .artist-anim {
       animation: fadeInRight 0.5s ease-out both;
     }
@@ -100,15 +94,58 @@ register();
         transform: translateX(0);
       }
     }
+    .search-input {
+      animation: slideDown 300ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .type-filter {
+      animation: slideDown 350ms cubic-bezier(0.4, 0, 0.2, 1) both;
+      animation-delay: 50ms;
+    }
+    .results-enter {
+      animation: fadeInUp 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .favorites-section {
+      animation: fadeIn 400ms cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(15px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
   `,
   template: `
     <div
       class="flex flex-col justify-between h-full overflow-hidden p-0.5 pt-2"
     >
       <section class="flex flex-col gap-4 flex-1 min-h-0">
-        <app-page-header prefix="02/" title="BUSCADOR" [mobileOnly]="true" [showBack]="false" />
+        <app-page-header
+          prefix="02/"
+          title="BUSCADOR"
+          [mobileOnly]="true"
+          [showBack]="false"
+        />
 
         <app-search-input
+          class="search-input"
           [query]="query()"
           [placeholder]="t().searchPlaceholder"
           [clearLabel]="t().clear"
@@ -118,6 +155,7 @@ register();
 
         @if (query()) {
           <app-type-filter
+            class="type-filter"
             [options]="typeFilterOptions()"
             [selectedTypes]="selectedTypes()"
             (toggle)="toggleType($event)"
@@ -127,7 +165,7 @@ register();
         @switch (state()) {
           @case ('loading') {
             <div
-              class="scroll-fade flex items-center justify-center min-h-[300px]"
+              class="scroll-fade flex items-center justify-center min-h-[300px] transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
             >
               <div
                 class="flex flex-col items-center gap-4 text-ink-600 dark:text-bone-600"
@@ -138,10 +176,11 @@ register();
             </div>
           }
           @case ('results') {
-            <div class="scroll-fade">
-              @for (item of filteredResults(); track item.id) {
+            <div class="scroll-fade results-enter">
+              @for (item of filteredResults(); track item.id; let i = $index) {
                 <app-search-result-item
-                  class="[animation:rowEnter_var(--dur-base)_var(--ease)_both]"
+                  [style.animation]="'searchReveal 400ms cubic-bezier(0.16,1,0.3,1) both'"
+                  [style.animation-delay]="i * 30 + 'ms'"
                   [item]="item"
                   [type]="item.type"
                   [isAdded]="isAdded(item.id, item.type)"
@@ -173,31 +212,25 @@ register();
 
       @if (!query() && favoriteArtists().length > 0) {
         <div
-          class="py-3 pb-6 border-t border-bone-100 dark:border-ink-100 [animation:fadeIn_200ms_var(--ease)_both]"
+          class="py-3 pb-6 md:pb-0 border-t border-bone-100 dark:border-ink-100 favorites-section transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]"
         >
           <h3
             class="font-display text-xs font-bold text-ink-700 dark:text-bone-700 mb-3 uppercase tracking-wider px-2"
           >
             {{ t().favoriteArtists }}
           </h3>
-          <swiper-container
-            slides-per-view="auto"
-            space-between="12"
-            free-mode="true"
-            grab-cursor="true"
-            class="px-2"
-          >
+          <app-horizontal-scroll>
             @for (artist of favoriteArtists(); track artist.id) {
-              <swiper-slide>
+              <div class="scroll-item">
                 <app-artist-card
                   class="artist-anim"
                   [artist]="artist"
                   (click)="goToArtist(artist)"
                   (onRemoveFavorite)="removeFavorite($event)"
                 />
-              </swiper-slide>
+              </div>
             }
-          </swiper-container>
+          </app-horizontal-scroll>
         </div>
       }
     </div>

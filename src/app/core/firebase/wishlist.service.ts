@@ -24,12 +24,16 @@ import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { ReleaseItem } from '../../shared/models/release-item.model';
 import { AuthService } from '../auth/auth.service';
 import { WishlistShareService } from './wishlist-share.service';
+import { ToastService } from '../../shared/components/toast/toast.component';
+import { LanguageService } from '../i18n/language.service';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistService {
   private firestore = inject(Firestore);
   private injector = inject(Injector);
   private shareService = inject(WishlistShareService);
+  private toastService = inject(ToastService);
+  private lang = inject(LanguageService);
 
   private _ownEntries = signal<WishlistEntry[]>([]);
   private _sharedEntries = signal<WishlistEntry[]>([]);
@@ -136,18 +140,22 @@ export class WishlistService {
       ...(track.artistId ? { artistId: track.artistId } : {}),
     };
 
-    if (this.isDemoMode) {
-      const key = `wishlist-${user.uid}`;
-      const current = this._ownEntries();
-      const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
-      const updated = [newEntry, ...current];
-      localStorage.setItem(key, JSON.stringify(updated));
-      this._ownEntries.set(updated);
-      return;
+    try {
+      if (this.isDemoMode) {
+        const key = `wishlist-${user.uid}`;
+        const current = this._ownEntries();
+        const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
+        const updated = [newEntry, ...current];
+        localStorage.setItem(key, JSON.stringify(updated));
+        this._ownEntries.set(updated);
+      } else {
+        const col = collection(this.firestore, 'wishlist');
+        await addDoc(col, entry);
+      }
+      this.toastService.success('Añadido a la wishlist');
+    } catch {
+      this.toastService.error('Ha ocurrido un error');
     }
-
-    const col = collection(this.firestore, 'wishlist');
-    await addDoc(col, entry);
   }
 
   async addRelease(release: ReleaseItem, user: User): Promise<void> {
@@ -169,69 +177,85 @@ export class WishlistService {
       ...(release.artistId ? { artistId: release.artistId } : {}),
     };
 
-    if (this.isDemoMode) {
-      const key = `wishlist-${user.uid}`;
-      const current = this._ownEntries();
-      const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
-      const updated = [newEntry, ...current];
-      localStorage.setItem(key, JSON.stringify(updated));
-      this._ownEntries.set(updated);
-      return;
+    try {
+      if (this.isDemoMode) {
+        const key = `wishlist-${user.uid}`;
+        const current = this._ownEntries();
+        const newEntry: WishlistEntry = { id: Date.now().toString(), ...entry };
+        const updated = [newEntry, ...current];
+        localStorage.setItem(key, JSON.stringify(updated));
+        this._ownEntries.set(updated);
+      } else {
+        const col = collection(this.firestore, 'wishlist');
+        await addDoc(col, entry);
+      }
+      this.toastService.success('Añadido a la wishlist');
+    } catch {
+      this.toastService.error('Ha ocurrido un error');
     }
-
-    const col = collection(this.firestore, 'wishlist');
-    await addDoc(col, entry);
   }
 
   async remove(id: string): Promise<void> {
-    if (this.isDemoMode) {
-      const current = this._ownEntries();
-      const updated = current.filter((e) => e.id !== id);
-      this._ownEntries.set(updated);
-      if (current.length > 0) {
-        const uid = current[0].addedByUid;
-        const key = `wishlist-${uid}`;
-        localStorage.setItem(key, JSON.stringify(updated));
+    try {
+      if (this.isDemoMode) {
+        const current = this._ownEntries();
+        const updated = current.filter((e) => e.id !== id);
+        this._ownEntries.set(updated);
+        if (current.length > 0) {
+          const uid = current[0].addedByUid;
+          const key = `wishlist-${uid}`;
+          localStorage.setItem(key, JSON.stringify(updated));
+        }
+      } else {
+        await deleteDoc(doc(this.firestore, 'wishlist', id));
       }
-      return;
+      this.toastService.success('Eliminado de la wishlist');
+    } catch {
+      this.toastService.error('Ha ocurrido un error');
     }
-
-    await deleteDoc(doc(this.firestore, 'wishlist', id));
   }
 
   async markDownloaded(id: string): Promise<void> {
-    if (this.isDemoMode) {
-      const current = this._ownEntries();
-      const updated = current.map((e) =>
-        e.id === id ? { ...e, downloaded: true } : e,
-      );
-      this._ownEntries.set(updated);
-      if (current.length > 0) {
-        const uid = current[0].addedByUid;
-        const key = `wishlist-${uid}`;
-        localStorage.setItem(key, JSON.stringify(updated));
+    try {
+      if (this.isDemoMode) {
+        const current = this._ownEntries();
+        const updated = current.map((e) =>
+          e.id === id ? { ...e, downloaded: true } : e,
+        );
+        this._ownEntries.set(updated);
+        if (current.length > 0) {
+          const uid = current[0].addedByUid;
+          const key = `wishlist-${uid}`;
+          localStorage.setItem(key, JSON.stringify(updated));
+        }
+      } else {
+        await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: true });
       }
-      return;
+      this.toastService.success('Marcado como listo');
+    } catch {
+      this.toastService.error('Ha ocurrido un error');
     }
-
-    await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: true });
   }
 
   async unmarkDownloaded(id: string): Promise<void> {
-    if (this.isDemoMode) {
-      const current = this._ownEntries();
-      const updated = current.map((e) =>
-        e.id === id ? { ...e, downloaded: false } : e,
-      );
-      this._ownEntries.set(updated);
-      if (current.length > 0) {
-        const uid = current[0].addedByUid;
-        const key = `wishlist-${uid}`;
-        localStorage.setItem(key, JSON.stringify(updated));
+    try {
+      if (this.isDemoMode) {
+        const current = this._ownEntries();
+        const updated = current.map((e) =>
+          e.id === id ? { ...e, downloaded: false } : e,
+        );
+        this._ownEntries.set(updated);
+        if (current.length > 0) {
+          const uid = current[0].addedByUid;
+          const key = `wishlist-${uid}`;
+          localStorage.setItem(key, JSON.stringify(updated));
+        }
+      } else {
+        await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: false });
       }
-      return;
+      this.toastService.success('Marcado como pendiente');
+    } catch {
+      this.toastService.error('Ha ocurrido un error');
     }
-
-    await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: false });
   }
 }

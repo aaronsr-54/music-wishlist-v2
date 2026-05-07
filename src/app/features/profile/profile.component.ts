@@ -21,15 +21,30 @@ import { LanguageService } from '../../core/i18n/language.service';
     ProfileSettingsComponent,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: `
+    /* Header: aparece con calma desde arriba */
+    .profile-header {
+      animation: slideDown 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    /* Hero: deriva suave — personal y tranquilo */
+    .profile-hero {
+      animation: driftUp 800ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 60ms;
+    }
+    /* Secciones: deriva lenta, escalonada */
+    .profile-section {
+      animation: driftUp 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+  `,
   template: `
     <div
       class="flex flex-col h-full overflow-hidden gap-4 bg-bone-300 dark:bg-ink"
     >
       <div
-        class="flex items-center justify-between h-16 px-6 shrink-0 gap-4 max-md:h-14 max-md:px-4"
+        class="flex items-center justify-between h-16 px-6 shrink-0 gap-4 max-md:h-14 max-md:px-4 profile-header"
       >
         <button
-          class="bg-transparent text-ink-700 dark:text-bone-700 text-md cursor-pointer transition-colors duration-fast hover:text-ink dark:hover:text-bone lowercase"
+          class="bg-transparent text-ink-700 dark:text-bone-700 text-md cursor-pointer transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] hover:text-ink dark:hover:text-bone hover:scale-105 active:scale-95 lowercase"
           (click)="goBack()"
           [aria-label]="t().back"
         >
@@ -52,7 +67,7 @@ import { LanguageService } from '../../core/i18n/language.service';
         >
           <section class="flex flex-col gap-12">
             <!-- HERO -->
-            <div class="flex gap-4 mb-6 px-2 [animation:fadeIn_0.4s_var(--ease-smooth)_forwards]">
+            <div class="flex gap-4 mb-6 px-2 profile-hero">
               <app-avatar
                 [name]="user.displayName ?? user.email ?? 'Usuario'"
                 [size]="80"
@@ -76,13 +91,13 @@ import { LanguageService } from '../../core/i18n/language.service';
             </div>
 
             <!-- SECTIONS -->
-            <app-profile-stats />
-            <app-profile-shared />
-            <app-profile-settings />
+            <app-profile-stats class="profile-section" style="animation-delay: 100ms" />
+            <app-profile-shared class="profile-section" style="animation-delay: 200ms" />
+            <app-profile-settings class="profile-section" style="animation-delay: 300ms" />
           </section>
 
           <!-- ACCOUNT -->
-          <app-profile-account />
+          <app-profile-account class="profile-section" style="animation-delay: 400ms" />
         </div>
       }
     </div>

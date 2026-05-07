@@ -21,16 +21,6 @@ import { IconComponent } from '../../shared/icons/icon.component';
         transform: scale(1.1);
       }
     }
-    @keyframes rowEnter {
-      from {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
     .dot-pulse {
       display: flex;
       gap: 4px;
@@ -69,7 +59,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
     >
       <header
         class="flex justify-between items-center pb-6 z-10"
-        style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 0ms"
+        style="animation: slideDown 600ms cubic-bezier(0.16,1,0.3,1) both"
       >
         <span
           class="font-display text-[12px] text-ink dark:text-bone font-bold tracking-[0.06em] uppercase"
@@ -87,15 +77,16 @@ import { IconComponent } from '../../shared/icons/icon.component';
 
       <main
         class="flex-1 flex flex-col justify-center gap-5 py-12"
-        style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 80ms"
       >
         <h1
           class="font-display text-[68px] md:text-[88px] font-bold leading-[0.8] m-0 tracking-[-0.03em] text-ink dark:text-bone"
+          style="animation: titleEntrance 800ms cubic-bezier(0.16,1,0.3,1) both; animation-delay: 80ms"
         >
           Music <span class="font-extralight italic ml-[-7px]">Wishlist</span>.
         </h1>
         <p
           class="font-body text-sm leading-[1.2] text-ink-600 dark:text-bone-600 m-0"
+          style="animation: driftUp 700ms cubic-bezier(0.16,1,0.3,1) both; animation-delay: 200ms"
         >
           Lleva un registro de la música que quieres descubrir. Busca, añade y
           marca lo que ya tienes.
@@ -104,7 +95,7 @@ import { IconComponent } from '../../shared/icons/icon.component';
 
       <footer
         class="flex flex-col gap-4 pt-6"
-        style="animation: rowEnter var(--dur-slow) var(--ease) both; animation-delay: 200ms"
+        style="animation: slideUp 650ms cubic-bezier(0.16,1,0.3,1) both; animation-delay: 280ms"
       >
         <span
           class="font-body text-[12px] font-medium text-ink-700 dark:text-bone-700"

@@ -20,10 +20,15 @@ import { TemplatePortal } from '@angular/cdk/portal';
   template: `
     <ng-template #modalTemplate>
       <div class="fixed inset-0 z-[9999] flex items-end justify-center">
-        <div class="absolute inset-0 bg-black/40" (click)="close()"></div>
+        <div
+          class="absolute inset-0 bg-black/40"
+          style="animation: fadeIn 250ms cubic-bezier(0.4,0,0.2,1) both"
+          (click)="close()"
+        ></div>
 
         <div
-          class="relative w-full max-w-md rounded-t-3xl bg-light dark:bg-dark p-6 animate-[slideUp_250ms_ease-out] pb-12 shadow-[0px_-4px_10px_5px_rgb(0_0_0/10%)] dark:shadow-[0px_-4px_10px_5px_rgb(0_0_0/25%)]"
+          class="relative w-full max-w-md rounded-t-3xl bg-light dark:bg-dark p-6 pb-12 shadow-[0px_-4px_10px_5px_rgb(0_0_0/10%)] dark:shadow-[0px_-4px_10px_5px_rgb(0_0_0/25%)]"
+          style="animation: sheetUp 500ms cubic-bezier(0.16,1,0.3,1) both"
         >
           <div class="flex items-center justify-between mb-4">
             <h2

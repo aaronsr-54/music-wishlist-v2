@@ -1,4 +1,5 @@
-import { Injectable, computed, effect, signal } from '@angular/core';
+import { Injectable, computed, effect, signal, inject } from '@angular/core';
+import { ToastService } from '../../shared/components/toast/toast.component';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -8,6 +9,7 @@ type Theme = 'light' | 'dark' | 'system';
 export class ThemeService {
   private theme = signal<Theme>(this.getSavedTheme());
   private systemPrefersDark = signal(this.getSystemPreference());
+  private toastService = inject(ToastService);
 
   isDarkMode = computed(() => {
     const theme = this.theme();
@@ -39,6 +41,7 @@ export class ThemeService {
   setTheme(theme: Theme) {
     this.theme.set(theme);
     localStorage.setItem('app-theme', theme);
+    this.toastService.success('Preferencias guardadas');
   }
 
   getTheme(): Theme {

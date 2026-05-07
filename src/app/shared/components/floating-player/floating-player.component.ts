@@ -19,7 +19,7 @@ import { PreviewService } from '../../../core/services/preview.service';
   },
   template: `
     <div
-      class="flex items-center gap-3 p-2.5 rounded-xl bg-light/95 dark:bg-dark/95 backdrop-blur-sm shadow-lg overflow-hidden w-full"
+      class="flex items-center gap-3 p-2.5 rounded-xl bg-light/95 dark:bg-dark/95 backdrop-blur-sm shadow-lg overflow-hidden w-full transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)]"
     >
       <app-cover
         [name]="metadata()?.title ?? ''"
@@ -42,31 +42,31 @@ import { PreviewService } from '../../../core/services/preview.service';
       <div class="flex items-center gap-1">
         <button
           (click)="stop()"
-          class="w-8 h-8 flex items-center justify-center"
+          class="w-8 h-8 flex items-center justify-center transition-[transform,opacity] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-115 active:scale-90 opacity-60 hover:opacity-100"
           title="Stop"
         >
           <app-icon
             name="stop"
-            class="w-8 h-8 fill-ink-200 dark:fill-bone-600 hover:fill-ink hover:dark:fill-bone"
+            class="w-8 h-8 fill-ink dark:fill-bone"
           />
         </button>
 
         <button
           (click)="togglePlay()"
-          class="w-10 h-10 flex items-center justify-center rounded-full bg-ink dark:bg-bone text-bone dark:text-ink hover:scale-105 active:scale-95 transition-transform"
+          class="w-10 h-10 flex items-center justify-center rounded-full bg-ink dark:bg-bone text-bone dark:text-ink transition-[transform,box-shadow] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] hover:scale-110 active:scale-92 shadow-md hover:shadow-lg"
           title="{{ isPlaying() ? 'Pause' : 'Play' }}"
         >
-          <app-icon [name]="isPlaying() ? 'pause' : 'play'" class="w-5 h-5" />
+          <app-icon [name]="isPlaying() ? 'pause' : 'play'" class="w-5 h-5 transition-none" />
         </button>
 
         <div
           class="absolute bottom-[2px] left-0 right-0 flex justify-center px-6"
         >
           <div
-            class="h-1 w-full rounded-full bg-bone-400/30 dark:bg-ink-200/30 overflow-hidden"
+            class="h-[3px] w-full rounded-full bg-bone-400/20 dark:bg-ink-200/20 overflow-hidden"
           >
             <div
-              class="h-full rounded-full bg-ink dark:bg-bone transition-all duration-100"
+              class="h-full rounded-full bg-ink dark:bg-bone transition-[width] duration-200 ease-linear"
               [style.width.%]="progress()"
             ></div>
           </div>

@@ -1,5 +1,6 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
 import { translations, TranslationKey } from './translations';
+import { ToastService } from '../../shared/components/toast/toast.component';
 
 export type Language = 'es' | 'en';
 
@@ -8,6 +9,7 @@ export type Language = 'es' | 'en';
 })
 export class LanguageService {
   private language = signal<Language>(this.getSavedLanguage());
+  private toastService = inject(ToastService);
 
   t = computed(() => translations[this.language()]);
 
@@ -18,6 +20,7 @@ export class LanguageService {
   setLanguage(lang: Language) {
     this.language.set(lang);
     localStorage.setItem('app-language', lang);
+    this.toastService.success('Preferencias guardadas');
   }
 
   private getSavedLanguage(): Language {

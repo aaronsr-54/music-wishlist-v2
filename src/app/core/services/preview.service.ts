@@ -1,5 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { SearchService } from '../api/search.service';
+import { ToastService } from '../../shared/components/toast/toast.component';
 import { firstValueFrom } from 'rxjs';
 
 export interface TrackMetadata {
@@ -40,6 +41,7 @@ export class PreviewService {
   private playlist: TrackMetadata[] = [];
   private playlistIndex: number = -1;
   private searchService = inject(SearchService);
+  private toastService = inject(ToastService);
 
   state = signal<PreviewState>({
     trackId: null,
@@ -91,7 +93,10 @@ export class PreviewService {
 
     this.audio = new Audio(track.previewUrl);
     this.audio.onended = () => this.onAudioEnd();
-    this.audio.onerror = () => this.stop();
+    this.audio.onerror = () => {
+      this.toastService.error('No se puede reproducir el preview');
+      this.stop();
+    };
     this.audio.oncanplay = () => {
       const duration = this.audio?.duration || 30;
       this.state.update((s) => ({
@@ -104,7 +109,10 @@ export class PreviewService {
       this.startProgressInterval();
     };
 
-    this.audio.play().catch(() => this.stop());
+    this.audio.play().catch(() => {
+      this.toastService.error('No se puede reproducir el preview');
+      this.stop();
+    });
 
     this.state.update((s) => ({
       ...s,

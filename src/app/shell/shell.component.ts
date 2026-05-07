@@ -95,7 +95,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
             }
           }
         </section>
-      </main>
+</main>
 
       @if (hasActivePreview()) {
         <app-floating-player />

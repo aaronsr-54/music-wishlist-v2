@@ -15,7 +15,7 @@ import { IconComponent } from '../../icons/icon.component';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div
-      class="flex items-center gap-2.5 py-4 border-b-[1.5px] border-bone-100 dark:border-ink-100 transition-[border-color] duration-fast ease-smooth"
+      class="flex items-center gap-2.5 py-4 border-b border-solid border-bone-100 dark:border-ink-100 transition-[border-color] duration-fast ease-smooth"
       [class.border-bone-600]="query()"
     >
       <app-icon
@@ -39,10 +39,7 @@ import { IconComponent } from '../../icons/icon.component';
           (click)="onClear()"
           [attr.aria-label]="clearLabel()"
         >
-          <app-icon
-            name="close"
-            class="w-6 md:w-7 h-6 md:h-7"
-          />
+          <app-icon name="close" class="w-6 md:w-7 h-6 md:h-7" />
         </button>
       }
     </div>

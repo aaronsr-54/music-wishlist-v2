@@ -23,17 +23,6 @@ type WishlistTab = 'pending' | 'downloaded';
     PageHeaderComponent,
   ],
   styles: `
-    @keyframes scaleIn {
-      from {
-        opacity: 0;
-        transform: scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
     .scroll-fade {
       overflow-y: auto;
       scrollbar-width: none;
@@ -88,8 +77,8 @@ type WishlistTab = 'pending' | 'downloaded';
       >
         @for (entry of activeEntries(); track entry.id; let i = $index) {
           <div
-            class="[animation:scaleIn_300ms_ease_both]"
-            [style.animation-delay]="i * 30 + 'ms'"
+            [style.animation]="'dropIn 500ms cubic-bezier(0.16,1,0.3,1) both'"
+            [style.animation-delay]="i * 40 + 'ms'"
           >
             <app-search-result-item
               [item]="entry"

@@ -33,7 +33,7 @@ body {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(3px);
   }
   to {
     opacity: 1;
@@ -62,12 +62,10 @@ body {
 @keyframes popIn {
   0% {
     opacity: 0;
-    transform: scale(0.8);
-  }
-  50% {
-    opacity: 1;
+    transform: scale(0.85);
   }
   100% {
+    opacity: 1;
     transform: scale(1);
   }
 }
@@ -86,7 +84,7 @@ body {
 @keyframes rowEnter {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(6px);
   }
   to {
     opacity: 1;
@@ -122,6 +120,114 @@ body {
   to {
     opacity: 1;
     transform: translate(-50%, -50%);
+  }
+}
+
+/* Search: reveal horizontal suave */
+@keyframes searchReveal {
+  from {
+    opacity: 0;
+    transform: translateX(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Artist: cover zoom out cinematográfico */
+@keyframes coverZoomOut {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Album: cover desde la derecha */
+@keyframes coverFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Artist tracks: desde izquierda */
+@keyframes trackLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Album tracks: desde derecha */
+@keyframes trackRight {
+  from {
+    opacity: 0;
+    transform: translateX(7px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Wishlist: cae desde arriba, sin rebote */
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Profile: deriva suave y lenta */
+@keyframes driftUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Login: título potente pero fluido */
+@keyframes titleEntrance {
+  from {
+    opacity: 0;
+    transform: translateY(24px) skewY(1deg);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) skewY(0deg);
+  }
+}
+
+/* Modal sheet: sube desde abajo */
+@keyframes sheetUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 

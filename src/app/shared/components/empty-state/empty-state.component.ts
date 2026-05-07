@@ -7,9 +7,8 @@ import { IconName } from '../../icons/icon-registry';
   standalone: true,
   imports: [IconComponent],
   host: {
-    class:
-      'flex flex-col items-center justify-center gap-[10px] px-5 py-[60px] text-center',
-    style: 'animation: emptyEnter var(--duration-slow) var(--ease-smooth) both',
+    class: 'flex flex-col items-center justify-center gap-[10px] px-5 py-[60px] text-center',
+    style: 'animation: emptyEnter 700ms cubic-bezier(0.16,1,0.3,1) both',
   },
   template: `
     @if (icon()) {

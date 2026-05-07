@@ -74,6 +74,25 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
     .scroll-fade::-webkit-scrollbar {
       display: none;
     }
+    /* Cover: cinematográfico — zoom out desde cerca */
+    .artist-cover {
+      animation: coverZoomOut 700ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    /* Nombre: entra suave desde abajo */
+    .artist-name {
+      animation: rowEnter 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 60ms;
+    }
+    /* Stats: deriva suave más tarde */
+    .artist-meta {
+      animation: driftUp 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 140ms;
+    }
+    /* Sección de tracks: aparece por último */
+    .tracks-section {
+      animation: driftUp 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 220ms;
+    }
   `,
   template: `
     <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
@@ -89,7 +108,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
           class="flex gap-2 max-md:flex-col max-md:items-center md:gap-8 max-md:text-center mt-4"
         >
           <div
-            class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-full max-md:h-auto max-md:aspect-square shadow-ink/5 shadow-lg"
+            class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-full max-md:h-auto max-md:aspect-square shadow-ink/5 shadow-lg artist-cover"
           >
             @if (artist(); as a) {
               <app-cover [name]="a.name" [coverUrl]="a.picture_big" />
@@ -99,7 +118,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
           <div class="flex-1 flex flex-col justify-start">
             @if (artist(); as a) {
               <div class="flex flex-col text-ink dark:text-bone">
-                <div class="flex items-center gap-4 mb-5">
+                <div class="flex items-center gap-4 mb-5 artist-name">
                   <h1
                     class="m-0 text-[2rem] md:text-[4rem] font-bold font-display flex-1"
                   >
@@ -126,7 +145,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
                   </button>
                 </div>
 
-                <div class="flex gap-[30px] mb-5 max-md:justify-center">
+                <div class="flex gap-[30px] mb-5 max-md:justify-center artist-meta">
                   @if (a.nb_fan !== undefined) {
                     <div class="flex flex-col gap-1">
                       <span
@@ -155,7 +174,7 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
           </div>
         </div>
 
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-4 tracks-section">
           <h2
             class="font-body text-xs md:text-base text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
           >
@@ -178,11 +197,11 @@ import { PageHeaderComponent } from '../../shared/components/page-header/page-he
               {{ t().noSongsAvailable }}
             </div>
           } @else {
-            <div
-              class="flex flex-col [&>*]:[animation:rowEnter_var(--dur-base)_var(--ease)_both]"
-            >
-              @for (track of tracks(); track track.id) {
+            <div class="flex flex-col">
+              @for (track of tracks(); track track.id; let i = $index) {
                 <app-search-result-item
+                  [style.animation]="'trackLeft 450ms cubic-bezier(0.16,1,0.3,1) both'"
+                  [style.animation-delay]="i * 35 + 'ms'"
                   [item]="track"
                   type="track"
                   [isAdded]="isInWishlist(track.id)"

@@ -20,6 +20,7 @@ import {
 import { User } from '@angular/fire/auth';
 import { SearchService } from '../api/search.service';
 import { AuthService } from '../auth/auth.service';
+import { ToastService } from '../../shared/components/toast/toast.component';
 
 export interface FavoriteArtist {
   id?: string;
@@ -36,6 +37,7 @@ export class FavoriteArtistsService {
   private firestore = inject(Firestore);
   private search = inject(SearchService);
   private injector = inject(Injector);
+  private toastService = inject(ToastService);
 
   private _artists = signal<FavoriteArtist[]>([]);
   artists = this._artists.asReadonly();
@@ -124,40 +126,48 @@ export class FavoriteArtistsService {
       addedByUid: user.uid,
     };
 
-    if (this.isDemoMode) {
-      const key = `favorite-artists-${user.uid}`;
-      const stored = localStorage.getItem(key);
-      const artists: FavoriteArtist[] = stored ? JSON.parse(stored) : [];
-      const newArtist: FavoriteArtist = { id: Date.now().toString(), ...entry };
-      artists.unshift(newArtist);
-      localStorage.setItem(key, JSON.stringify(artists));
-      this._artists.set(artists);
-      return;
+    try {
+      if (this.isDemoMode) {
+        const key = `favorite-artists-${user.uid}`;
+        const stored = localStorage.getItem(key);
+        const artists: FavoriteArtist[] = stored ? JSON.parse(stored) : [];
+        const newArtist: FavoriteArtist = { id: Date.now().toString(), ...entry };
+        artists.unshift(newArtist);
+        localStorage.setItem(key, JSON.stringify(artists));
+        this._artists.set(artists);
+      } else {
+        await runInInjectionContext(this.injector, () => {
+          const col = collection(this.firestore, 'favorite-artists');
+          return addDoc(col, entry);
+        });
+      }
+      this.toastService.success('Añadido a favoritos');
+    } catch {
+      this.toastService.error('Ha ocurrido un error');
     }
-
-    return runInInjectionContext(this.injector, () => {
-      const col = collection(this.firestore, 'favorite-artists');
-      return addDoc(col, entry).then(() => {});
-    });
   }
 
   async remove(id: string): Promise<void> {
-    if (this.isDemoMode) {
-      const current = this._artists();
-      const updated = current.filter((a) => a.id !== id);
-      this._artists.set(updated);
+    try {
+      if (this.isDemoMode) {
+        const current = this._artists();
+        const updated = current.filter((a) => a.id !== id);
+        this._artists.set(updated);
 
-      if (updated.length >= 0) {
-        const storedUid = localStorage.getItem('last_uid') || '';
-        const key = `favorite-artists-${storedUid}`;
-        localStorage.setItem(key, JSON.stringify(updated));
+        if (updated.length >= 0) {
+          const storedUid = localStorage.getItem('last_uid') || '';
+          const key = `favorite-artists-${storedUid}`;
+          localStorage.setItem(key, JSON.stringify(updated));
+        }
+      } else {
+        await runInInjectionContext(this.injector, () => {
+          const docRef = doc(this.firestore, 'favorite-artists', id);
+          return deleteDoc(docRef);
+        });
       }
-      return;
+      this.toastService.success('Eliminado de favoritos');
+    } catch {
+      this.toastService.error('Ha ocurrido un error');
     }
-
-    return runInInjectionContext(this.injector, () => {
-      const docRef = doc(this.firestore, 'favorite-artists', id);
-      return deleteDoc(docRef);
-    });
   }
 }

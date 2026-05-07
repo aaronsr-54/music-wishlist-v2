@@ -52,8 +52,21 @@ import { LanguageService } from '../../../core/i18n/language.service';
     .card-name,
     .card-artist {
       transition:
-        color 160ms ease,
-        opacity 160ms ease;
+        color 300ms cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card {
+      animation: dropIn 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      transition:
+        transform 350ms cubic-bezier(0.16, 1, 0.3, 1),
+        box-shadow 350ms cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .card:hover {
+      transform: scale(1.02) translateY(-4px);
+      box-shadow: 0 14px 28px rgb(0 0 0 / 0.12);
+    }
+    .dark .card:hover {
+      box-shadow: 0 14px 28px rgb(0 0 0 / 0.38);
     }
   `,
   template: `

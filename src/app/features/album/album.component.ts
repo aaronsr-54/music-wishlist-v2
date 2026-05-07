@@ -92,6 +92,20 @@ interface AlbumDetail {
     .scroll-fade::-webkit-scrollbar {
       display: none;
     }
+    /* Cover: llega desde la derecha */
+    .album-cover {
+      animation: coverFromRight 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    /* Info: desciende desde arriba */
+    .album-info {
+      animation: slideDown 600ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 80ms;
+    }
+    /* Tracklist: aparece por último */
+    .album-tracks {
+      animation: driftUp 500ms cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 200ms;
+    }
   `,
   template: `
     <div class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4">
@@ -110,12 +124,12 @@ interface AlbumDetail {
             class="flex gap-2 max-md:flex-col max-md:items-center md:gap-8 max-md:text-center mt-4"
           >
             <div
-              class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-3/4 max-md:h-auto max-md:aspect-square shadow-ink/5 shadow-lg"
+              class="shrink-0 w-[200px] h-[200px] rounded-md overflow-hidden max-md:w-3/4 max-md:h-auto max-md:aspect-square shadow-ink/5 shadow-lg album-cover"
             >
               <app-cover [name]="a.name" [coverUrl]="a.coverUrl" />
             </div>
 
-            <div class="flex-1 flex flex-col justify-start">
+            <div class="flex-1 flex flex-col justify-start album-info">
               <div class="flex flex-col text-ink dark:text-bone">
                 <div
                   class="flex items-center gap-4 mb-2 md:mb-8 max-md:justify-center"
@@ -194,11 +208,11 @@ interface AlbumDetail {
                 {{ t().tracks }} ({{ tracks().length }})
               </h2>
 
-              <div
-                class="flex flex-col [&>*]:[animation:rowEnter_var(--dur-base)_var(--ease)_both]"
-              >
-                @for (track of trackList(); track track.id) {
+              <div class="flex flex-col">
+                @for (track of trackList(); track track.id; let i = $index) {
                   <app-search-result-item
+                    [style.animation]="'trackRight 450ms cubic-bezier(0.16,1,0.3,1) both'"
+                    [style.animation-delay]="i * 30 + 'ms'"
                     [item]="track"
                     type="track"
                     [isAdded]="isInWishlist(track.id)"

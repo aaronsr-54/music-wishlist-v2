@@ -104,7 +104,8 @@
       "Bash(bash /tmp/swap_colors_v2.sh)",
       "Bash(Start-Sleep -Seconds 5)",
       "Bash(Select-String -Pattern \"error|warning\" -Context 2)",
-      "Bash(Remove-Item *)"
+      "Bash(Remove-Item *)",
+      "Bash(Write-Output \"Server should be ready\")"
     ]
   }
 }
