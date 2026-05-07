@@ -111,27 +111,16 @@ type Language = 'es' | 'en';
               {{ t().notificationsBlocked }}
             </span>
           } @else {
-            <div class="flex gap-2 w-full md:flex-1">
-              <button
-                class="flex-1 px-4 py-2 rounded-lg font-bold uppercase transition-colors"
-                [class]="pushSvc.isSubscribed()
-                  ? 'bg-accent text-bone dark:bg-accent dark:text-bone'
-                  : 'bg-bone dark:bg-ink-200 dark:text-bone'"
-                [disabled]="pushSvc.loading()"
-                (click)="toggleNotifications()"
-              >
-                {{ pushSvc.isSubscribed() ? t().disableNotifications : t().enableNotifications }}
-              </button>
-              @if (pushSvc.isSubscribed()) {
-                <button
-                  class="px-3 py-2 rounded-lg bg-bone dark:bg-ink-200 dark:text-bone text-sm uppercase font-bold"
-                  [disabled]="checkingReleases()"
-                  (click)="checkReleases()"
-                >
-                  {{ checkingReleases() ? '…' : 'Check' }}
-                </button>
-              }
-            </div>
+            <button
+              class="flex-1 px-4 py-2 rounded-lg font-bold uppercase transition-all duration-300"
+              [class]="pushSvc.isSubscribed()
+                ? 'bg-accent text-bone dark:bg-accent dark:text-bone shadow-sm'
+                : 'bg-bone dark:bg-ink-200 dark:text-bone border-2 border-bone-800 dark:border-ink-300 hover:bg-bone-700 dark:hover:bg-ink-300'"
+              [disabled]="pushSvc.loading()"
+              (click)="toggleNotifications()"
+            >
+              {{ pushSvc.isSubscribed() ? t().disableNotifications : t().enableNotifications }}
+            </button>
           }
         </div>
       </section>
@@ -170,7 +159,6 @@ export class ProfileSettingsComponent {
   private languageService = inject(LanguageService);
   pushSvc = inject(PushNotificationService);
   private toast = inject(ToastService);
-  checkingReleases = signal(false);
 
   @ViewChild('tabModal', { static: true }) tabModal!: ModalComponent;
   @ViewChild('themeModal', { static: true }) themeModal!: ModalComponent;
@@ -301,24 +289,4 @@ export class ProfileSettingsComponent {
     }
   }
 
-  async checkReleases() {
-    this.checkingReleases.set(true);
-    try {
-      const { notified, results } = await this.pushSvc.debugCheckReleases();
-      if (notified > 0) {
-        const details = results
-          .map((r) => `${r.artist}: ${r.albums.map((a) => a.title).join(', ')}`)
-          .join(' | ');
-        this.toast.success(`Notificaciones enviadas (${notified}): ${details}`);
-      } else {
-        this.toast.success('Sin novedades — no hay nuevos releases.');
-      }
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Error al verificar releases';
-      this.toast.error(msg);
-    } finally {
-      this.checkingReleases.set(false);
-    }
-  }
-
-  }
+}
