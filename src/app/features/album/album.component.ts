@@ -138,7 +138,7 @@ interface AlbumDetail {
                 <div
                   class="flex items-center gap-4 mb-2 md:mb-8 max-md:justify-center"
                 >
-                  <app-type-chip [type]="a.type" />
+                  <app-type-chip [type]="albumType()" />
                 </div>
 
                 <div class="flex items-center justify-center gap-4 md:gap-4">
@@ -268,6 +268,12 @@ export class AlbumComponent {
     this.route.paramMap.pipe(map((params) => params.get('id'))),
   );
 
+  albumType = computed(() => {
+    const a = this.album();
+    if (!a) return 'album' as TrackType;
+    return this.tracks().length === 1 ? ('single' as TrackType) : a.type;
+  });
+
   trackList = computed(() => {
     const albumData = this.album();
     return this.tracks().map((t) => ({
@@ -305,13 +311,6 @@ export class AlbumComponent {
     this.searchSvc.getAlbumTracks(albumId).subscribe({
       next: (tracks) => {
         this.tracks.set(tracks);
-
-        if (tracks.length === 1) {
-          this.album.update((a) =>
-            a ? { ...a, type: 'single' as TrackType } : a,
-          );
-        }
-
         this.loading.set(false);
       },
       error: () => {
@@ -349,7 +348,7 @@ export class AlbumComponent {
         name: currentAlbum.name,
         artist: currentAlbum.artist,
         coverUrl: currentAlbum.coverUrl,
-        type: currentAlbum.type,
+        type: this.albumType(),
         releaseDate: currentAlbum.releaseDate,
         ...(currentAlbum.artistId ? { artistId: currentAlbum.artistId } : {}),
       };

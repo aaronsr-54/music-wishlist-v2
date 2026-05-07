@@ -73,7 +73,7 @@ export class SearchService {
           name: a.title,
           artists: [a.artist?.name ?? ''],
           coverUrl: a.cover_big ?? a.cover_medium ?? '',
-          type: (a.record_type === 'single' ? 'ep' : 'album') as TrackType,
+          type: this.mapRecordType(a.record_type),
           uri: a.link ?? '',
           artistId: a.artist?.id ? String(a.artist.id) : undefined,
         }));
@@ -337,7 +337,7 @@ export class SearchService {
           artist: res.artist?.name ?? '',
           artistId: res.artist?.id ? String(res.artist.id) : undefined,
           coverUrl: res.cover_big ?? res.cover_medium ?? '',
-          type: (res.record_type === 'ep' || res.record_type === 'single' ? 'ep' : 'album') as TrackType,
+          type: this.mapRecordType(res.record_type),
           releaseDate: res.release_date ?? '',
         };
         this.albumCache.set(albumId, album);
