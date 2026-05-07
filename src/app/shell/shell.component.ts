@@ -5,8 +5,10 @@ import {
   Router,
   RouterOutlet,
 } from '@angular/router';
+import { BreakpointObserver } from '@angular/cdk/layout';
+import { toSignal } from '@angular/core/rxjs-interop';
 
-import { filter } from 'rxjs';
+import { filter, map } from 'rxjs';
 
 import { HeaderComponent } from '../layout/header/header.component';
 import { TabBarComponent } from '../layout/tab-bar/tab-bar.component';
@@ -60,8 +62,9 @@ type Tab = 'releases' | 'search' | 'wishlist';
     }
   `,
   template: `
+    @if (isDesktop()) {
     <!-- DESKTOP -->
-    <div class="hidden bg-bone-300 dark:bg-ink md:flex flex-col h-full">
+    <div class="bg-bone-300 dark:bg-ink flex flex-col h-full">
       <app-header class="z-10" (openProfile)="goToProfile()" />
 
       <main
@@ -79,31 +82,40 @@ type Tab = 'releases' | 'search' | 'wishlist';
         <section
           class="desktop-content flex-1 overflow-y-auto p-4 rounded-xl border border-bone-800 dark:border-ink-200 shadow-[0_2px_12px_4px_rgba(0,0,0,0.05)] dark:shadow-[0_2px_12px_4px_rgba(0,0,0,0.15)] h-full [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/10"
         >
-          @if (hasChildRoute()) {
-            <router-outlet />
-          } @else {
-            @switch (activeTab()) {
-              @case ('releases') {
+          @switch (activeTab()) {
+            @case ('releases') {
+              @if (hasChildRoute()) {
+                <router-outlet />
+              } @else {
                 <app-releases />
               }
-              @case ('search') {
+            }
+            @case ('search') {
+              @if (hasChildRoute()) {
+                <router-outlet />
+              } @else {
                 <app-search />
               }
-              @case ('wishlist') {
+            }
+            @case ('wishlist') {
+              @if (hasChildRoute()) {
+                <router-outlet />
+              } @else {
                 <app-wishlist />
               }
             }
           }
         </section>
-</main>
+      </main>
 
       @if (hasActivePreview()) {
         <app-floating-player />
       }
     </div>
 
+    } @else {
     <!-- MOBILE -->
-    <div class="bg-bone-300 dark:bg-ink flex flex-col h-full md:hidden">
+    <div class="bg-bone-300 dark:bg-ink flex flex-col h-full">
       <app-header class="z-10" (openProfile)="goToProfile()" />
 
       <main
@@ -144,6 +156,7 @@ type Tab = 'releases' | 'search' | 'wishlist';
         <app-floating-player />
       }
     </div>
+    }
   `,
 })
 export class ShellComponent {
@@ -151,6 +164,14 @@ export class ShellComponent {
   private route = inject(ActivatedRoute);
   private languageService = inject(LanguageService);
   private previewService = inject(PreviewService);
+  private breakpointObserver = inject(BreakpointObserver);
+
+  isDesktop = toSignal(
+    this.breakpointObserver
+      .observe('(min-width: 768px)')
+      .pipe(map((r) => r.matches)),
+    { initialValue: window.matchMedia('(min-width: 768px)').matches },
+  );
 
   activeTab = signal<Tab>(this.getDefaultTab());
   hasChildRoute = signal(false);

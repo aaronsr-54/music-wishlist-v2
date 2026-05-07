@@ -246,176 +246,58 @@ import { ArtistCacheService } from '../../core/services/artist-cache.service';
             <span class="text-sm md:text-lg italic">{{ t().loadingReleases }}</span>
           </div>
         } @else {
-          @if (albums().length > 0) {
-          <div class="flex flex-col gap-2">
-            <h2
-              class="font-body text-xs md:text-base text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
-            >
-              Albums
-            </h2>
-            <div class="grid grid-cols-3 md:grid-cols-4 gap-2 gap-y-3">
-              @for (album of albums(); track album.id; let i = $index) {
-                <div
-                  class="flex flex-col gap-1 group release-item"
-                  [style.animation-delay]="i * 40 + 'ms'"
-                >
+          @for (section of releaseSections(); track section.title) {
+            <div class="flex flex-col gap-4">
+              <h2
+                class="font-body text-xs md:text-base text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
+              >
+                {{ section.title }}
+              </h2>
+              <div class="grid grid-cols-3 md:grid-cols-4 gap-2 gap-y-3">
+                @for (item of section.items; track item.id; let i = $index) {
                   <div
-                    class="w-full aspect-square rounded-md overflow-hidden bg-ink-100 dark:bg-ink-800 cursor-pointer relative"
-                    (click)="navigateToAlbum(album.id)"
+                    class="flex flex-col gap-1 group release-item"
+                    [style.animation-delay]="i * 40 + 'ms'"
                   >
-                    <app-cover
-                      [name]="album.name"
-                      [coverUrl]="album.coverUrl"
-                    />
                     <div
-                      class="absolute top-1 right-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+                      class="w-full aspect-square rounded-md overflow-hidden bg-ink-100 dark:bg-ink-800 cursor-pointer relative"
+                      (click)="navigateToAlbum(item.id)"
                     >
-                      <button
-                        appBtn
-                        variant="add"
-                        [added]="isReleaseInWishlist(album.id)"
-                        (click)="toggleReleaseWishlist($event, album)"
-                        class="max-md:w-8 max-md:h-8 shadow-md border border-solid border-ink-200"
+                      <app-cover [name]="item.name" [coverUrl]="item.coverUrl" />
+                      <div
+                        class="absolute top-1 right-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
                       >
-                        <app-icon
-                          [name]="
-                            isReleaseInWishlist(album.id) ? 'check' : 'plus'
-                          "
-                          class="w-4 h-4 md:w-5 md:h-5"
-                        />
-                      </button>
+                        <button
+                          appBtn
+                          variant="add"
+                          [added]="isInWishlist(item.id)"
+                          (click)="toggleReleaseWishlist($event, item)"
+                          class="max-md:w-8 max-md:h-8 shadow-md border border-solid border-ink-200"
+                        >
+                          <app-icon
+                            [name]="isInWishlist(item.id) ? 'check' : 'plus'"
+                            class="w-4 h-4 md:w-5 md:h-5"
+                          />
+                        </button>
+                      </div>
+                    </div>
+                    <div class="flex flex-col">
+                      <h3
+                        class="text-sm font-semibold text-ink dark:text-bone line-clamp-1 cursor-pointer hover:opacity-75"
+                        (click)="navigateToAlbum(item.id)"
+                      >
+                        {{ item.name }}
+                      </h3>
+                      @if (item.releaseDate) {
+                        <p class="text-xs text-ink-600 dark:text-bone-600">
+                          {{ item.releaseDate | slice: 0 : 4 }}
+                        </p>
+                      }
                     </div>
                   </div>
-                  <div class="flex flex-col">
-                    <h3
-                      class="text-sm font-semibold text-ink dark:text-bone line-clamp-1 cursor-pointer hover:opacity-75"
-                      (click)="navigateToAlbum(album.id)"
-                    >
-                      {{ album.name }}
-                    </h3>
-                    @if (album.releaseDate) {
-                      <p class="text-xs text-ink-600 dark:text-bone-600">
-                        {{ album.releaseDate | slice: 0 : 4 }}
-                      </p>
-                    }
-                  </div>
-                </div>
-              }
+                }
+              </div>
             </div>
-          </div>
-          }
-
-          @if (eps().length > 0) {
-          <div class="flex flex-col gap-4">
-            <h2
-              class="font-body text-xs md:text-base text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
-            >
-              EPs
-            </h2>
-            <div class="grid grid-cols-3 md:grid-cols-4 gap-2 gap-y-3">
-              @for (ep of eps(); track ep.id; let i = $index) {
-                <div
-                  class="flex flex-col gap-1 group release-item"
-                  [style.animation-delay]="i * 40 + 'ms'"
-                >
-                  <div
-                    class="w-full aspect-square rounded-md overflow-hidden bg-ink-100 dark:bg-ink-800 cursor-pointer relative"
-                    (click)="navigateToAlbum(ep.id)"
-                  >
-                    <app-cover [name]="ep.name" [coverUrl]="ep.coverUrl" />
-                    <div
-                      class="absolute top-1 right-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                    >
-                      <button
-                        appBtn
-                        variant="add"
-                        [added]="isReleaseInWishlist(ep.id)"
-                        (click)="toggleReleaseWishlist($event, ep)"
-                        class="max-md:w-8 max-md:h-8 shadow-md border border-solid border-ink-200"
-                      >
-                        <app-icon
-                          [name]="isReleaseInWishlist(ep.id) ? 'check' : 'plus'"
-                          class="w-4 h-4 md:w-5 md:h-5"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                  <div class="flex flex-col">
-                    <h3
-                      class="text-sm font-semibold text-ink dark:text-bone line-clamp-1 cursor-pointer hover:opacity-75"
-                      (click)="navigateToAlbum(ep.id)"
-                    >
-                      {{ ep.name }}
-                    </h3>
-                    @if (ep.releaseDate) {
-                      <p class="text-xs text-ink-600 dark:text-bone-600">
-                        {{ ep.releaseDate | slice: 0 : 4 }}
-                      </p>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-          }
-
-          @if (singles().length > 0) {
-          <div class="flex flex-col gap-4">
-            <h2
-              class="font-body text-xs md:text-base text-ink-700 dark:text-bone-700 font-semibold tracking-[0.05em] uppercase m-0"
-            >
-              Singles
-            </h2>
-            <div class="grid grid-cols-3 md:grid-cols-4 gap-2 gap-y-3">
-              @for (single of singles(); track single.id; let i = $index) {
-                <div
-                  class="flex flex-col gap-1 group release-item"
-                  [style.animation-delay]="i * 40 + 'ms'"
-                >
-                  <div
-                    class="w-full aspect-square rounded-md overflow-hidden bg-ink-100 dark:bg-ink-800 cursor-pointer relative"
-                    (click)="navigateToAlbum(single.id)"
-                  >
-                    <app-cover
-                      [name]="single.name"
-                      [coverUrl]="single.coverUrl"
-                    />
-                    <div
-                      class="absolute top-1 right-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity"
-                    >
-                      <button
-                        appBtn
-                        variant="add"
-                        [added]="isReleaseInWishlist(single.id)"
-                        (click)="toggleReleaseWishlist($event, single)"
-                        class="max-md:w-8 max-md:h-8 shadow-md border border-solid border-ink-200"
-                      >
-                        <app-icon
-                          [name]="
-                            isReleaseInWishlist(single.id) ? 'check' : 'plus'
-                          "
-                          class="w-4 h-4 md:w-5 md:h-5"
-                        />
-                      </button>
-                    </div>
-                  </div>
-                  <div class="flex flex-col">
-                    <h3
-                      class="text-sm font-semibold text-ink dark:text-bone line-clamp-1 cursor-pointer hover:opacity-75"
-                      (click)="navigateToAlbum(single.id)"
-                    >
-                      {{ single.name }}
-                    </h3>
-                    @if (single.releaseDate) {
-                      <p class="text-xs text-ink-600 dark:text-bone-600">
-                        {{ single.releaseDate | slice: 0 : 4 }}
-                      </p>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
           }
         }
       </div>
@@ -443,6 +325,14 @@ export class ArtistComponent implements OnInit {
   singles = signal<ReleaseItem[]>([]);
   loading = signal(true);
   loadingReleases = signal(false);
+
+  releaseSections = computed(() =>
+    [
+      { title: 'Albums', items: this.albums() },
+      { title: 'EPs', items: this.eps() },
+      { title: 'Singles', items: this.singles() },
+    ].filter((s) => s.items.length > 0),
+  );
 
   ngOnInit() {
     this.route.paramMap
@@ -527,8 +417,8 @@ export class ArtistComponent implements OnInit {
       });
   }
 
-  isInWishlist(trackId: string): boolean {
-    return this.wishlistSvc.entries().some((e) => e.trackId === trackId);
+  isInWishlist(id: string): boolean {
+    return this.wishlistSvc.entries().some((e) => e.trackId === id);
   }
 
   isArtistInWishlist(artistId: string | number): boolean {
@@ -588,10 +478,6 @@ export class ArtistComponent implements OnInit {
 
   goBack() {
     this.router.navigate(['']);
-  }
-
-  isReleaseInWishlist(releaseId: string): boolean {
-    return this.wishlistSvc.entries().some((e) => e.trackId === releaseId);
   }
 
   async toggleReleaseWishlist(e: Event, release: ReleaseItem) {
