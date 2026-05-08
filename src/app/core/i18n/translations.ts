@@ -95,6 +95,8 @@ export const translations = {
     toastNotificationsDisabled: 'Notificaciones desactivadas',
     toastNotificationsDenied: 'Permiso de notificaciones denegado',
     toastAddedFromNotification: 'Añadido a la wishlist',
+    toastLinkCopied: 'Enlace copiado',
+    copyLink: 'Copiar enlace',
   },
   en: {
     defaultPage: 'Home page',
@@ -192,6 +194,8 @@ export const translations = {
     toastNotificationsDisabled: 'Notifications disabled',
     toastNotificationsDenied: 'Notification permission denied',
     toastAddedFromNotification: 'Added to wishlist',
+    toastLinkCopied: 'Link copied',
+    copyLink: 'Copy link',
   },
 } as const;
 

@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy, HostListener, ElementRef } from '@angular/core';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
@@ -9,6 +9,8 @@ import {
 } from '../../shared/components/segmented-tabs/segmented-tabs.component';
 import { LanguageService } from '../../core/i18n/language.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
+import { ToastService } from '../../shared/components/toast/toast.component';
+import { ContextMenuPanelComponent } from '../../shared/components/context-menu-panel/context-menu-panel.component';
 
 type WishlistTab = 'pending' | 'downloaded';
 
@@ -21,6 +23,7 @@ type WishlistTab = 'pending' | 'downloaded';
     EmptyStateComponent,
     SegmentedTabsComponent,
     PageHeaderComponent,
+    ContextMenuPanelComponent,
   ],
   styles: `
     .scroll-fade {
@@ -49,6 +52,14 @@ type WishlistTab = 'pending' | 'downloaded';
     }
   `,
   template: `
+    @if (contextMenu()) {
+      <app-context-menu-panel
+        [style]="'position:fixed;top:' + contextMenu()!.y + 'px;left:' + contextMenu()!.x + 'px;z-index:9999;'"
+        (onSelect)="closeContextMenu()"
+        (onCopyLink)="copyFromContextMenu()"
+      />
+    }
+
     <div
       class="flex flex-col h-full overflow-hidden p-0.5 pt-2 gap-4 [animation:fadeIn_300ms_ease_both]"
       (touchstart)="onTouchStart($event)"
@@ -79,6 +90,9 @@ type WishlistTab = 'pending' | 'downloaded';
           <div
             [style.animation]="'dropIn 500ms cubic-bezier(0.16,1,0.3,1) both'"
             [style.animation-delay]="i * 40 + 'ms'"
+            (contextmenu)="onContextMenu($event, entry)"
+            (touchstart)="onItemTouchStart($event, entry)"
+            (touchend)="onItemTouchEnd($event, entry)"
           >
             <app-search-result-item
               [item]="entry"
@@ -111,9 +125,11 @@ type WishlistTab = 'pending' | 'downloaded';
 export class WishlistComponent {
   wishlistSvc = inject(WishlistService);
   private languageService = inject(LanguageService);
+  private toast = inject(ToastService);
 
   activeTab = signal<WishlistTab>('pending');
   animatingTab = signal(false);
+  contextMenu = signal<{ x: number; y: number; entry: WishlistEntry } | null>(null);
 
   t = computed(() => this.languageService.t());
 
@@ -130,8 +146,11 @@ export class WishlistComponent {
 
   private touchStartX = 0;
   private touchStartY = 0;
+  private longPressTimeout: ReturnType<typeof setTimeout> | null = null;
+  private longPressEntry: WishlistEntry | null = null;
 
   private readonly SWIPE_THRESHOLD = 50;
+  private readonly LONG_PRESS_DURATION = 500;
 
   activeEntries = computed(() =>
     this.activeTab() === 'pending'
@@ -171,6 +190,66 @@ export class WishlistComponent {
 
       this.animatingTab.set(false);
     }, 150);
+  }
+
+  onItemTouchStart(event: TouchEvent, entry: WishlistEntry) {
+    const touch = event.changedTouches[0];
+    this.longPressEntry = entry;
+
+    this.longPressTimeout = setTimeout(() => {
+      this.copyToClipboard(entry);
+      this.longPressEntry = null;
+    }, this.LONG_PRESS_DURATION);
+  }
+
+  onItemTouchEnd(event: TouchEvent, _entry: WishlistEntry) {
+    if (this.longPressTimeout) {
+      clearTimeout(this.longPressTimeout);
+      this.longPressTimeout = null;
+    }
+    this.longPressEntry = null;
+  }
+
+  onContextMenu(event: MouseEvent, entry: WishlistEntry) {
+    event.preventDefault();
+    event.stopPropagation();
+    console.log('=== CONTEXT MENU DEBUG ===');
+    console.log('event.clientX:', event.clientX, 'event.clientY:', event.clientY);
+    console.log('event.pageX:', event.pageX, 'event.pageY:', event.pageY);
+    console.log('event.offsetX:', event.offsetX, 'event.offsetY:', event.offsetY);
+    console.log('entry name:', entry.name);
+    console.log('target:', event.target);
+    console.log('currentTarget:', event.currentTarget);
+    console.log('=========================');
+    this.contextMenu.set({ x: event.clientX, y: event.clientY, entry });
+  }
+
+  closeContextMenu() {
+    this.contextMenu.set(null);
+  }
+
+  copyFromContextMenu() {
+    const menu = this.contextMenu();
+    if (menu) {
+      this.copyToClipboard(menu.entry);
+    }
+    this.closeContextMenu();
+  }
+
+  private async copyToClipboard(entry: WishlistEntry) {
+    if (!entry.trackId) return;
+
+    const url =
+      entry.type === 'track'
+        ? `https://deezer.com/track/${entry.trackId}`
+        : `https://deezer.com/album/${entry.trackId}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      this.toast.success(this.t().toastLinkCopied);
+    } catch {
+      this.toast.error(this.t().toastError);
+    }
   }
 
   private goToNextTab() {
