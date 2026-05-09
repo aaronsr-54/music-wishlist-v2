@@ -12,6 +12,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 import { PageHeaderComponent } from '../../shared/components/page-header/page-header.component';
 import { ToastService } from '../../shared/components/toast/toast.component';
 import { ContextMenuPanelComponent } from '../../shared/components/context-menu-panel/context-menu-panel.component';
+import { SearchService } from '../../core/api/search.service';
 
 type WishlistTab = 'pending' | 'downloaded';
 
@@ -114,7 +115,6 @@ type WishlistTab = 'pending' | 'downloaded';
               (onUnmarkDownloaded)="unmarkDownloaded($event)"
               (onMenuClick)="onItemMenuClick($event)"
               (onArtistClick)="goToArtistPage($event)"
-              (onAlbumClick)="goToAlbumPage($event)"
             />
           </div>
         } @empty {
@@ -137,6 +137,7 @@ export class WishlistComponent {
   private languageService = inject(LanguageService);
   private toast = inject(ToastService);
   private router = inject(Router);
+  private searchSvc = inject(SearchService);
 
   activeTab = signal<WishlistTab>('pending');
   animatingTab = signal(false);
@@ -247,10 +248,16 @@ export class WishlistComponent {
   onItemMenuClick(data: { entry: WishlistEntry; x: number; y: number }): void {
     this.contextMenu.set({ x: data.x, y: data.y, entry: data.entry });
     this.contextMenuShowRemove.set(true);
-    this.contextMenuShowArtist.set(!!data.entry.artistId);
+    this.contextMenuShowArtist.set(
+      !!data.entry.artistId || this.isAlbumEntryType(data.entry.type),
+    );
     this.contextMenuShowAlbum.set(
       !!(data.entry.albumId && data.entry.type === 'track'),
     );
+  }
+
+  private isAlbumEntryType(type: string): boolean {
+    return ['album', 'ep', 'single'].includes(type);
   }
 
   closeContextMenu() {
@@ -267,8 +274,20 @@ export class WishlistComponent {
 
   goToArtistFromContextMenu() {
     const menu = this.contextMenu();
-    if (menu?.entry.artistId) {
+    if (!menu) return;
+    if (menu.entry.artistId) {
       this.router.navigate(['/artist', menu.entry.artistId]);
+      this.closeContextMenu();
+      return;
+    }
+    if (this.isAlbumEntryType(menu.entry.type) && menu.entry.trackId) {
+      this.searchSvc.getAlbum(menu.entry.trackId).subscribe((album) => {
+        if (album?.artistId) {
+          this.router.navigate(['/artist', album.artistId]);
+        }
+        this.closeContextMenu();
+      });
+      return;
     }
     this.closeContextMenu();
   }

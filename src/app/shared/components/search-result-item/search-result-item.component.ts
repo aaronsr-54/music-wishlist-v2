@@ -164,7 +164,7 @@ type WishlistEntryExtended = WishlistEntry & {
                 class="text-ink-100 dark:text-bone-700 text-sm md:text-md overflow-hidden text-ellipsis transition-colors duration-fast leading-none"
                 [ngClass]="accentClasses()"
               >
-                @if (isWishlist() && wishlistItem().artistId) {
+                @if (isWishlist() && (wishlistItem().artistId || isAlbumType(wishlistItem().type))) {
                   <button
                     class="hover:underline hover:text-accent-track dark:hover:text-accent-dark-track transition-colors"
                     (click)="onArtistNameClick($event)"
@@ -173,15 +173,6 @@ type WishlistEntryExtended = WishlistEntry & {
                   </button>
                 } @else {
                   {{ subtitle() }}
-                }
-                @if (isWishlist() && wishlistItem().albumName && wishlistItem().type === 'track') {
-                  <span class="mx-1">·</span>
-                  <button
-                    class="hover:underline hover:text-accent-album dark:hover:text-accent-dark-album transition-colors"
-                    (click)="onAlbumNameClick($event)"
-                  >
-                    {{ wishlistItem().albumName }}
-                  </button>
                 }
               </span>
 
@@ -478,6 +469,12 @@ export class SearchResultItemComponent {
     const item = this.wishlistItem();
     if (item.artistId) {
       this.onArtistClick.emit({ id: item.artistId, artistId: item.artistId } as Track);
+    } else if (this.isAlbumType(item.type) && item.trackId) {
+      this.search.getAlbum(item.trackId).subscribe((album) => {
+        if (album?.artistId) {
+          this.onArtistClick.emit({ id: album.artistId, artistId: album.artistId } as Track);
+        }
+      });
     }
   }
 
