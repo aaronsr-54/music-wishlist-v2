@@ -81,7 +81,11 @@ function fromValue(v) {
 async function getServiceAccountToken() {
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
   const rawKey = process.env.FIREBASE_PRIVATE_KEY || '';
-  const privateKey = rawKey.replace(/\\n/g, '\n');
+  const privateKey = rawKey
+    .replace(/\\n/g, '\n')
+    .split('\n')
+    .map(line => line.trim())
+    .join('\n');
   if (!clientEmail || !privateKey) return null;
 
   const now = Math.floor(Date.now() / 1000);
@@ -116,10 +120,7 @@ async function getServiceAccountToken() {
     return data.access_token;
   } catch (err) {
     console.error('[push] JWT signing error:', err.message);
-    console.error('[push] JWT signing stack:', err.stack);
-    console.error('[push] clientEmail:', clientEmail);
-    console.error('[push] Key length:', rawKey.length, '| First 60 chars:', JSON.stringify(rawKey.slice(0, 60)));
-    console.error('[push] Key starts with header:', rawKey.trim().startsWith('-----BEGIN'));
+    console.error('[push] Key preview:', JSON.stringify(rawKey.slice(0, 60)));
     return null;
   }
 }
