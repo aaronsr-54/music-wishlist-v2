@@ -87,7 +87,7 @@ async function getServiceAccountToken() {
   const header = { alg: 'RS256', typ: 'JWT' };
   const claim = {
     iss: clientEmail,
-    scope: 'https://www.googleapis.com/auth/datastore',
+    scope: 'https://www.googleapis.com/auth/cloud-platform',
     aud: 'https://oauth2.googleapis.com/token',
     exp: now + 3600,
     iat: now,
