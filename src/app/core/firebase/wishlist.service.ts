@@ -18,14 +18,16 @@ import {
   orderBy,
   where,
 } from '@angular/fire/firestore';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { User } from '@angular/fire/auth';
 import { Track } from '../../shared/models/track.model';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { ReleaseItem } from '../../shared/models/release-item.model';
-import { AuthService } from '../auth/auth.service';
 import { WishlistShareService } from './wishlist-share.service';
 import { ToastService } from '../../shared/components/toast/toast.component';
 import { LanguageService } from '../i18n/language.service';
+import { AuthService } from '../auth/auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class WishlistService {
@@ -34,6 +36,11 @@ export class WishlistService {
   private shareService = inject(WishlistShareService);
   private toastService = inject(ToastService);
   private lang = inject(LanguageService);
+  private http = inject(HttpClient);
+
+  private get authSvc(): AuthService {
+    return this.injector.get(AuthService);
+  }
 
   private _ownEntries = signal<WishlistEntry[]>([]);
   private _sharedEntries = signal<WishlistEntry[]>([]);
@@ -217,7 +224,8 @@ export class WishlistService {
     }
   }
 
-  async markDownloaded(id: string): Promise<void> {
+  async markDownloaded(entry: WishlistEntry): Promise<void> {
+    const id = entry.id!;
     try {
       if (this.isDemoMode) {
         const current = this._ownEntries();
@@ -234,8 +242,37 @@ export class WishlistService {
         await updateDoc(doc(this.firestore, 'wishlist', id), { downloaded: true });
       }
       this.toastService.success(this.lang.t().toastMarkedReady);
+
+      this.notifyOwnerIfShared(entry).catch(() => {});
     } catch {
       this.toastService.error(this.lang.t().toastError);
+    }
+  }
+
+  private async notifyOwnerIfShared(entry: WishlistEntry): Promise<void> {
+    const user = this.authSvc.currentUser();
+    if (!user || entry.addedByUid === user.uid || this.isDemoMode) return;
+
+    try {
+      const token = await user.getIdToken();
+      await firstValueFrom(
+        this.http.post(
+          '/api/push',
+          {
+            action: 'notify-downloaded',
+            ownerUid: entry.addedByUid,
+            downloadedBy: user.displayName || user.email || 'Alguien',
+            item: {
+              name: entry.name,
+              artist: entry.artist,
+              coverUrl: entry.coverUrl,
+            },
+          },
+          { headers: { Authorization: `Bearer ${token}` } },
+        ),
+      );
+    } catch (err) {
+      console.error('[WishlistService] notifyOwnerIfShared error:', err);
     }
   }
 

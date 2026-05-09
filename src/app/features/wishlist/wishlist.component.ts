@@ -346,7 +346,7 @@ export class WishlistComponent {
 
   async markDownloaded(entry: WishlistEntry) {
     if (entry.id) {
-      await this.wishlistSvc.markDownloaded(entry.id);
+      await this.wishlistSvc.markDownloaded(entry);
     }
   }
 

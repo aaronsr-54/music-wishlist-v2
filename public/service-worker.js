@@ -65,6 +65,23 @@ const RELEASE_EMOJI = { Álbum: '💿', EP: '🎧', Canción: '🎵' };
 self.addEventListener('push', (event) => {
   if (!event.data) return;
   const data = event.data.json();
+
+  if (data.type === 'downloaded') {
+    event.waitUntil(
+      self.registration.showNotification(
+        `✓ ${data.downloadedBy} ha descargado ${data.itemName}`,
+        {
+          body: data.itemArtist,
+          icon: data.coverUrl,
+          image: data.coverUrl,
+          badge: '/favicon.png',
+          data: { url: '/wishlist?tab=downloaded' },
+        },
+      ),
+    );
+    return;
+  }
+
   const emoji = RELEASE_EMOJI[data.releaseType] ?? '🎵';
   event.waitUntil(
     self.registration.showNotification(`${emoji} Nuevo ${data.releaseType} de ${data.artist}`, {
@@ -83,8 +100,24 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const { albumId } = event.notification.data;
-  const url =
+  const { albumId, url } = event.notification.data;
+
+  if (url) {
+    event.waitUntil(
+      clients.matchAll({ type: 'window' }).then((list) => {
+        for (const client of list) {
+          if ('focus' in client) {
+            client.navigate(url);
+            return client.focus();
+          }
+        }
+        return clients.openWindow(url);
+      })
+    );
+    return;
+  }
+
+  const targetUrl =
     event.action === 'add'
       ? `/album/${albumId}?add=true`
       : `/album/${albumId}`;
@@ -92,11 +125,11 @@ self.addEventListener('notificationclick', (event) => {
     clients.matchAll({ type: 'window' }).then((list) => {
       for (const client of list) {
         if ('focus' in client) {
-          client.navigate(url);
+          client.navigate(targetUrl);
           return client.focus();
         }
       }
-      return clients.openWindow(url);
+      return clients.openWindow(targetUrl);
     })
   );
 });

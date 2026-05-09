@@ -2,10 +2,21 @@
 // User's own ID token authenticates directly against Firestore REST API.
 // Security rules enforce userId isolation.
 
+import webpush from 'web-push';
+import crypto from 'crypto';
+
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
 // Already public in the Angular bundle:
 const FIREBASE_API_KEY = 'AIzaSyDIIW0YmNtS0WMcSyQa8l5ntv89C7SWlUo';
 const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
+
+const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:hello@musicwishlist.app';
+
+webpush.setVapidDetails(
+  VAPID_SUBJECT,
+  process.env.VAPID_PUBLIC_KEY,
+  process.env.VAPID_PRIVATE_KEY,
+);
 
 async function getUidFromToken(idToken) {
   const res = await fetch(
@@ -41,6 +52,95 @@ function toFirestoreValue(val) {
   return { stringValue: String(val) };
 }
 
+function fromFields(fields) {
+  const obj = {};
+  for (const [k, v] of Object.entries(fields)) {
+    if (v.stringValue !== undefined) obj[k] = v.stringValue;
+    else if (v.integerValue !== undefined) obj[k] = Number(v.integerValue);
+    else if (v.doubleValue !== undefined) obj[k] = v.doubleValue;
+    else if (v.booleanValue !== undefined) obj[k] = v.booleanValue;
+    else if (v.arrayValue !== undefined) {
+      obj[k] = (v.arrayValue.values ?? []).map(fromValue);
+    } else if (v.mapValue !== undefined) {
+      obj[k] = fromFields(v.mapValue.fields ?? {});
+    } else if (v.nullValue !== null && v.nullValue !== undefined) obj[k] = null;
+  }
+  return obj;
+}
+
+function fromValue(v) {
+  if (v.stringValue !== undefined) return v.stringValue;
+  if (v.integerValue !== undefined) return Number(v.integerValue);
+  if (v.doubleValue !== undefined) return v.doubleValue;
+  if (v.booleanValue !== undefined) return v.booleanValue;
+  if (v.arrayValue !== undefined) return (v.arrayValue.values ?? []).map(fromValue);
+  if (v.mapValue !== undefined) return fromFields(v.mapValue.fields ?? {});
+  return null;
+}
+
+async function getServiceAccountToken() {
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+  if (!clientEmail || !privateKey) return null;
+
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const claim = {
+    iss: clientEmail,
+    scope: 'https://www.googleapis.com/auth/datastore',
+    aud: 'https://oauth2.googleapis.com/token',
+    exp: now + 3600,
+    iat: now,
+  };
+
+  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+  const input = `${b64(header)}.${b64(claim)}`;
+
+  const sign = crypto.createSign('RSA-SHA256');
+  sign.update(input);
+  const sig = sign.sign(privateKey, 'base64url');
+
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+      assertion: `${input}.${sig}`,
+    }),
+  });
+
+  if (!res.ok) {
+    console.error('[push] OAuth2 token error:', await res.text());
+    return null;
+  }
+  const data = await res.json();
+  return data.access_token;
+}
+
+async function getDocAdmin(path, accessToken) {
+  const r = await fetch(`${FIRESTORE_BASE}/${path}`, {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (r.status === 404) return null;
+  if (!r.ok) {
+    const body = await r.text();
+    throw new Error(`Firestore admin get ${path} error ${r.status}: ${body}`);
+  }
+  const data = await r.json();
+  return { id: data.name.split('/').pop(), fields: data.fields };
+}
+
+async function deleteDocAdmin(path, accessToken) {
+  const r = await fetch(`${FIRESTORE_BASE}/${path}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
+  if (r.status !== 404 && !r.ok) {
+    const body = await r.text();
+    throw new Error(`Firestore admin delete ${path} error ${r.status}: ${body}`);
+  }
+}
+
 export default async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -52,8 +152,8 @@ export default async (req, res) => {
   }
 
   const { action, subscription } = req.body ?? {};
-  if (action !== 'subscribe' && action !== 'unsubscribe') {
-    return res.status(400).json({ error: 'Missing action' });
+  if (!['subscribe', 'unsubscribe', 'notify-downloaded'].includes(action)) {
+    return res.status(400).json({ error: 'Missing or invalid action' });
   }
 
   const idToken = authHeader.slice(7);
@@ -77,12 +177,51 @@ export default async (req, res) => {
         }),
       });
       if (!r.ok) throw new Error(`Firestore PATCH failed: ${await r.text()}`);
-    } else {
+
+    } else if (action === 'unsubscribe') {
       const r = await fetch(docUrl, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${idToken}` },
       });
       if (!r.ok && r.status !== 404) throw new Error(`Firestore DELETE failed: ${await r.text()}`);
+
+    } else if (action === 'notify-downloaded') {
+      const { ownerUid, downloadedBy, item } = req.body ?? {};
+      if (!ownerUid || !downloadedBy || !item?.name) {
+        return res.status(400).json({ error: 'Missing ownerUid, downloadedBy, or item.name' });
+      }
+
+      const token = await getServiceAccountToken();
+      if (!token) {
+        console.warn('[push] Service account not configured — skipping push');
+        return res.status(200).json({ ok: true, skipped: 'service account not configured' });
+      }
+
+      const subDoc = await getDocAdmin(`push-subscriptions/${ownerUid}`, token);
+      if (!subDoc) {
+        console.log(`[push] No push subscription for owner ${ownerUid}`);
+        return res.status(200).json({ ok: true, skipped: 'no subscription' });
+      }
+
+      const subData = fromFields(subDoc.fields).subscription;
+
+      const payload = JSON.stringify({
+        type: 'downloaded',
+        downloadedBy,
+        itemName: item.name,
+        itemArtist: item.artist || '',
+        coverUrl: item.coverUrl || '',
+      });
+
+      try {
+        await webpush.sendNotification(subData, payload);
+        console.log(`[push] Downloaded notification sent to owner ${ownerUid}`);
+      } catch (err) {
+        console.error(`[push] Send error: ${err.statusCode} ${err.message}`);
+        if (err.statusCode === 404 || err.statusCode === 410) {
+          await deleteDocAdmin(`push-subscriptions/${ownerUid}`, token);
+        }
+      }
     }
 
     return res.status(200).json({ ok: true });
