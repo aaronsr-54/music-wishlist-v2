@@ -1,4 +1,9 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { AuthService } from '../../core/auth/auth.service';
 import { VersionService } from '../../core/version/version.service';
 import { IconComponent } from '../../shared/icons/icon.component';
@@ -70,14 +75,12 @@ import { IconComponent } from '../../shared/icons/icon.component';
           ACCESO
         </span>
         <span
-          class="text-ink-700 dark:text-bone-700 text-[11px] italic font-medium"
+          class="text-ink-100 dark:text-bone-800 text-[11px] italic font-medium font-mono"
           >v{{ version() }}</span
         >
       </header>
 
-      <main
-        class="flex-1 flex flex-col justify-center gap-5 py-12"
-      >
+      <main class="flex-1 flex flex-col justify-center gap-5 py-12">
         <h1
           class="font-display text-[68px] md:text-[88px] font-bold leading-[0.8] m-0 tracking-[-0.03em] text-ink dark:text-bone"
           style="animation: titleEntrance 800ms cubic-bezier(0.16,1,0.3,1) both; animation-delay: 80ms"

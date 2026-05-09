@@ -1,4 +1,9 @@
-import { Component, inject, ChangeDetectionStrategy, computed } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  computed,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
@@ -8,6 +13,7 @@ import { ProfileStatsComponent } from './sections/profile-stats.component';
 import { ProfileSharedComponent } from './sections/profile-shared.component';
 import { ProfileSettingsComponent } from './sections/profile-settings.component';
 import { LanguageService } from '../../core/i18n/language.service';
+import { VersionService } from '../../core/version/version.service';
 
 @Component({
   selector: 'app-profile',
@@ -63,7 +69,7 @@ import { LanguageService } from '../../core/i18n/language.service';
 
       @if (auth.currentUser(); as user) {
         <div
-          class="py-8 px-4 md:p-8 min-h-full w-full max-w-7xl gap-8 flex flex-col justify-between mx-auto overflow-auto [scrollbar-width:none] [-webkit-mask-image:linear-gradient(to_bottom,transparent_0%,black_10px,black_90%,transparent_100%)] [mask-image:linear-gradient(to_bottom,transparent_0%,black_10px,black_90%,transparent_100%)]"
+          class="py-8 px-4 md:p-8 min-h-full w-full max-w-7xl gap-8 flex flex-col justify-between mx-auto overflow-auto [scrollbar-width:none]"
         >
           <section class="flex flex-col gap-12">
             <!-- HERO -->
@@ -91,13 +97,32 @@ import { LanguageService } from '../../core/i18n/language.service';
             </div>
 
             <!-- SECTIONS -->
-            <app-profile-stats class="profile-section" style="animation-delay: 100ms" />
-            <app-profile-shared class="profile-section" style="animation-delay: 200ms" />
-            <app-profile-settings class="profile-section" style="animation-delay: 300ms" />
+            <app-profile-stats
+              class="profile-section"
+              style="animation-delay: 100ms"
+            />
+            <app-profile-shared
+              class="profile-section"
+              style="animation-delay: 200ms"
+            />
+            <app-profile-settings
+              class="profile-section"
+              style="animation-delay: 300ms"
+            />
           </section>
 
-          <!-- ACCOUNT -->
-          <app-profile-account class="profile-section" style="animation-delay: 400ms" />
+          <div
+            class="profile-section flex flex-col items-center gap-6 w-full pb-16 md:pb-20"
+            style="animation-delay: 400ms"
+          >
+            <!-- ACCOUNT -->
+            <app-profile-account />
+            <span
+              class="text-ink-100 dark:text-bone-800 text-[11px] italic font-medium font-mono"
+            >
+              v{{ versionService.version() }}
+            </span>
+          </div>
         </div>
       }
     </div>
@@ -107,6 +132,7 @@ export class ProfileComponent {
   auth = inject(AuthService);
   private router = inject(Router);
   private languageService = inject(LanguageService);
+  versionService = inject(VersionService);
 
   t = computed(() => this.languageService.t());
 

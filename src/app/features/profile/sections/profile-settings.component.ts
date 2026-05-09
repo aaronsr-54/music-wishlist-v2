@@ -123,6 +123,7 @@ type Language = 'es' | 'en';
             </button>
           }
         </div>
+
       </section>
 
       <app-modal #tabModal [title]="t().defaultPage" (onClose)="closeTabModal()">

@@ -97,6 +97,7 @@ export const translations = {
     toastAddedFromNotification: 'Añadido a la wishlist',
     toastLinkCopied: 'Enlace copiado',
     copyLink: 'Copiar enlace',
+    appVersion: 'Versión',
   },
   en: {
     defaultPage: 'Home page',
@@ -196,6 +197,7 @@ export const translations = {
     toastAddedFromNotification: 'Added to wishlist',
     toastLinkCopied: 'Link copied',
     copyLink: 'Copy link',
+    appVersion: 'Version',
   },
 } as const;
 
