@@ -11,15 +11,15 @@ ng test --include='**/wishlist.service.spec.ts'  # single test file
 
 ## Versioning
 
-Update `package.json` version on each commit. Bump the corresponding number based on commit type (`X.Y.Z` → `patch.minor.mayor`):
+Update `package.json` version on each commit. Bump the corresponding number based on commit type (`X.Y.Z` → `major.minor.patch`):
 
 | Commit type | Number to bump | Example |
 |-------------|---------------|---------|
-| `fix:`, `perf:`, `refactor:`, `chore:` | 1st (patch) | `0.10.0` → `1.10.0` |
+| `fix:`, `perf:`, `refactor:`, `chore:` | 3rd (patch) | `0.10.0` → `0.10.1` |
 | `feat:`, `update:` | 2nd (minor) | `0.10.0` → `0.11.0` |
-| `BREAKING CHANGE`, `feat!:`, breaking refactors | 3rd (mayor) | `0.10.0` → `0.10.1` |
+| `BREAKING CHANGE`, `feat!:`, breaking refactors | 1st (major) | `0.10.0` → `1.0.0` |
 
-Reset lesser numbers to `0` when bumping a higher-order number (e.g., patch bump `0.10.0` → `1.0.0`; minor bump `0.10.0` → `0.11.0`). The `scripts/generate-version.js` writes `src/version.json` from `package.json` on prebuild/prestart, so no manual version.json update needed.
+Reset lesser numbers to `0` when bumping a higher-order number (e.g., minor bump `0.10.0` → `0.11.0`; major bump `0.10.0` → `1.0.0`). The `scripts/generate-version.js` writes `src/version.json` from `package.json` on prebuild/prestart, so no manual version.json update needed.
 
 ## Architecture
 Angular 20 SPA deployed on Vercel (free plan: max 12 serverless endpoints). Uses `@angular/build:application` builder (standalone bootstrap, no NgModules).
