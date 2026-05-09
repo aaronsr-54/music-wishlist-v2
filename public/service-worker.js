@@ -73,7 +73,6 @@ self.addEventListener('push', (event) => {
         {
           body: `Dale las gracias a ${data.downloadedBy} 😉`,
           icon: data.coverUrl,
-          image: data.coverUrl,
           badge: '/favicon.png',
           data: { url: '/wishlist?tab=downloaded' },
         },
