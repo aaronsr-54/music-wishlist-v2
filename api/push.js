@@ -116,6 +116,10 @@ async function getServiceAccountToken() {
     return data.access_token;
   } catch (err) {
     console.error('[push] JWT signing error:', err.message);
+    console.error('[push] JWT signing stack:', err.stack);
+    console.error('[push] clientEmail:', clientEmail);
+    console.error('[push] Key length:', rawKey.length, '| First 60 chars:', JSON.stringify(rawKey.slice(0, 60)));
+    console.error('[push] Key starts with header:', rawKey.trim().startsWith('-----BEGIN'));
     return null;
   }
 }
