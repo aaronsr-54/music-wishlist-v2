@@ -1,4 +1,5 @@
-import { Component, computed, inject, signal, ChangeDetectionStrategy, HostListener, ElementRef } from '@angular/core';
+import { Component, computed, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Router } from '@angular/router';
 import { WishlistService } from '../../core/firebase/wishlist.service';
 import { WishlistEntry } from '../../shared/models/wishlist-entry.model';
 import { SearchResultItemComponent } from '../../shared/components/search-result-item/search-result-item.component';
@@ -54,9 +55,17 @@ type WishlistTab = 'pending' | 'downloaded';
   template: `
     @if (contextMenu()) {
       <app-context-menu-panel
-        [style]="'position:fixed;top:' + contextMenu()!.y + 'px;left:' + contextMenu()!.x + 'px;z-index:9999;'"
-        (onSelect)="closeContextMenu()"
+        [x]="contextMenu()!.x"
+        [y]="contextMenu()!.y"
+        [mobile]="isMobile"
+        [showRemove]="contextMenuShowRemove()"
+        [showArtist]="contextMenuShowArtist()"
+        [showAlbum]="contextMenuShowAlbum()"
+        (onClose)="closeContextMenu()"
         (onCopyLink)="copyFromContextMenu()"
+        (onGoToArtist)="goToArtistFromContextMenu()"
+        (onGoToAlbum)="goToAlbumFromContextMenu()"
+        (onRemove)="removeFromContextMenu()"
       />
     }
 
@@ -88,6 +97,7 @@ type WishlistTab = 'pending' | 'downloaded';
       >
         @for (entry of activeEntries(); track entry.id; let i = $index) {
           <div
+            class="select-none"
             [style.animation]="'dropIn 500ms cubic-bezier(0.16,1,0.3,1) both'"
             [style.animation-delay]="i * 40 + 'ms'"
             (contextmenu)="onContextMenu($event, entry)"
@@ -102,7 +112,9 @@ type WishlistTab = 'pending' | 'downloaded';
               "
               (onMarkDownloaded)="markDownloaded($event)"
               (onUnmarkDownloaded)="unmarkDownloaded($event)"
-              (onRemove)="remove($event)"
+              (onMenuClick)="onItemMenuClick($event)"
+              (onArtistClick)="goToArtistPage($event)"
+              (onAlbumClick)="goToAlbumPage($event)"
             />
           </div>
         } @empty {
@@ -112,9 +124,7 @@ type WishlistTab = 'pending' | 'downloaded';
               activeTab() === 'pending' ? t().wishlistTitle : t().emptyReady
             "
             [subtitle]="
-              activeTab() === 'pending'
-                ? t().searchToAdd
-                : t().markToSee
+              activeTab() === 'pending' ? t().searchToAdd : t().markToSee
             "
           />
         }
@@ -126,10 +136,16 @@ export class WishlistComponent {
   wishlistSvc = inject(WishlistService);
   private languageService = inject(LanguageService);
   private toast = inject(ToastService);
+  private router = inject(Router);
 
   activeTab = signal<WishlistTab>('pending');
   animatingTab = signal(false);
-  contextMenu = signal<{ x: number; y: number; entry: WishlistEntry } | null>(null);
+  contextMenu = signal<{ x: number; y: number; entry: WishlistEntry } | null>(
+    null,
+  );
+  contextMenuShowRemove = signal(false);
+  contextMenuShowArtist = signal(false);
+  contextMenuShowAlbum = signal(false);
 
   t = computed(() => this.languageService.t());
 
@@ -148,9 +164,14 @@ export class WishlistComponent {
   private touchStartY = 0;
   private longPressTimeout: ReturnType<typeof setTimeout> | null = null;
   private longPressEntry: WishlistEntry | null = null;
+  private touchActive = false;
 
   private readonly SWIPE_THRESHOLD = 50;
   private readonly LONG_PRESS_DURATION = 500;
+
+  get isMobile(): boolean {
+    return window.innerWidth < 768;
+  }
 
   activeEntries = computed(() =>
     this.activeTab() === 'pending'
@@ -193,7 +214,7 @@ export class WishlistComponent {
   }
 
   onItemTouchStart(event: TouchEvent, entry: WishlistEntry) {
-    const touch = event.changedTouches[0];
+    this.touchActive = true;
     this.longPressEntry = entry;
 
     this.longPressTimeout = setTimeout(() => {
@@ -208,20 +229,28 @@ export class WishlistComponent {
       this.longPressTimeout = null;
     }
     this.longPressEntry = null;
+    setTimeout(() => {
+      this.touchActive = false;
+    }, 300);
   }
 
   onContextMenu(event: MouseEvent, entry: WishlistEntry) {
     event.preventDefault();
     event.stopPropagation();
-    console.log('=== CONTEXT MENU DEBUG ===');
-    console.log('event.clientX:', event.clientX, 'event.clientY:', event.clientY);
-    console.log('event.pageX:', event.pageX, 'event.pageY:', event.pageY);
-    console.log('event.offsetX:', event.offsetX, 'event.offsetY:', event.offsetY);
-    console.log('entry name:', entry.name);
-    console.log('target:', event.target);
-    console.log('currentTarget:', event.currentTarget);
-    console.log('=========================');
+    if (this.touchActive) return;
     this.contextMenu.set({ x: event.clientX, y: event.clientY, entry });
+    this.contextMenuShowRemove.set(false);
+    this.contextMenuShowArtist.set(false);
+    this.contextMenuShowAlbum.set(false);
+  }
+
+  onItemMenuClick(data: { entry: WishlistEntry; x: number; y: number }): void {
+    this.contextMenu.set({ x: data.x, y: data.y, entry: data.entry });
+    this.contextMenuShowRemove.set(true);
+    this.contextMenuShowArtist.set(!!data.entry.artistId);
+    this.contextMenuShowAlbum.set(
+      !!(data.entry.albumId && data.entry.type === 'track'),
+    );
   }
 
   closeContextMenu() {
@@ -234,6 +263,38 @@ export class WishlistComponent {
       this.copyToClipboard(menu.entry);
     }
     this.closeContextMenu();
+  }
+
+  goToArtistFromContextMenu() {
+    const menu = this.contextMenu();
+    if (menu?.entry.artistId) {
+      this.router.navigate(['/artist', menu.entry.artistId]);
+    }
+    this.closeContextMenu();
+  }
+
+  goToAlbumFromContextMenu() {
+    const menu = this.contextMenu();
+    if (menu?.entry.albumId) {
+      this.router.navigate(['/album', menu.entry.albumId]);
+    }
+    this.closeContextMenu();
+  }
+
+  removeFromContextMenu() {
+    const menu = this.contextMenu();
+    if (menu?.entry.id) {
+      this.wishlistSvc.remove(menu.entry.id);
+    }
+    this.closeContextMenu();
+  }
+
+  goToArtistPage(artist: { artistId?: string; id?: string }) {
+    this.router.navigate(['/artist', artist.artistId || artist.id]);
+  }
+
+  goToAlbumPage(albumId: string) {
+    this.router.navigate(['/album', albumId]);
   }
 
   private async copyToClipboard(entry: WishlistEntry) {

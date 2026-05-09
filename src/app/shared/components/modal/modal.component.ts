@@ -2,6 +2,7 @@ import {
   Component,
   inject,
   input,
+  OnDestroy,
   output,
   TemplateRef,
   ViewChild,
@@ -30,13 +31,15 @@ import { TemplatePortal } from '@angular/cdk/portal';
           class="relative w-full max-w-md rounded-t-3xl bg-light dark:bg-dark p-6 pb-12 shadow-[0px_-4px_10px_5px_rgb(0_0_0/10%)] dark:shadow-[0px_-4px_10px_5px_rgb(0_0_0/25%)]"
           style="animation: sheetUp 500ms cubic-bezier(0.16,1,0.3,1) both"
         >
-          <div class="flex items-center justify-between mb-4">
-            <h2
-              class="text-xl font-bold font-display italic text-ink-700 dark:text-bone-700"
-            >
-              {{ title() }}
-            </h2>
-          </div>
+          @if (title()) {
+            <div class="flex items-center justify-between mb-4">
+              <h2
+                class="text-xl font-bold font-display italic text-ink-700 dark:text-bone-700"
+              >
+                {{ title() }}
+              </h2>
+            </div>
+          }
 
           <ng-content></ng-content>
         </div>
@@ -44,7 +47,7 @@ import { TemplatePortal } from '@angular/cdk/portal';
     </ng-template>
   `,
 })
-export class ModalComponent {
+export class ModalComponent implements OnDestroy {
   private overlay = inject(Overlay);
   private vcr = inject(ViewContainerRef);
 
@@ -55,6 +58,10 @@ export class ModalComponent {
 
   private overlayRef?: OverlayRef;
   private isOpen = false;
+
+  ngOnDestroy() {
+    this.overlayRef?.dispose();
+  }
 
   open() {
     if (this.isOpen) return;
@@ -71,8 +78,10 @@ export class ModalComponent {
   }
 
   close() {
+    if (!this.isOpen) return;
     this.overlayRef?.dispose();
     this.overlayRef = undefined;
     this.isOpen = false;
+    this.onClose.emit();
   }
 }
