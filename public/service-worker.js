@@ -69,9 +69,9 @@ self.addEventListener('push', (event) => {
   if (data.type === 'downloaded') {
     event.waitUntil(
       self.registration.showNotification(
-        `✓ ${data.downloadedBy} ha descargado ${data.itemName}`,
+        `¡Ya tienes listo ${data.itemName} de ${data.itemArtist}!`,
         {
-          body: data.itemArtist,
+          body: `Dale las gracias a ${data.downloadedBy} 😉`,
           icon: data.coverUrl,
           image: data.coverUrl,
           badge: '/favicon.png',
