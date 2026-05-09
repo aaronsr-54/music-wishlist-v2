@@ -32,7 +32,7 @@ import { ModalComponent } from '../modal/modal.component';
               class="flex items-center gap-3 px-4 py-3 font-body text-sm text-ink-200 dark:text-bone-600 italic rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] bg-bone-200 dark:bg-ink-500 hover:font-bold hover:not-italic w-full text-left"
               (click)="handleGoToArtist()"
             >
-              <app-icon name="music-note" class="w-4 h-4" />
+              <app-icon name="person" class="w-4 h-4" />
               <span>Ir al artista</span>
             </button>
           }
@@ -41,7 +41,7 @@ import { ModalComponent } from '../modal/modal.component';
               class="flex items-center gap-3 px-4 py-3 font-body text-sm text-ink-200 dark:text-bone-600 italic rounded-md transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] bg-bone-200 dark:bg-ink-500 hover:font-bold hover:not-italic w-full text-left"
               (click)="handleGoToAlbum()"
             >
-              <app-icon name="music-note" class="w-4 h-4" />
+              <app-icon name="album" class="w-4 h-4" />
               <span>Ir al álbum</span>
             </button>
           }
@@ -75,7 +75,7 @@ import { ModalComponent } from '../modal/modal.component';
               class="flex items-center gap-2 px-3 py-2 text-sm rounded-md font-body text-ink-200 dark:text-bone-600 italic text-left w-full transition-all duration-150 ease-out hover:bg-ink-200 hover:dark:bg-bone hover:text-bone hover:dark:text-ink hover:tracking-wide [text-shadow:0_0_0_transparent] hover:[text-shadow:0_0_0.25px_currentColor]"
               (click)="handleGoToArtist()"
             >
-              <app-icon name="music-note" class="w-4 h-4" />
+              <app-icon name="person" class="w-4 h-4" />
               <span>Ir al artista</span>
             </button>
           }
@@ -84,7 +84,7 @@ import { ModalComponent } from '../modal/modal.component';
               class="flex items-center gap-2 px-3 py-2 text-sm rounded-md font-body text-ink-200 dark:text-bone-600 italic text-left w-full transition-all duration-150 ease-out hover:bg-ink-200 hover:dark:bg-bone hover:text-bone hover:dark:text-ink hover:tracking-wide [text-shadow:0_0_0_transparent] hover:[text-shadow:0_0_0.25px_currentColor]"
               (click)="handleGoToAlbum()"
             >
-              <app-icon name="music-note" class="w-4 h-4" />
+              <app-icon name="album" class="w-4 h-4" />
               <span>Ir al álbum</span>
             </button>
           }
