@@ -73,7 +73,7 @@ self.addEventListener('push', (event) => {
         {
           body: `Dale las gracias a ${data.downloadedBy} 😉`,
           icon: data.coverUrl,
-          badge: '/favicon.png',
+          badge: '/badge.png',
           data: { url: '/wishlist?tab=downloaded' },
         },
       ),
@@ -87,7 +87,7 @@ self.addEventListener('push', (event) => {
       body: data.title,
       icon: data.coverUrl,
       image: data.coverUrl,
-      badge: '/favicon.png',
+      badge: '/badge.png',
       data: { albumId: data.albumId },
       actions: [
         { action: 'add', title: '+ Wishlist' },
