@@ -8,6 +8,8 @@ export interface Track {
   type: TrackType;
   uri: string;
   artistId?: string;
+  albumId?: string;
+  albumName?: string;
   fanCount?: number;
   albumCount?: number;
   previewUrl?: string;

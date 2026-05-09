@@ -65,6 +65,8 @@ export class SearchService {
           type: 'track' as TrackType,
           uri: t.link ?? '',
           artistId: t.artist?.id ? String(t.artist.id) : undefined,
+          albumId: t.album?.id ? String(t.album.id) : undefined,
+          albumName: t.album?.title ?? undefined,
           previewUrl: t.preview ? `/api/preview?url=${encodeURIComponent(t.preview)}` : undefined,
         }));
 
@@ -130,6 +132,8 @@ export class SearchService {
           type: 'track' as TrackType,
           uri: t.link ?? '',
           artistId: t.artist?.id ? String(t.artist.id) : undefined,
+          albumId: t.album?.id ? String(t.album.id) : undefined,
+          albumName: t.album?.title ?? undefined,
           previewUrl: t.preview ? `/api/preview?url=${encodeURIComponent(t.preview)}` : undefined,
         }));
         this.artistTracksCache.set(artistId, tracks);

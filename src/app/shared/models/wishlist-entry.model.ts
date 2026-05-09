@@ -13,4 +13,6 @@ export interface WishlistEntry {
   downloaded: boolean;
   sharedWith?: string[];
   artistId?: string;
+  albumId?: string;
+  albumName?: string;
 }

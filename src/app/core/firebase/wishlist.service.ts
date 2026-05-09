@@ -138,6 +138,8 @@ export class WishlistService {
       downloaded: false,
       sharedWith: sharedWithEmails,
       ...(track.artistId ? { artistId: track.artistId } : {}),
+      ...(track.albumId ? { albumId: track.albumId } : {}),
+      ...(track.albumName ? { albumName: track.albumName } : {}),
     };
 
     try {
