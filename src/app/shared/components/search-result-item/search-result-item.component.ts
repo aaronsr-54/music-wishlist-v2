@@ -164,7 +164,25 @@ type WishlistEntryExtended = WishlistEntry & {
                 class="text-ink-100 dark:text-bone-700 text-sm md:text-md overflow-hidden text-ellipsis transition-colors duration-fast leading-none"
                 [ngClass]="accentClasses()"
               >
-                {{ subtitle() }}
+                @if (isWishlist() && wishlistItem().artistId) {
+                  <button
+                    class="hover:underline hover:text-accent-track dark:hover:text-accent-dark-track transition-colors"
+                    (click)="onArtistNameClick($event)"
+                  >
+                    {{ subtitle() }}
+                  </button>
+                } @else {
+                  {{ subtitle() }}
+                }
+                @if (isWishlist() && wishlistItem().albumName && wishlistItem().type === 'track') {
+                  <span class="mx-1">·</span>
+                  <button
+                    class="hover:underline hover:text-accent-album dark:hover:text-accent-dark-album transition-colors"
+                    (click)="onAlbumNameClick($event)"
+                  >
+                    {{ wishlistItem().albumName }}
+                  </button>
+                }
               </span>
 
               @if (showTypeChip()) {
@@ -211,18 +229,6 @@ type WishlistEntryExtended = WishlistEntry & {
                   class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
                 />
               </button>
-
-              <button
-                appBtn
-                variant="action"
-                [danger]="true"
-                (click)="removeWishlistItem($event)"
-              >
-                <app-icon
-                  name="close"
-                  class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
-                />
-              </button>
             } @else {
               <button
                 appBtn
@@ -234,19 +240,18 @@ type WishlistEntryExtended = WishlistEntry & {
                   class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
                 />
               </button>
-
-              <button
-                appBtn
-                variant="action"
-                [danger]="true"
-                (click)="removeWishlistItem($event)"
-              >
-                <app-icon
-                  name="trash"
-                  class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
-                />
-              </button>
             }
+            <button
+              appBtn
+              variant="action"
+              (click)="openMenu($event)"
+              (touchstart)="$event.stopPropagation()"
+            >
+              <app-icon
+                name="more"
+                class="w-4 md:w-5 h-4 md:h-5 text-ink dark:text-bone"
+              />
+            </button>
           } @else if (showAddButton()) {
             <button
               appBtn
@@ -289,6 +294,7 @@ export class SearchResultItemComponent {
   onMarkDownloaded = output<WishlistEntry>();
   onUnmarkDownloaded = output<WishlistEntry>();
   onRemove = output<WishlistEntry>();
+  onMenuClick = output<{ entry: WishlistEntry; x: number; y: number }>();
 
   t = computed(() => this.languageService.t());
 
@@ -465,6 +471,32 @@ export class SearchResultItemComponent {
   removeWishlistItem(event: Event): void {
     event.stopPropagation();
     this.onRemove.emit(this.wishlistItem());
+  }
+
+  onArtistNameClick(event: MouseEvent): void {
+    event.stopPropagation();
+    const item = this.wishlistItem();
+    if (item.artistId) {
+      this.onArtistClick.emit({ id: item.artistId, artistId: item.artistId } as Track);
+    }
+  }
+
+  onAlbumNameClick(event: MouseEvent): void {
+    event.stopPropagation();
+    const item = this.wishlistItem();
+    if (item.albumId) {
+      this.onAlbumClick.emit(item.albumId);
+    }
+  }
+
+  openMenu(event: MouseEvent): void {
+    event.stopPropagation();
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.onMenuClick.emit({
+      entry: this.wishlistItem(),
+      x: rect.left,
+      y: rect.bottom,
+    });
   }
 
   isShared(): boolean {
