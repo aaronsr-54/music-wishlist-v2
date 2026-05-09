@@ -34,32 +34,49 @@ export class PushNotificationService {
     }
   }
 
+  private getClientId(): string {
+    const KEY = 'mw-client-id';
+    let id = localStorage.getItem(KEY);
+    if (!id) {
+      id = crypto.randomUUID();
+      localStorage.setItem(KEY, id);
+    }
+    return id;
+  }
+
   async subscribe(): Promise<'granted' | 'denied' | 'error'> {
     if (!this.isSupported || this.auth.demoMode()) return 'error';
     this.loading.set(true);
+    let sub: PushSubscription | null = null;
     try {
       const permission = await Notification.requestPermission();
       this.permissionState.set(permission);
       if (permission !== 'granted') return 'denied';
 
       const reg = await navigator.serviceWorker.ready;
-      const sub = await reg.pushManager.subscribe({
+      sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(environment.vapidPublicKey),
       });
 
       const user = this.auth.currentUser();
-      if (!user) return 'error';
+      if (!user) throw new Error('No user');
       const token = await user.getIdToken();
 
       await firstValueFrom(
-        this.http.post('/api/push/subscribe', { subscription: sub.toJSON() }, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
+        this.http.post(
+          '/api/push',
+          { action: 'subscribe', subscription: sub.toJSON() },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        ),
       );
       this.isSubscribed.set(true);
       return 'granted';
-    } catch {
+    } catch (err) {
+      console.error('[PushNotification] subscribe error:', err);
+      if (sub) await sub.unsubscribe().catch(() => {});
       return 'error';
     } finally {
       this.loading.set(false);
@@ -78,9 +95,13 @@ export class PushNotificationService {
       if (user && !this.auth.demoMode()) {
         const token = await user.getIdToken();
         await firstValueFrom(
-          this.http.post('/api/push/unsubscribe', {}, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
+          this.http.post(
+            '/api/push',
+            { action: 'unsubscribe' },
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          ),
         );
       }
       this.isSubscribed.set(false);
@@ -94,9 +115,7 @@ export class PushNotificationService {
 
 function urlBase64ToUint8Array(base64String: string): Uint8Array {
   const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding)
-    .replace(/-/g, '+')
-    .replace(/_/g, '/');
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
   const rawData = atob(base64);
   return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
 }

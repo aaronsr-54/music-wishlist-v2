@@ -112,10 +112,10 @@ type Language = 'es' | 'en';
             </span>
           } @else {
             <button
-              class="w-full md:flex-1 px-4 py-2 rounded-lg font-bold uppercase transition-colors"
+              class="flex-1 px-4 py-2 rounded-lg font-bold uppercase transition-all duration-300"
               [class]="pushSvc.isSubscribed()
-                ? 'bg-accent text-bone dark:bg-accent dark:text-bone'
-                : 'bg-bone dark:bg-ink-200 dark:text-bone'"
+                ? 'bg-accent text-bone dark:bg-accent dark:text-bone shadow-sm'
+                : 'bg-bone dark:bg-ink-200 dark:text-bone border-2 border-bone-800 dark:border-ink-300 hover:bg-bone-700 dark:hover:bg-ink-300'"
               [disabled]="pushSvc.loading()"
               (click)="toggleNotifications()"
             >
@@ -288,4 +288,5 @@ export class ProfileSettingsComponent {
       }
     }
   }
+
 }

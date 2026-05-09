@@ -1,135 +1,310 @@
-import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+// firebase-admin NOT used here — avoids gRPC/OpenSSL issues on Vercel.
+// User's Firebase ID token used directly for Firestore REST API.
+// Firestore security rule required:
+//   match /artist-releases-cache/{document} { allow read, write: if request.auth != null; }
+
 import webpush from 'web-push';
 
-function initAdmin() {
-  if (getApps().length > 0) return;
-  initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    }),
-  });
-}
+const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
+const FIREBASE_API_KEY = process.env.FIREBASE_API_KEY;
+const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents`;
 
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT,
   process.env.VAPID_PUBLIC_KEY,
-  process.env.VAPID_PRIVATE_KEY
+  process.env.VAPID_PRIVATE_KEY,
 );
 
 const RECORD_TYPE_MAP = {
-  album: 'Album',
+  album: 'Álbum',
   ep: 'EP',
-  single: 'Single',
+  single: 'Canción',
 };
 
-async function fetchArtistAlbums(artistId) {
+// ── Auth ──────────────────────────────────────────────────────
+
+async function getUidFromToken(idToken) {
   const res = await fetch(
-    `https://api.deezer.com/artist/${artistId}/albums?limit=50`
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${FIREBASE_API_KEY}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken }),
+    },
   );
+  if (!res.ok) throw new Error('Token verification failed');
+  const { users } = await res.json();
+  if (!users?.[0]) throw new Error('User not found');
+  return users[0].localId;
+}
+
+// ── Firestore REST helpers ────────────────────────────────────
+
+function toDoc(value) {
+  const fields = Object.fromEntries(
+    Object.entries(value).map(([k, v]) => [k, toValue(v)]),
+  );
+  return { fields };
+}
+
+function toValue(val) {
+  if (val === null || val === undefined) return { nullValue: null };
+  if (typeof val === 'string') return { stringValue: val };
+  if (typeof val === 'number') {
+    return Number.isInteger(val) ? { integerValue: String(val) } : { doubleValue: val };
+  }
+  if (typeof val === 'boolean') return { booleanValue: val };
+  if (Array.isArray(val)) return { arrayValue: { values: val.map(toValue) } };
+  if (typeof val === 'object') {
+    return {
+      mapValue: {
+        fields: Object.fromEntries(
+          Object.entries(val).map(([k, v]) => [k, toValue(v)]),
+        ),
+      },
+    };
+  }
+  return { stringValue: String(val) };
+}
+
+async function listWhere(collection, fieldPath, op, value, token) {
+  const structuredQuery = {
+    from: [{ collectionId: collection }],
+    where: {
+      fieldFilter: {
+        field: { fieldPath },
+        op,
+        value: toValue(value),
+      },
+    },
+  };
+  const r = await fetch(
+    `${FIRESTORE_BASE}:runQuery`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ structuredQuery }),
+    },
+  );
+  if (!r.ok) {
+    const body = await r.text();
+    throw new Error(`Firestore query ${collection} error ${r.status}: ${body}`);
+  }
+  const results = await r.json();
+  const docs = [];
+  for (const item of results) {
+    if (item.document) {
+      docs.push({
+        id: item.document.name.split('/').pop(),
+        fields: item.document.fields,
+      });
+    }
+  }
+  return docs;
+}
+
+async function getDoc(path, token) {
+  const r = await fetch(`${FIRESTORE_BASE}/${path}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (r.status === 404) return null;
+  if (!r.ok) {
+    const body = await r.text();
+    throw new Error(`Firestore get ${path} error ${r.status}: ${body}`);
+  }
+  const data = await r.json();
+  return { id: data.name.split('/').pop(), fields: data.fields };
+}
+
+async function setDoc(path, data, token) {
+  const r = await fetch(`${FIRESTORE_BASE}/${path}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(toDoc(data)),
+  });
+  if (!r.ok) {
+    const body = await r.text();
+    throw new Error(`Firestore set ${path} error ${r.status}: ${body}`);
+  }
+  console.log(`[check-releases] setDoc success: ${path}`);
+}
+
+async function deleteDoc(path, token) {
+  const r = await fetch(`${FIRESTORE_BASE}/${path}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (r.status !== 404 && !r.ok) {
+    const body = await r.text();
+    throw new Error(`Firestore delete ${path} error ${r.status}: ${body}`);
+  }
+}
+
+function fromFields(fields) {
+  const obj = {};
+  for (const [k, v] of Object.entries(fields)) {
+    if (v.stringValue !== undefined) obj[k] = v.stringValue;
+    else if (v.integerValue !== undefined) obj[k] = Number(v.integerValue);
+    else if (v.doubleValue !== undefined) obj[k] = v.doubleValue;
+    else if (v.booleanValue !== undefined) obj[k] = v.booleanValue;
+    else if (v.arrayValue !== undefined) {
+      obj[k] = (v.arrayValue.values ?? []).map(fromValue);
+    } else if (v.mapValue !== undefined) {
+      obj[k] = fromFields(v.mapValue.fields ?? {});
+    } else if (v.nullValue !== null && v.nullValue !== undefined) obj[k] = null;
+  }
+  return obj;
+}
+
+function fromValue(v) {
+  if (v.stringValue !== undefined) return v.stringValue;
+  if (v.integerValue !== undefined) return Number(v.integerValue);
+  if (v.doubleValue !== undefined) return v.doubleValue;
+  if (v.booleanValue !== undefined) return v.booleanValue;
+  if (v.arrayValue !== undefined) return (v.arrayValue.values ?? []).map(fromValue);
+  if (v.mapValue !== undefined) return fromFields(v.mapValue.fields ?? {});
+  return null;
+}
+
+// ── Deezer ────────────────────────────────────────────────────
+
+const RELEASE_WINDOW_DAYS = Number(process.env.RELEASE_WINDOW_DAYS ?? 1);
+
+async function fetchArtistAlbums(artistId) {
+  const res = await fetch(`https://api.deezer.com/artist/${artistId}/albums?limit=50`);
   if (!res.ok) return [];
   const data = await res.json();
   return data.data ?? [];
 }
 
+function isWithinWindow(releaseDateStr, days) {
+  if (!releaseDateStr) return false;
+  const releaseDate = new Date(releaseDateStr);
+  if (isNaN(releaseDate.getTime())) return false;
+  const cutoff = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  return releaseDate >= cutoff;
+}
+
+// ── Runner ────────────────────────────────────────────────────
+
+async function run(uid, idToken, clientId) {
+  const subDoc = await getDoc(`push-subscriptions/${uid}`, idToken);
+  if (!subDoc) {
+    return { notified: 0, results: [], error: 'No push subscription found.' };
+  }
+  const subscription = fromFields(subDoc.fields).subscription;
+
+  const favDocs = await listWhere('favorite-artists', 'addedByUid', 'EQUAL', uid, idToken);
+  if (!favDocs.length) {
+    return { notified: 0, results: [], error: 'No favorite artists found.' };
+  }
+
+  const favorites = favDocs.map((d) => fromFields(d.fields));
+
+  const newReleasesByArtist = {};
+  for (const favorite of favorites) {
+    const albums = await fetchArtistAlbums(favorite.artistId);
+    if (!albums.length) {
+      console.log(`[check-releases] No albums from Deezer for artist ${favorite.artistId}`);
+      continue;
+    }
+
+    const cacheRef = `artist-releases-cache/${clientId}_${favorite.artistId}`;
+    const cacheDoc = await getDoc(cacheRef, idToken);
+    const notifiedIds = cacheDoc ? (cacheDoc.fields?.albumIds?.arrayValue?.values ?? []).map((v) => v.stringValue).filter(Boolean) : [];
+
+    console.log(`[check-releases] artist=${favorite.name} cacheRef=${cacheRef} notifiedIds count=${notifiedIds.length} RELEASE_WINDOW_DAYS=${RELEASE_WINDOW_DAYS}`);
+
+    const albumsToNotify = albums.filter((a) => {
+      const isNew = isWithinWindow(a.release_date, RELEASE_WINDOW_DAYS);
+      const alreadyNotified = notifiedIds.includes(String(a.id));
+      console.log(`[check-releases]   album=${a.title} release_date=${a.release_date} isNew=${isNew} alreadyNotified=${alreadyNotified}`);
+      return isNew && !alreadyNotified;
+    });
+
+    console.log(`[check-releases] albumsToNotify count: ${albumsToNotify.length}`);
+    if (albumsToNotify.length > 0) {
+      newReleasesByArtist[favorite.artistId] = albumsToNotify;
+      const updatedNotifiedIds = [...new Set([...notifiedIds, ...albumsToNotify.map((a) => String(a.id))])];
+      await setDoc(cacheRef, { albumIds: updatedNotifiedIds, checkedAt: Date.now() }, idToken);
+    }
+  }
+
+  console.log(`[check-releases] newReleasesByArtist: ${JSON.stringify(Object.keys(newReleasesByArtist))}`);
+
+  const results = [];
+  let notified = 0;
+
+  for (const favorite of favorites) {
+    const newAlbums = newReleasesByArtist[favorite.artistId];
+    if (!newAlbums?.length) continue;
+
+    console.log(`[check-releases] Sending ${newAlbums.length} notifications for ${favorite.name}`);
+
+    const artistResults = { artist: favorite.name, artistId: favorite.artistId, albums: [] };
+
+    for (const album of newAlbums) {
+      const releaseType = RECORD_TYPE_MAP[album.record_type?.toLowerCase()] ?? 'Álbum';
+      const coverUrl = album.cover_xl ?? album.cover_big ?? album.cover_medium ?? '';
+
+      const payload = JSON.stringify({
+        title: album.title,
+        artist: favorite.name,
+        releaseType,
+        coverUrl,
+        albumId: String(album.id),
+      });
+
+      try {
+        await webpush.sendNotification(subscription, payload);
+        notified++;
+        console.log(`[check-releases] Notification sent for ${album.title}`);
+        artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: true });
+      } catch (err) {
+        console.error(`[check-releases] Push error for ${album.title}: ${err.statusCode} ${err.message}`);
+        if (err.statusCode === 404 || err.statusCode === 410) {
+          await deleteDoc(`push-subscriptions/${uid}`, idToken);
+        }
+        artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: false, error: err.message });
+      }
+    }
+
+    results.push(artistResults);
+  }
+
+  console.log(`[check-releases] Final: notified=${notified} resultsCount=${results.length}`);
+  return { notified, results };
+}
+
+// ── Handler ───────────────────────────────────────────────────
+
 export default async (req, res) => {
-  // Vercel injects CRON_SECRET and sends it as Bearer token for cron jobs
   const authHeader = req.headers.authorization;
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
   try {
-    initAdmin();
-    const db = getFirestore();
+    const token = authHeader.slice(7);
 
-    // Load all push subscriptions
-    const subsSnapshot = await db.collection('push-subscriptions').get();
-    if (subsSnapshot.empty) return res.status(200).json({ notified: 0 });
-
-    // Load favorite artists grouped by userId
-    const favoritesByUser = {};
-    for (const subDoc of subsSnapshot.docs) {
-      const uid = subDoc.id;
-      const favSnapshot = await db
-        .collection('favorite-artists')
-        .where('addedByUid', '==', uid)
-        .get();
-      favoritesByUser[uid] = favSnapshot.docs.map((d) => d.data());
+    // CRON_SECRET path — requires Firestore security rules that allow
+    // service-level access. Currently not supported — use the user token path.
+    if (token === process.env.CRON_SECRET) {
+      return res.status(501).json({ error: 'Cron path not yet available' });
     }
 
-    // Collect unique artist IDs across all users
-    const allArtistIds = new Set();
-    for (const favorites of Object.values(favoritesByUser)) {
-      favorites.forEach((a) => allArtistIds.add(a.artistId));
-    }
-
-    // Fetch latest albums and diff against cache
-    const newReleasesByArtist = {};
-    for (const artistId of allArtistIds) {
-      const albums = await fetchArtistAlbums(artistId);
-      if (!albums.length) continue;
-
-      const latestIds = albums.map((a) => String(a.id));
-      const cacheRef = db.collection('artist-releases-cache').doc(artistId);
-      const cacheDoc = await cacheRef.get();
-      const cachedIds = cacheDoc.exists ? (cacheDoc.data().albumIds ?? []) : null;
-
-      if (cachedIds === null) {
-        // First run — seed cache, no notifications
-        await cacheRef.set({ albumIds: latestIds, checkedAt: Date.now() });
-        continue;
-      }
-
-      const newAlbums = albums.filter((a) => !cachedIds.includes(String(a.id)));
-      if (newAlbums.length > 0) {
-        newReleasesByArtist[artistId] = newAlbums;
-        await cacheRef.set({ albumIds: latestIds, checkedAt: Date.now() });
-      }
-    }
-
-    // Send notifications
-    let notified = 0;
-    for (const subDoc of subsSnapshot.docs) {
-      const uid = subDoc.id;
-      const { subscription } = subDoc.data();
-      const userFavorites = favoritesByUser[uid] ?? [];
-
-      for (const favorite of userFavorites) {
-        const newAlbums = newReleasesByArtist[favorite.artistId];
-        if (!newAlbums?.length) continue;
-
-        for (const album of newAlbums) {
-          const releaseType =
-            RECORD_TYPE_MAP[album.record_type?.toLowerCase()] ?? 'Album';
-          const coverUrl =
-            album.cover_xl ?? album.cover_big ?? album.cover_medium ?? '';
-          const payload = JSON.stringify({
-            title: album.title,
-            artist: favorite.name,
-            releaseType,
-            coverUrl,
-            albumId: String(album.id),
-          });
-
-          try {
-            await webpush.sendNotification(subscription, payload);
-            notified++;
-          } catch (err) {
-            // Subscription expired or invalid — clean up
-            if (err.statusCode === 404 || err.statusCode === 410) {
-              await db.collection('push-subscriptions').doc(uid).delete();
-            }
-          }
-        }
-      }
-    }
-
-    return res.status(200).json({ notified });
+    const uid = await getUidFromToken(token);
+    const clientId = req.body?.clientId ?? 'unknown';
+    const result = await run(uid, token, clientId);
+    return res.status(200).json(result);
   } catch (error) {
     console.error('check-releases error:', error);
-    return res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: error.message ?? 'Internal server error' });
   }
 };

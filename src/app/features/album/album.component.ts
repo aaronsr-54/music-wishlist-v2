@@ -300,12 +300,15 @@ export class AlbumComponent {
       }
     });
 
-    // Auto-add to wishlist when navigated from a push notification action
+    // Auto-add to wishlist when navigated from a push notification action.
+    // user() is included so the effect re-runs once Firebase Auth resolves —
+    // the app may open before auth state is restored from the notification click.
     effect(() => {
       const shouldAdd = this.autoAdd();
       const album = this.album();
       const loading = this.loading();
-      if (shouldAdd && album && !loading && !this.isAlbumInWishlist()) {
+      const user = this.authSvc.currentUser();
+      if (shouldAdd && album && !loading && user && !this.isAlbumInWishlist()) {
         this.toggleWishlist();
       }
     });
