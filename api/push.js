@@ -3,7 +3,7 @@
 // Security rules enforce userId isolation.
 
 import webpush from 'web-push';
-import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 const PROJECT_ID = process.env.FIREBASE_PROJECT_ID;
 // Already public in the Angular bundle:
@@ -85,31 +85,26 @@ async function getServiceAccountToken() {
   if (!clientEmail || !privateKey) return null;
 
   const now = Math.floor(Date.now() / 1000);
-  const header = { alg: 'RS256', typ: 'JWT' };
-  const claim = {
-    iss: clientEmail,
-    scope: 'https://www.googleapis.com/auth/cloud-platform',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: now + 3600,
-    iat: now,
-  };
 
   try {
-    const key = crypto.createPrivateKey(privateKey);
-    const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
-    const input = `${b64(header)}.${b64(claim)}`;
-
-    const sign = crypto.createSign('RSA-SHA256');
-    sign.update(input);
-    sign.end();
-    const sig = sign.sign(key, 'base64url');
+    const assertion = jwt.sign(
+      {
+        iss: clientEmail,
+        scope: 'https://www.googleapis.com/auth/cloud-platform',
+        aud: 'https://oauth2.googleapis.com/token',
+        exp: now + 3600,
+        iat: now,
+      },
+      privateKey,
+      { algorithm: 'RS256' },
+    );
 
     const res = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
         grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-        assertion: `${input}.${sig}`,
+        assertion,
       }),
     });
 
@@ -121,7 +116,6 @@ async function getServiceAccountToken() {
     return data.access_token;
   } catch (err) {
     console.error('[push] JWT signing error:', err.message);
-    console.error('[push] Key preview (first 50 chars):', rawKey.slice(0, 50));
     return null;
   }
 }
