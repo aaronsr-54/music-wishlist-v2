@@ -1,10 +1,11 @@
-const CACHE_NAME = 'music-wishlist-v1';
+const CACHE_NAME = 'music-wishlist-v2';
+const BADGE_VERSION = 2;
 const ASSETS = [
   '/',
   '/index.html',
   '/favicon.png',
   '/manifest.json',
-  '/badge.png',
+  `/badge.png?v=${BADGE_VERSION}`,
 ];
 
 self.addEventListener('install', (event) => {
@@ -74,7 +75,7 @@ self.addEventListener('push', (event) => {
         {
           body: `Dale las gracias a ${data.downloadedBy} 😉`,
           icon: data.coverUrl,
-          badge: '/badge.png',
+          badge: `/badge.png?v=${BADGE_VERSION}`,
           data: { url: '/wishlist?tab=downloaded' },
         },
       ),
@@ -88,7 +89,7 @@ self.addEventListener('push', (event) => {
       body: data.title,
       icon: data.coverUrl,
       image: data.coverUrl,
-      badge: '/badge.png',
+      badge: `/badge.png?v=${BADGE_VERSION}`,
       data: { albumId: data.albumId },
       actions: [
         { action: 'add', title: '+ Wishlist' },
