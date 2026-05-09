@@ -205,6 +205,7 @@ export default async (req, res) => {
         }),
       });
       if (!r.ok) throw new Error(`Firestore PATCH failed: ${await r.text()}`);
+      console.log(`[push] Subscribed device ${clientId} for user ${uid}`);
 
     } else if (action === 'unsubscribe') {
       const { clientId } = req.body ?? {};
@@ -267,6 +268,7 @@ export default async (req, res) => {
         subs = { legacy: fromFields(f).subscription };
       }
       const entries = Object.entries(subs);
+      console.log(`[push] Found ${entries.length} subscription(s) for owner ${ownerUid}: [${entries.map(([id]) => id).join(', ')}]`);
       if (entries.length === 0) {
         return res.status(200).json({ ok: true, skipped: 'no subscriptions' });
       }
