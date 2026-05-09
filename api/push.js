@@ -80,7 +80,8 @@ function fromValue(v) {
 
 async function getServiceAccountToken() {
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+  const rawKey = process.env.FIREBASE_PRIVATE_KEY || '';
+  const privateKey = rawKey.replace(/\\n/g, '\n');
   if (!clientEmail || !privateKey) return null;
 
   const now = Math.floor(Date.now() / 1000);
@@ -93,28 +94,36 @@ async function getServiceAccountToken() {
     iat: now,
   };
 
-  const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
-  const input = `${b64(header)}.${b64(claim)}`;
+  try {
+    const key = crypto.createPrivateKey(privateKey);
+    const b64 = (o) => Buffer.from(JSON.stringify(o)).toString('base64url');
+    const input = `${b64(header)}.${b64(claim)}`;
 
-  const sign = crypto.createSign('RSA-SHA256');
-  sign.update(input);
-  const sig = sign.sign(privateKey, 'base64url');
+    const sign = crypto.createSign('RSA-SHA256');
+    sign.update(input);
+    sign.end();
+    const sig = sign.sign(key, 'base64url');
 
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({
-      grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-      assertion: `${input}.${sig}`,
-    }),
-  });
+    const res = await fetch('https://oauth2.googleapis.com/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
+        assertion: `${input}.${sig}`,
+      }),
+    });
 
-  if (!res.ok) {
-    console.error('[push] OAuth2 token error:', await res.text());
+    if (!res.ok) {
+      console.error('[push] OAuth2 token error:', await res.text());
+      return null;
+    }
+    const data = await res.json();
+    return data.access_token;
+  } catch (err) {
+    console.error('[push] JWT signing error:', err.message);
+    console.error('[push] Key preview (first 50 chars):', rawKey.slice(0, 50));
     return null;
   }
-  const data = await res.json();
-  return data.access_token;
 }
 
 async function getDocAdmin(path, accessToken) {
@@ -241,8 +250,8 @@ export default async (req, res) => {
 
       const token = await getServiceAccountToken();
       if (!token) {
-        console.warn('[push] Service account not configured — skipping push');
-        return res.status(200).json({ ok: true, skipped: 'service account not configured' });
+        console.warn('[push] No access token — skipping push');
+        return res.status(200).json({ ok: true, skipped: 'no access token' });
       }
 
       const subDoc = await getDocAdmin(`push-subscriptions/${ownerUid}`, token);
