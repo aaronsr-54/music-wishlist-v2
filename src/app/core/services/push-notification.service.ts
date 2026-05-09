@@ -66,7 +66,7 @@ export class PushNotificationService {
       await firstValueFrom(
         this.http.post(
           '/api/push',
-          { action: 'subscribe', subscription: sub.toJSON() },
+          { action: 'subscribe', subscription: sub.toJSON(), clientId: this.getClientId() },
           {
             headers: { Authorization: `Bearer ${token}` },
           },
@@ -97,7 +97,7 @@ export class PushNotificationService {
         await firstValueFrom(
           this.http.post(
             '/api/push',
-            { action: 'unsubscribe' },
+            { action: 'unsubscribe', clientId: this.getClientId() },
             {
               headers: { Authorization: `Bearer ${token}` },
             },

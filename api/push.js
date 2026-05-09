@@ -166,12 +166,32 @@ export default async (req, res) => {
       if (!subscription?.endpoint) {
         return res.status(400).json({ error: 'Missing subscription' });
       }
+      const { clientId } = req.body ?? {};
+      if (!clientId) {
+        return res.status(400).json({ error: 'Missing clientId' });
+      }
+
+      let subs = {};
+      const existingRes = await fetch(docUrl, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (existingRes.ok) {
+        const data = await existingRes.json();
+        const f = data.fields;
+        if (f?.subscriptions) {
+          subs = fromFields(f).subscriptions ?? {};
+        } else if (f?.subscription) {
+          subs = { legacy: fromFields(f).subscription };
+        }
+      }
+      subs[clientId] = subscription;
+
       const r = await fetch(docUrl, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
         body: JSON.stringify({
           fields: {
-            subscription: toFirestoreValue(subscription),
+            subscriptions: toFirestoreValue(subs),
             updatedAt: { integerValue: String(Date.now()) },
           },
         }),
@@ -179,11 +199,39 @@ export default async (req, res) => {
       if (!r.ok) throw new Error(`Firestore PATCH failed: ${await r.text()}`);
 
     } else if (action === 'unsubscribe') {
-      const r = await fetch(docUrl, {
-        method: 'DELETE',
+      const { clientId } = req.body ?? {};
+      if (!clientId) {
+        return res.status(400).json({ error: 'Missing clientId' });
+      }
+
+      const existingRes = await fetch(docUrl, {
         headers: { Authorization: `Bearer ${idToken}` },
       });
-      if (!r.ok && r.status !== 404) throw new Error(`Firestore DELETE failed: ${await r.text()}`);
+      if (existingRes.ok) {
+        const data = await existingRes.json();
+        const subs = data.fields?.subscriptions
+          ? (fromFields(data.fields).subscriptions ?? {})
+          : {};
+        delete subs[clientId];
+
+        if (Object.keys(subs).length === 0) {
+          await fetch(docUrl, {
+            method: 'DELETE',
+            headers: { Authorization: `Bearer ${idToken}` },
+          });
+        } else {
+          await fetch(docUrl, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${idToken}` },
+            body: JSON.stringify({
+              fields: {
+                subscriptions: toFirestoreValue(subs),
+                updatedAt: { integerValue: String(Date.now()) },
+              },
+            }),
+          });
+        }
+      }
 
     } else if (action === 'notify-downloaded') {
       const { ownerUid, downloadedBy, item } = req.body ?? {};
@@ -199,11 +247,21 @@ export default async (req, res) => {
 
       const subDoc = await getDocAdmin(`push-subscriptions/${ownerUid}`, token);
       if (!subDoc) {
-        console.log(`[push] No push subscription for owner ${ownerUid}`);
-        return res.status(200).json({ ok: true, skipped: 'no subscription' });
+        console.log(`[push] No push subscriptions for owner ${ownerUid}`);
+        return res.status(200).json({ ok: true, skipped: 'no subscriptions' });
       }
 
-      const subData = fromFields(subDoc.fields).subscription;
+      const f = subDoc.fields;
+      let subs = {};
+      if (f?.subscriptions) {
+        subs = fromFields(f).subscriptions ?? {};
+      } else if (f?.subscription) {
+        subs = { legacy: fromFields(f).subscription };
+      }
+      const entries = Object.entries(subs);
+      if (entries.length === 0) {
+        return res.status(200).json({ ok: true, skipped: 'no subscriptions' });
+      }
 
       const payload = JSON.stringify({
         type: 'downloaded',
@@ -213,13 +271,33 @@ export default async (req, res) => {
         coverUrl: item.coverUrl || '',
       });
 
-      try {
-        await webpush.sendNotification(subData, payload);
-        console.log(`[push] Downloaded notification sent to owner ${ownerUid}`);
-      } catch (err) {
-        console.error(`[push] Send error: ${err.statusCode} ${err.message}`);
-        if (err.statusCode === 404 || err.statusCode === 410) {
+      const staleIds = [];
+      for (const [id, subData] of entries) {
+        try {
+          await webpush.sendNotification(subData, payload);
+          console.log(`[push] Downloaded notification sent to device ${id} of owner ${ownerUid}`);
+        } catch (err) {
+          console.error(`[push] Send to device ${id} error: ${err.statusCode} ${err.message}`);
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            staleIds.push(id);
+          }
+        }
+      }
+
+      if (staleIds.length > 0) {
+        for (const id of staleIds) {
+          delete subs[id];
+        }
+        if (Object.keys(subs).length === 0) {
           await deleteDocAdmin(`push-subscriptions/${ownerUid}`, token);
+        } else {
+          await fetch(`${FIRESTORE_BASE}/push-subscriptions/${ownerUid}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+              fields: { subscriptions: toFirestoreValue(subs) },
+            }),
+          });
         }
       }
     }

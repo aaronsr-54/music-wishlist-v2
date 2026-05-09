@@ -198,7 +198,19 @@ async function run(uid, idToken, clientId) {
   if (!subDoc) {
     return { notified: 0, results: [], error: 'No push subscription found.' };
   }
-  const subscription = fromFields(subDoc.fields).subscription;
+
+  const f = subDoc.fields;
+  const isMapFormat = !!f?.subscriptions;
+  let subs = {};
+  if (isMapFormat) {
+    subs = fromFields(f).subscriptions ?? {};
+  } else if (f?.subscription) {
+    subs = { _legacy: fromFields(f).subscription };
+  }
+  const subEntries = Object.entries(subs);
+  if (subEntries.length === 0) {
+    return { notified: 0, results: [], error: 'No push subscription found.' };
+  }
 
   const favDocs = await listWhere('favorite-artists', 'addedByUid', 'EQUAL', uid, idToken);
   if (!favDocs.length) {
@@ -240,6 +252,7 @@ async function run(uid, idToken, clientId) {
 
   const results = [];
   let notified = 0;
+  let didCleanup = false;
 
   for (const favorite of favorites) {
     const newAlbums = newReleasesByArtist[favorite.artistId];
@@ -261,21 +274,48 @@ async function run(uid, idToken, clientId) {
         albumId: String(album.id),
       });
 
-      try {
-        await webpush.sendNotification(subscription, payload);
-        notified++;
-        console.log(`[check-releases] Notification sent for ${album.title}`);
-        artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: true });
-      } catch (err) {
-        console.error(`[check-releases] Push error for ${album.title}: ${err.statusCode} ${err.message}`);
-        if (err.statusCode === 404 || err.statusCode === 410) {
-          await deleteDoc(`push-subscriptions/${uid}`, idToken);
+      const staleIds = [];
+      let sentAny = false;
+      for (const [id, subData] of subEntries) {
+        try {
+          await webpush.sendNotification(subData, payload);
+          sentAny = true;
+        } catch (err) {
+          console.error(`[check-releases] Push error for ${album.title} (${id}): ${err.statusCode} ${err.message}`);
+          if (err.statusCode === 404 || err.statusCode === 410) {
+            staleIds.push(id);
+          }
         }
-        artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: false, error: err.message });
+      }
+
+      // Clean up stale subscriptions
+      if (staleIds.length > 0) {
+        didCleanup = true;
+        for (const id of staleIds) {
+          delete subs[id];
+          const idx = subEntries.findIndex(([k]) => k === id);
+          if (idx >= 0) subEntries.splice(idx, 1);
+        }
+      }
+
+      if (sentAny) {
+        notified++;
+        artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: true });
+      } else {
+        artistResults.albums.push({ id: album.id, title: album.title, recordType: releaseType, sent: false, error: 'All subscriptions failed' });
       }
     }
 
     results.push(artistResults);
+  }
+
+  if (didCleanup) {
+    const remaining = Object.keys(subs);
+    if (remaining.length === 0) {
+      await deleteDoc(`push-subscriptions/${uid}`, idToken);
+    } else if (isMapFormat) {
+      await setDoc(`push-subscriptions/${uid}`, { subscriptions: subs, updatedAt: Date.now() }, idToken);
+    }
   }
 
   console.log(`[check-releases] Final: notified=${notified} resultsCount=${results.length}`);
